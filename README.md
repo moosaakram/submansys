@@ -1,10 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Brightloop 360 - Subscription Management System
 
-## Getting Started
+Brightloop 360 is a full-stack Subscription Management System built with Next.js for the frontend and PostgreSQL with SQLAlchemy 2.0 ORM for the backend database layer.
 
-First, run the development server:
+---
+
+## 📁 Repository Structure
+
+```text
+├── database/               # Database models, connection, and initialization
+│   ├── __init__.py         # Package exports (engine, sessions, models, helpers)
+│   ├── init.py             # Re-exports for init.py imports
+│   ├── base.py             # Declarative Base, UUID, and Timestamp mixins
+│   ├── connection.py       # Engine config, connection pooling, get_db, error handling
+│   ├── init_db.py          # Table creation CLI script
+│   └── models/
+│       ├── __init__.py     # Exports all models and enums
+│       ├── init.py         # Specification re-export module
+│       ├── customer.py     # Customer entity model
+│       ├── product.py      # Product / Plan entity model
+│       └── subscription.py # Subscription entity model & enums
+├── src/                    # Next.js frontend application
+├── public/                 # Static assets
+├── .env.example            # Sample environment variables template
+├── .gitignore              # Git ignore rules for Next.js and Python
+├── package.json            # Node.js dependencies and scripts
+├── requirements.txt        # Python dependencies (SQLAlchemy, psycopg2, etc.)
+├── test_database.py        # Automated test and verification suite for database
+└── README.md               # Main project documentation
+```
+
+---
+
+## 💻 Frontend (Next.js)
+
+### Getting Started
+
+Install dependencies and start the development server:
 
 ```bash
+npm install
 npm run dev
 # or
 yarn dev
@@ -16,21 +50,90 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🗄️ Database Foundation (PostgreSQL + SQLAlchemy)
 
-## Learn More
+### 1. Install Python Dependencies
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+python -m venv .venv
+# On Windows PowerShell:
+.\.venv\Scripts\Activate.ps1
+# On Linux/macOS:
+source .venv/bin/activate
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+pip install -r requirements.txt
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 2. Configure Environment Variables
 
-## Deploy on Vercel
+Copy `.env.example` to `.env` and set your PostgreSQL credentials:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+cp .env.example .env
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Connection options in `.env`:
+* **Option A**: Full URL: `DATABASE_URL=postgresql+psycopg2://postgres:yourpassword@localhost:5432/brightloop360`
+* **Option B**: Individual variables (`DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_SSLMODE`)
+
+### 3. Initialize Database Tables
+
+Create the PostgreSQL database if not already created:
+```sql
+CREATE DATABASE brightloop360;
+```
+
+Run the table creation script:
+```bash
+python -m database.init_db
+```
+
+### 4. Running Database Tests
+
+```bash
+python test_database.py
+```
+
+---
+
+## 🚀 Backend Developer Usage Guide
+
+### Using Database Session in FastAPI Endpoints
+
+```python
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from database import get_db
+from database.models import Customer, Product, Subscription
+
+router = APIRouter()
+
+@router.get("/customers", response_model=list)
+def list_customers(db: Session = Depends(get_db)):
+    return db.query(Customer).all()
+```
+
+### Using Database Session in Background Tasks / Scripts
+
+```python
+from database import get_db_context
+from database.models import Subscription, SubscriptionStatus
+
+with get_db_context() as db:
+    active_subs = db.query(Subscription).filter_by(status=SubscriptionStatus.ACTIVE).all()
+    # Transaction commits automatically on exit
+```
+
+### Importing Models
+
+```python
+from database.models import (
+    Customer,
+    Product,
+    Subscription,
+    BillingCycle,
+    SubscriptionStatus,
+)
+```
