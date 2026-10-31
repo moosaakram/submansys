@@ -21,6 +21,10 @@ class PlanBillingCycle(str, enum.Enum):
     YEARLY = "yearly"
 
 
+# Alias for backward compatibility
+BillingCycle = PlanBillingCycle
+
+
 class Plan(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     """
     Defines subscription terms, recurrence cadence, pricing, and lifecycle constraints.
@@ -126,6 +130,38 @@ class Plan(Base, UUIDPrimaryKeyMixin, TimestampMixin):
         CheckConstraint("cost >= 0", name="chk_plans_cost_positive"),
         CheckConstraint("minimum_quantity >= 1", name="chk_plans_min_qty_positive"),
     )
+
+    @property
+    def price(self) -> Decimal:
+        return self.cost
+
+    @price.setter
+    def price(self, val: Decimal) -> None:
+        self.cost = val
+
+    @property
+    def min_quantity(self) -> int:
+        return self.minimum_quantity
+
+    @min_quantity.setter
+    def min_quantity(self, val: int) -> None:
+        self.minimum_quantity = val
+
+    @property
+    def auto_close_on_end(self) -> bool:
+        return self.auto_close
+
+    @auto_close_on_end.setter
+    def auto_close_on_end(self, val: bool) -> None:
+        self.auto_close = val
+
+    @property
+    def allow_renewal(self) -> bool:
+        return self.allow_renew
+
+    @allow_renewal.setter
+    def allow_renewal(self, val: bool) -> None:
+        self.allow_renew = val
 
     def __repr__(self) -> str:
         return f"<Plan(id={self.id!r}, name={self.name!r}, cycle={self.billing_cycle.value!r}, cost={self.cost!r})>"

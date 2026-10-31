@@ -16,6 +16,7 @@ import {
   X,
   FileCheck,
   Building,
+  Check,
 } from 'lucide-react';
 import { useSubscription } from '@/context/SubscriptionContext';
 import { Invoice, InvoiceStatus, PaymentMethod } from '@/types/subscription';
@@ -28,6 +29,7 @@ export default function InvoiceListView() {
     sendInvoice,
     recordPayment,
     currentUser,
+    analytics,
   } = useSubscription();
 
   const [search, setSearch] = useState('');
@@ -53,6 +55,17 @@ export default function InvoiceListView() {
     setPayAmount(remaining.toFixed(2));
     setPayRef(`WIRE-${Date.now().toString().slice(-6)}`);
     setPayNotes(`Payment for ${inv.invoiceNumber}`);
+  };
+
+  const handleQuickSettle = (inv: Invoice) => {
+    const remaining = inv.totalAmount - (inv.amountPaid || 0);
+    recordPayment({
+      invoiceId: inv.id,
+      amount: remaining,
+      paymentMethod: 'credit_card',
+      transactionRef: `QUICK-${Date.now().toString().slice(-4)}`,
+      notes: '1-Click Settlement',
+    });
   };
 
   const handlePaymentSubmit = (e: React.FormEvent) => {
@@ -106,13 +119,17 @@ export default function InvoiceListView() {
       case 'draft':
         return <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700">Draft</span>;
       case 'confirmed':
-        return <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800">Confirmed (Unpaid)</span>;
+        return <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800">Unpaid</span>;
       case 'paid':
-        return <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">Paid</span>;
+        return <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">Paid in Full</span>;
       case 'cancelled':
         return <span className="rounded-full bg-slate-200 px-2.5 py-0.5 text-[11px] font-semibold text-slate-500">Cancelled</span>;
     }
   };
+
+  const totalInvoicedSum = invoices.reduce((acc, i) => acc + i.totalAmount, 0);
+  const totalPaidSum = invoices.reduce((acc, i) => acc + (i.amountPaid || 0), 0);
+  const totalOpenSum = Math.max(0, totalInvoicedSum - totalPaidSum);
 
   return (
     <div className="space-y-6">
@@ -124,7 +141,7 @@ export default function InvoiceListView() {
             <span>Scene 4: Billing Day & Automated Recurring Invoicing</span>
           </div>
           <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-            {currentUser.role === 'customer' ? 'My Invoices & Receipts' : 'Invoices & Billing Automation'}
+            {currentUser.role === 'customer' ? 'My Invoices & Receipts' : 'Invoices & Recurring Billing'}
           </h2>
           <p className="text-xs text-slate-500">
             Automated recurring invoice generation, automatic tax calculation, and payment reconciliation.
@@ -135,12 +152,32 @@ export default function InvoiceListView() {
           <button
             type="button"
             onClick={() => runBillingDay()}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 px-4 py-2 text-xs font-bold text-white shadow-md hover:from-indigo-700 hover:to-blue-700 transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:from-indigo-700 hover:to-blue-700 transition-all cursor-pointer"
           >
             <Zap className="h-4 w-4 text-amber-300" />
-            <span>⚡ Run Billing Day</span>
+            <span>⚡ Run Billing Day (Auto-Bill)</span>
           </button>
         )}
+      </div>
+
+      {/* Simplified Summary KPI Cards */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="rounded-xl border border-slate-200/80 bg-white p-3 shadow-2xs">
+          <span className="text-[10px] font-bold text-slate-400 uppercase">Total Invoiced</span>
+          <div className="text-xl font-bold text-slate-900 mt-1">${totalInvoicedSum.toFixed(2)}</div>
+        </div>
+        <div className="rounded-xl border border-slate-200/80 bg-white p-3 shadow-2xs">
+          <span className="text-[10px] font-bold text-emerald-600 uppercase">Paid & Settled</span>
+          <div className="text-xl font-bold text-emerald-600 mt-1">${totalPaidSum.toFixed(2)}</div>
+        </div>
+        <div className="rounded-xl border border-slate-200/80 bg-white p-3 shadow-2xs">
+          <span className="text-[10px] font-bold text-amber-600 uppercase">Awaiting Settlement</span>
+          <div className="text-xl font-bold text-slate-900 mt-1">${totalOpenSum.toFixed(2)}</div>
+        </div>
+        <div className="rounded-xl border border-rose-200 bg-rose-50/60 p-3 shadow-2xs">
+          <span className="text-[10px] font-bold text-rose-700 uppercase">Overdue Count</span>
+          <div className="text-xl font-bold text-rose-700 mt-1">{analytics.overdueInvoicesCount} invoices</div>
+        </div>
       </div>
 
       {/* Filter and Status Controls */}
@@ -156,7 +193,7 @@ export default function InvoiceListView() {
                   : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
               }`}
             >
-              {st}
+              {st === 'confirmed' ? 'Unpaid' : st}
             </button>
           ))}
         </div>
@@ -184,14 +221,14 @@ export default function InvoiceListView() {
                 <th className="px-5 py-3.5">Issue / Due Date</th>
                 <th className="px-5 py-3.5">Status</th>
                 <th className="px-5 py-3.5">Total & Paid</th>
-                <th className="px-5 py-3.5 text-right">Actions</th>
+                <th className="px-5 py-3.5 text-right">Quick Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filteredInvoices.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-5 py-8 text-center text-slate-400">
-                    No invoices match the selected criteria.
+                    No invoices match the selected filter.
                   </td>
                 </tr>
               ) : (
@@ -224,6 +261,18 @@ export default function InvoiceListView() {
                     </td>
                     <td className="px-5 py-3.5 text-right">
                       <div className="flex items-center justify-end gap-1.5">
+                        {/* 1-Click Quick Settle Button for Unpaid Invoices */}
+                        {inv.status === 'confirmed' && (
+                          <button
+                            onClick={() => handleQuickSettle(inv)}
+                            className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-bold text-white hover:bg-emerald-700 shadow-2xs transition-colors cursor-pointer"
+                            title="Instant 1-Click Payment Settlement"
+                          >
+                            <Check className="h-3 w-3" />
+                            <span>Quick Pay</span>
+                          </button>
+                        )}
+
                         {/* Print / View Preview */}
                         <button
                           onClick={() => setSelectedInvoiceForPrint(inv)}
@@ -254,13 +303,14 @@ export default function InvoiceListView() {
                           </button>
                         )}
 
-                        {/* Record Payment action for Confirmed/Unpaid */}
+                        {/* Full Payment Modal option */}
                         {inv.status === 'confirmed' && (
                           <button
                             onClick={() => handleOpenPayment(inv)}
-                            className="rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-emerald-700 cursor-pointer shadow-xs"
+                            className="rounded-lg border border-slate-200 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 cursor-pointer"
+                            title="Record Custom Payment with Reference"
                           >
-                            {currentUser.role === 'customer' ? 'Pay Now' : 'Record Payment'}
+                            Details
                           </button>
                         )}
 
@@ -284,7 +334,7 @@ export default function InvoiceListView() {
         </div>
       </div>
 
-      {/* Modal: Printable / Branded Invoice View (Scene 4 requirement) */}
+      {/* Modal: Printable / Branded Invoice View */}
       {selectedInvoiceForPrint && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 overflow-y-auto">
           <div className="relative w-full max-w-2xl rounded-2xl bg-white p-8 shadow-2xl ring-1 ring-slate-200 my-8">
@@ -427,7 +477,7 @@ export default function InvoiceListView() {
         </div>
       )}
 
-      {/* Modal: Record Payment (Scene 6 requirement) */}
+      {/* Modal: Record Payment */}
       {selectedInvoiceForPayment && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
           <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-slate-200">

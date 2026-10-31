@@ -1,6 +1,6 @@
 """
 Models package for Brightloop 360 Subscription Management System.
-Exports all database entities and enums for convenient importing.
+Exports all database entities, enumerations, and mixins.
 """
 
 from database.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
@@ -25,9 +25,11 @@ from database.models.tax import TaxRule
 from database.models.user import User, UserRole
 
 __all__ = [
+    # Base & Mixins
     "Base",
     "UUIDPrimaryKeyMixin",
     "TimestampMixin",
+    # Entities
     "User",
     "UserRole",
     "Customer",
