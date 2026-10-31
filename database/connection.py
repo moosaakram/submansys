@@ -62,6 +62,11 @@ def get_database_url() -> str:
             database_url = database_url.replace("postgresql+psycopg2://", "postgresql+psycopg://", 1)
         return database_url
 
+    # Cloud environment auto-fallback: if running on Render/cloud without explicit DB_HOST or DATABASE_URL
+    if (os.getenv("RENDER") or os.getenv("DYNO") or os.getenv("VERCEL")) and not os.getenv("DB_HOST"):
+        logger.info("Cloud environment detected without DB_HOST. Defaulting to standalone SQLite database.")
+        return "sqlite:///brightloop360.db"
+
     # Assemble from individual environment variables
     user = os.getenv("DB_USER", "postgres")
     raw_password = os.getenv("DB_PASSWORD", "")
@@ -153,7 +158,7 @@ def verify_connection(custom_engine: Optional[Engine] = None) -> Tuple[bool, str
             f"Details: {oe.orig if hasattr(oe, 'orig') else str(oe)}. "
             f"Verify your DB_HOST, DB_PORT, DB_NAME, DB_USER and DB_PASSWORD credentials."
         )
-        logger.error(error_msg)
+        logger.warning(error_msg)
         return False, error_msg
     except SQLAlchemyError as se:
         error_msg = f"Database SQLAlchemyError: {str(se)}"

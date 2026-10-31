@@ -19,6 +19,8 @@ services:
         value: "0.0.0.0"
       - key: ALLOWED_ORIGINS
         value: "*"
+      - key: DATABASE_URL
+        value: "sqlite:///brightloop360.db"
 
   # =========================================================================
   # 2. Next.js Frontend Service (Node / Turbopack)
