@@ -2,6 +2,7 @@
 FastAPI Dependencies for Authentication, Database, and RBAC Authorization.
 """
 
+import uuid
 from typing import List
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -27,14 +28,22 @@ async def get_current_user(
         )
 
     payload = decode_access_token(credentials.credentials)
-    user_id = payload.get("sub")
-    if not user_id:
+    user_id_str = payload.get("sub")
+    if not user_id_str:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token payload.",
         )
 
-    user = db.query(User).filter(User.id == user_id, User.is_active == True).first()
+    try:
+        user_uuid = uuid.UUID(str(user_id_str))
+    except (ValueError, TypeError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid user identifier in token.",
+        )
+
+    user = db.query(User).filter(User.id == user_uuid, User.is_active == True).first()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

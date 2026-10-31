@@ -147,11 +147,15 @@ class DiscountRule(Base, UUIDPrimaryKeyMixin, TimestampMixin):
         if not self.is_active:
             return False
         
-        now = current_dt or datetime.now(self.start_date.tzinfo or datetime.now().astimezone().tzinfo)
+        now = current_dt or datetime.now(timezone.utc)
+        if now.tzinfo is None:
+            now = now.replace(tzinfo=timezone.utc)
+        start = self.start_date.replace(tzinfo=timezone.utc) if self.start_date.tzinfo is None else self.start_date
+        end = self.end_date.replace(tzinfo=timezone.utc) if self.end_date and self.end_date.tzinfo is None else self.end_date
         
-        if now < self.start_date:
+        if now < start:
             return False
-        if self.end_date and now > self.end_date:
+        if end and now > end:
             return False
         if self.max_uses is not None and self.current_uses >= self.max_uses:
             return False

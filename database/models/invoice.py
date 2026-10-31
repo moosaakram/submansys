@@ -5,7 +5,7 @@ Implements the invoice lifecycle: Draft -> Confirmed -> Paid (with cancel, send,
 
 import enum
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import List, Optional
 
@@ -169,8 +169,9 @@ class Invoice(Base, UUIDPrimaryKeyMixin, TimestampMixin):
         """Calculates whether invoice is overdue based on due date and unpaid balance."""
         if self.status in (InvoiceStatus.PAID, InvoiceStatus.CANCELLED):
             return False
-        now = datetime.now(self.due_date.tzinfo or datetime.now().astimezone().tzinfo)
-        return now > self.due_date and self.outstanding_amount > Decimal("0.00")
+        due_tz = self.due_date.replace(tzinfo=timezone.utc) if self.due_date.tzinfo is None else self.due_date
+        now = datetime.now(timezone.utc)
+        return now > due_tz and self.outstanding_amount > Decimal("0.00")
 
     @property
     def outstanding_amount(self) -> Decimal:

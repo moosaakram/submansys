@@ -35,10 +35,15 @@ router = APIRouter(prefix="/invoices", tags=["Invoicing & Billing Day"])
 
 
 @router.get(
-    "/",
+    "",
     response_model=List[InvoiceResponse],
     summary="List Invoices",
     description="Returns invoices. Customers see only their own invoices; staff/admin see all.",
+)
+@router.get(
+    "/",
+    response_model=List[InvoiceResponse],
+    include_in_schema=False,
 )
 def list_invoices(
     status_filter: Optional[InvoiceStatus] = Query(None, alias="status"),

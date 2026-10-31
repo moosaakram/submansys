@@ -18,11 +18,17 @@ router = APIRouter(prefix="/payments", tags=["Payments & Collections"])
 
 
 @router.post(
-    "/",
+    "",
     response_model=PaymentResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Record Payment",
     description="Records payment against an invoice with payment method, amount, date, and note; auto-updates invoice balance and marks as Paid when fully settled.",
+)
+@router.post(
+    "/",
+    response_model=PaymentResponse,
+    status_code=status.HTTP_201_CREATED,
+    include_in_schema=False,
 )
 def record_payment(
     req: PaymentCreate,
@@ -64,10 +70,15 @@ def record_payment(
 
 
 @router.get(
-    "/",
+    "",
     response_model=List[PaymentResponse],
     summary="List Payments",
     description="Returns recorded payments. Scoped to customer if customer user.",
+)
+@router.get(
+    "/",
+    response_model=List[PaymentResponse],
+    include_in_schema=False,
 )
 def list_payments(
     db: Session = Depends(get_db),

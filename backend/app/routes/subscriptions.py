@@ -33,10 +33,15 @@ router = APIRouter(prefix="/subscriptions", tags=["Subscriptions & Quotes"])
 
 
 @router.get(
-    "/",
+    "",
     response_model=List[SubscriptionResponse],
     summary="List Subscriptions",
     description="Returns subscriptions. Customers see only their own; staff/admin see all.",
+)
+@router.get(
+    "/",
+    response_model=List[SubscriptionResponse],
+    include_in_schema=False,
 )
 def list_subscriptions(
     status_filter: Optional[SubscriptionStatus] = Query(None, alias="status"),
@@ -58,11 +63,17 @@ def list_subscriptions(
 
 
 @router.post(
-    "/",
+    "",
     response_model=SubscriptionResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Create Subscription / Quote",
     description="Creates a new subscription or quotation with calculated product lines",
+)
+@router.post(
+    "/",
+    response_model=SubscriptionResponse,
+    status_code=status.HTTP_201_CREATED,
+    include_in_schema=False,
 )
 def create_subscription(
     req: SubscriptionCreate,
