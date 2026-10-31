@@ -10,7 +10,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
-    from database.models.subscription import Subscription
+    from database.models.plan import Plan
+    from database.models.product_variant import ProductVariant
+    from database.models.subscription_line import SubscriptionLine
 
 
 class Product(Base, UUIDPrimaryKeyMixin, TimestampMixin):
@@ -62,8 +64,22 @@ class Product(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     )
 
     # Relationships
-    subscriptions: Mapped[List["Subscription"]] = relationship(
-        "Subscription",
+    variants: Mapped[List["ProductVariant"]] = relationship(
+        "ProductVariant",
+        back_populates="product",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    plans: Mapped[List["Plan"]] = relationship(
+        "Plan",
+        back_populates="product",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    subscription_lines: Mapped[List["SubscriptionLine"]] = relationship(
+        "SubscriptionLine",
         back_populates="product",
         lazy="selectin",
     )
@@ -79,4 +95,3 @@ class Product(Base, UUIDPrimaryKeyMixin, TimestampMixin):
             f"product_type={self.product_type!r}, sales_price={self.sales_price!r}, "
             f"is_active={self.is_active!r})>"
         )
-

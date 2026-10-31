@@ -9,7 +9,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
+    from database.models.invoice import Invoice
     from database.models.subscription import Subscription
+    from database.models.user import User
 
 
 class Customer(Base, UUIDPrimaryKeyMixin, TimestampMixin):
@@ -54,9 +56,20 @@ class Customer(Base, UUIDPrimaryKeyMixin, TimestampMixin):
         lazy="selectin",
     )
 
+    users: Mapped[List["User"]] = relationship(
+        "User",
+        back_populates="customer",
+        lazy="selectin",
+    )
+
+    invoices: Mapped[List["Invoice"]] = relationship(
+        "Invoice",
+        back_populates="customer",
+        lazy="selectin",
+    )
+
     def __repr__(self) -> str:
         return (
             f"<Customer(id={self.id!r}, email={self.email!r}, "
             f"full_name={self.full_name!r}, company_name={self.company_name!r})>"
         )
-
