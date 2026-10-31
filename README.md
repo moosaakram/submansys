@@ -8,8 +8,8 @@
 ## 📖 About SubMan
 **SubMan** (Subscription Management System) is an all-in-one SaaS billing and recurring revenue orchestration platform. Built to solve operational bottlenecks faced by subscription-first digital platforms, SubMan unifies plan provisioning, billing automation, self-service customer authentication, lifecycle notifications, and business intelligence dashboards into a high-performance web solution.
 
-Login Credentials : Admin - admin@brightloop@gmail.com pass: Admin@12345!
-Staff - staff@brightloop@gmail.com pass: Staff@12345!
+Login Credentials : Admin - admin@brightloop.com pass: Admin@12345!
+Staff - staff@brightloop.com pass: Staff@12345!
 Customer (you can add your own too) - customer@acme.com pass: Customer@12345!
 ### 🌟 Key Capabilities
 - 🔄 **Subscription Lifecycle Management:** Complete oversight of plans, recurring intervals (monthly, annual), upgrades, downgrades, pause/resume, and renewals.
