@@ -125,3 +125,4 @@ class SubscriptionLine(Base, UUIDPrimaryKeyMixin, TimestampMixin):
             f"<SubscriptionLine(id={self.id!r}, sub_id={self.subscription_id!r}, "
             f"product_id={self.product_id!r}, qty={self.quantity}, total={self.total_amount})>"
         )
+

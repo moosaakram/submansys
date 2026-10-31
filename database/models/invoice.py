@@ -332,3 +332,4 @@ class InvoiceLine(Base, UUIDPrimaryKeyMixin, TimestampMixin):
             f"<InvoiceLine(id={self.id!r}, invoice_id={self.invoice_id!r}, "
             f"desc={self.description!r}, total={self.line_total})>"
         )
+

@@ -171,3 +171,4 @@ class Plan(Base, UUIDPrimaryKeyMixin, TimestampMixin):
             f"<Plan(id={self.id!r}, name={self.name!r}, cycle={self.billing_cycle!r}, "
             f"price={self.price!r}, active={self.is_active!r})>"
         )
+

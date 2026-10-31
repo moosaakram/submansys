@@ -52,3 +52,4 @@ class TaxRule(Base, UUIDPrimaryKeyMixin, TimestampMixin):
 
     def __repr__(self) -> str:
         return f"<TaxRule(id={self.id!r}, name={self.name!r}, rate={self.rate!r}%, active={self.is_active!r})>"
+

@@ -150,3 +150,4 @@ class QuotationTemplateLine(Base, UUIDPrimaryKeyMixin, TimestampMixin):
             f"<QuotationTemplateLine(id={self.id!r}, template_id={self.template_id!r}, "
             f"product_id={self.product_id!r}, qty={self.quantity}, unit_price={self.unit_price})>"
         )
+

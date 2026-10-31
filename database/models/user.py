@@ -140,3 +140,4 @@ class PasswordResetToken(Base, UUIDPrimaryKeyMixin, TimestampMixin):
 
     def __repr__(self) -> str:
         return f"<PasswordResetToken(id={self.id!r}, user_id={self.user_id!r}, used={self.is_used!r})>"
+

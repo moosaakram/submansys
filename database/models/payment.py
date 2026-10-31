@@ -138,3 +138,4 @@ class Payment(Base, UUIDPrimaryKeyMixin, TimestampMixin):
             f"<Payment(id={self.id!r}, number={self.payment_number!r}, "
             f"invoice_id={self.invoice_id!r}, amount={self.amount}, status={self.status!r})>"
         )
+

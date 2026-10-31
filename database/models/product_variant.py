@@ -82,3 +82,4 @@ class ProductVariant(Base, UUIDPrimaryKeyMixin, TimestampMixin):
             f"<ProductVariant(id={self.id!r}, product_id={self.product_id!r}, "
             f"name={self.variant_name!r}, price_extra=+{self.price_extra!r})>"
         )
+
