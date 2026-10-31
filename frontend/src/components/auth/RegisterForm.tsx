@@ -1,22 +1,22 @@
-'use client';
+"use client";
 
-import React, { useState, useMemo } from 'react';
-import Link from 'next/link';
+import React, { useState, useId, useMemo } from "react";
+import { useSubscription } from "@/context/SubscriptionContext";
 import {
-  User,
-  Building2,
   Mail,
   Lock,
   Eye,
   EyeOff,
+  User,
+  Building2,
   CheckCircle2,
   XCircle,
   AlertCircle,
   Loader2,
-  ShieldCheck,
   ArrowRight,
-} from 'lucide-react';
-import { useSubscription } from '@/context/SubscriptionContext';
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
 
 export interface RegisterFormData {
   fullName: string;
@@ -38,16 +38,22 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   onSubmit,
   onSuccess,
   onSignInClick,
-  className = '',
+  className = "",
 }) => {
-  const { registerUser, users } = useSubscription();
+  const { registerUser } = useSubscription();
+  const nameId = useId();
+  const businessId = useId();
+  const emailId = useId();
+  const passwordId = useId();
+  const confirmPasswordId = useId();
+  const termsId = useId();
 
   const [formData, setFormData] = useState<RegisterFormData>({
-    fullName: '',
-    businessName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    fullName: "",
+    businessName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
     agreeTerms: false,
   });
 
@@ -55,14 +61,15 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{
-    type: 'idle' | 'success' | 'error';
+    type: "idle" | "success" | "error";
     text: string;
-  }>({ type: 'idle', text: '' });
+  }>({ type: "idle", text: "" });
 
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
-  // Strict Password Rules per Problem Statement:
-  // > 8 characters, uppercase letter, lowercase letter, special character
+  // Strict Password Rules as per Problem Statement:
+  // "The password must be more than eight characters, with an uppercase letter,
+  // a lowercase letter and a special character."
   const passwordCriteria = useMemo(() => {
     const pwd = formData.password;
     return {
@@ -83,46 +90,36 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     const errors: Record<string, string> = {};
 
     if (!formData.fullName.trim()) {
-      errors.fullName = 'Full name is required.';
+      errors.fullName = "Full name is required.";
     }
 
     if (!formData.businessName.trim()) {
-      errors.businessName = 'Business or Company name is required.';
+      errors.businessName = "Business / Company name is required.";
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email.trim()) {
-      errors.email = 'Work email is required.';
+      errors.email = "Work email is required.";
     } else if (!emailRegex.test(formData.email.trim())) {
-      errors.email = 'Please enter a valid work email format.';
-    } else if (users.some((u) => u.email.toLowerCase() === formData.email.trim().toLowerCase())) {
-      errors.email = 'An account with this email address already exists.';
+      errors.email = "Please enter a valid business email address.";
     }
 
     if (!formData.password) {
-      errors.password = 'Password is required.';
+      errors.password = "Password is required.";
     } else if (!isPasswordValid) {
-      errors.password = 'Password does not meet all required security criteria.';
+      errors.password = "Password does not meet all security criteria below.";
     }
 
     if (formData.password !== formData.confirmPassword) {
-      errors.confirmPassword = 'Passwords do not match.';
+      errors.confirmPassword = "Passwords do not match.";
     }
 
     if (!formData.agreeTerms) {
-      errors.agreeTerms = 'You must accept the Enterprise Subscription Master Terms.';
+      errors.agreeTerms = "You must agree to the Terms of Service.";
     }
 
     return errors;
   };
-
-  const isFormReady =
-    formData.fullName.trim().length > 1 &&
-    formData.businessName.trim().length > 1 &&
-    formData.email.includes('@') &&
-    isPasswordValid &&
-    formData.password === formData.confirmPassword &&
-    formData.agreeTerms;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -138,20 +135,20 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setStatusMessage({
-        type: 'error',
-        text: 'Please satisfy all required fields and security criteria before proceeding.',
+        type: "error",
+        text: "Please resolve the highlighted requirements before creating your account.",
       });
       return;
     }
 
     setIsLoading(true);
-    setStatusMessage({ type: 'idle', text: '' });
+    setStatusMessage({ type: "idle", text: "" });
 
     try {
       if (onSubmit) {
         await onSubmit(formData);
       } else {
-        const res = registerUser({
+        const res = await registerUser({
           name: formData.fullName.trim(),
           email: formData.email.trim(),
           password: formData.password,
@@ -160,29 +157,32 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         });
 
         if (!res.success) {
-          throw new Error(res.message);
+          setStatusMessage({
+            type: 'error',
+            text: res.message,
+          });
+          setIsLoading(false);
+          return;
         }
       }
 
       setStatusMessage({
-        type: 'success',
-        text: `Organization account registered for ${formData.businessName}! Welcome to SubMan.`,
+        type: "success",
+        text: `Account created successfully for ${formData.businessName}! Welcome to SubManSys.`,
       });
 
-      setTimeout(() => {
-        if (onSuccess) {
-          onSuccess({
-            email: formData.email.trim(),
-            businessName: formData.businessName.trim(),
-          });
-        }
-      }, 700);
+      if (onSuccess) {
+        onSuccess({
+          email: formData.email.trim(),
+          businessName: formData.businessName.trim(),
+        });
+      }
     } catch (err: unknown) {
       const msg =
         err instanceof Error
           ? err.message
-          : 'Registration failed. An account with this email may already exist.';
-      setStatusMessage({ type: 'error', text: msg });
+          : "Registration failed. An account with this email may already exist.";
+      setStatusMessage({ type: "error", text: msg });
     } finally {
       setIsLoading(false);
     }
@@ -191,215 +191,246 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   const errors = validate();
 
   return (
-    <div
-      className={`bg-[#fbfcfe] rounded-[26px] p-6 sm:p-8 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_2px_4px_rgba(10,16,24,0.12),0_28px_50px_-18px_rgba(5,9,14,0.65)] border border-slate-100/90 text-left ${className}`}
-    >
-      {/* Header */}
-      <div className="mb-6">
-        <h2 className="font-[family-name:var(--font-serif)] text-[28px] sm:text-[29px] font-medium text-[#131c2e] tracking-tight leading-tight">
+    <div className={`w-full max-w-lg mx-auto p-6 sm:p-8 card-surface ${className}`}>
+      {/* Brand Header */}
+      <div className="flex flex-col items-center text-center mb-6">
+        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-[#171f28] to-[#212c37] border border-[#c9ab70]/30 text-[#c9ab70] shadow-md shadow-slate-900/10 mb-3">
+          <Sparkles className="w-6 h-6 text-[#c9ab70]" />
+        </div>
+        <div className="flex items-center gap-1.5 mb-1">
+          <span className="font-[family-name:var(--font-cinzel)] text-xl font-bold tracking-tight text-slate-900">
+            SUBMANSYS
+          </span>
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#1c2530] text-[#c9ab70] tracking-wider uppercase border border-[#c9ab70]/20">
+            ENTERPRISE
+          </span>
+        </div>
+        <h1 className="text-2xl font-bold text-slate-900 tracking-tight font-[family-name:var(--font-cinzel)] mt-1">
           Create Business Account
-        </h2>
-        <p className="text-[13.5px] sm:text-[14px] text-[#33507f] font-sans mt-1">
-          Unified subscriptions, quote-to-cash workflows, and automated billing
+        </h1>
+        <div className="title-accent-rule mt-2 mb-2" />
+        <p className="text-xs text-slate-500 mt-1 max-w-sm">
+          Unified recurring subscriptions, quote-to-cash workflows, and automated billing.
         </p>
       </div>
 
       {/* Status Banner */}
-      {statusMessage.type !== 'idle' && (
+      {statusMessage.type !== "idle" && (
         <div
           role="alert"
-          className={`mb-4 p-3 rounded-xl text-xs font-medium flex items-center gap-2 border ${
-            statusMessage.type === 'error'
-              ? 'bg-red-50 text-red-600 border-red-200/80'
-              : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+          className={`mb-6 p-3.5 rounded-xl text-sm flex items-start gap-3 ${
+            statusMessage.type === "success"
+              ? "badge-success text-emerald-800"
+              : "badge-danger text-rose-800"
           }`}
         >
-          {statusMessage.type === 'error' ? (
-            <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+          {statusMessage.type === "success" ? (
+            <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-600 mt-0.5" />
           ) : (
-            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+            <AlertCircle className="w-5 h-5 flex-shrink-0 text-rose-600 mt-0.5" />
           )}
-          <span>{statusMessage.text}</span>
+          <span className="font-medium leading-relaxed">{statusMessage.text}</span>
         </div>
       )}
 
       {/* Registration Form */}
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
-        {/* Full Name & Business Name Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        {/* Name and Business Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium text-[#3a4658] mb-1.5">
+            <label
+              htmlFor={nameId}
+              className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1"
+            >
               Full Name
             </label>
-            <div
-              className={`flex items-center h-12 bg-[#f3f6fb] border ${
-                touched.fullName && errors.fullName ? 'border-red-400' : 'border-[#d9e0ec]'
-              } rounded-xl overflow-hidden focus-within:border-[#2e3b49] focus-within:ring-2 focus-within:ring-[#c9ab70]/25 focus-within:bg-white transition-all`}
-            >
-              <span className="pl-3.5 text-slate-400">
-                <User className="w-4 h-4 text-[#64738a]" />
-              </span>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <User className="w-4 h-4" />
+              </div>
               <input
+                id={nameId}
                 type="text"
                 disabled={isLoading}
                 value={formData.fullName}
-                onChange={(e) => setFormData((prev) => ({ ...prev, fullName: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, fullName: e.target.value }))
+                }
                 onBlur={() => setTouched((prev) => ({ ...prev, fullName: true }))}
                 placeholder="Sarah Connor"
-                className="flex-1 h-full px-3 bg-transparent border-0 outline-none text-[#131c2e] placeholder:text-[#9aa6b8] text-xs font-sans"
+                className="input-standard pl-9"
               />
             </div>
             {touched.fullName && errors.fullName && (
-              <p className="mt-1 text-[11px] text-red-600 font-medium">{errors.fullName}</p>
+              <p className="mt-1 text-xs text-rose-600 font-medium">
+                {errors.fullName}
+              </p>
             )}
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#3a4658] mb-1.5">
+            <label
+              htmlFor={businessId}
+              className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1"
+            >
               Business Name
             </label>
-            <div
-              className={`flex items-center h-12 bg-[#f3f6fb] border ${
-                touched.businessName && errors.businessName ? 'border-red-400' : 'border-[#d9e0ec]'
-              } rounded-xl overflow-hidden focus-within:border-[#2e3b49] focus-within:ring-2 focus-within:ring-[#c9ab70]/25 focus-within:bg-white transition-all`}
-            >
-              <span className="pl-3.5 text-slate-400">
-                <Building2 className="w-4 h-4 text-[#64738a]" />
-              </span>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <Building2 className="w-4 h-4" />
+              </div>
               <input
+                id={businessId}
                 type="text"
                 disabled={isLoading}
                 value={formData.businessName}
-                onChange={(e) => setFormData((prev) => ({ ...prev, businessName: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, businessName: e.target.value }))
+                }
                 onBlur={() => setTouched((prev) => ({ ...prev, businessName: true }))}
                 placeholder="Cyberdyne Systems"
-                className="flex-1 h-full px-3 bg-transparent border-0 outline-none text-[#131c2e] placeholder:text-[#9aa6b8] text-xs font-sans"
+                className="input-standard pl-9"
               />
             </div>
             {touched.businessName && errors.businessName && (
-              <p className="mt-1 text-[11px] text-red-600 font-medium">{errors.businessName}</p>
+              <p className="mt-1 text-xs text-rose-600 font-medium">
+                {errors.businessName}
+              </p>
             )}
           </div>
         </div>
 
-        {/* Work Email Address */}
+        {/* Work Email */}
         <div>
-          <label className="block text-xs font-medium text-[#3a4658] mb-1.5">
+          <label
+            htmlFor={emailId}
+            className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1"
+          >
             Work Email Address
           </label>
-          <div
-            className={`flex items-center h-12 bg-[#f3f6fb] border ${
-              touched.email && errors.email ? 'border-red-400' : 'border-[#d9e0ec]'
-            } rounded-xl overflow-hidden focus-within:border-[#2e3b49] focus-within:ring-2 focus-within:ring-[#c9ab70]/25 focus-within:bg-white transition-all`}
-          >
-            <span className="pl-3.5 text-slate-400">
-              <Mail className="w-4 h-4 text-[#64738a]" />
-            </span>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <Mail className="w-4 h-4" />
+            </div>
             <input
+              id={emailId}
               type="email"
               disabled={isLoading}
               value={formData.email}
-              onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, email: e.target.value }))
+              }
               onBlur={() => setTouched((prev) => ({ ...prev, email: true }))}
               placeholder="s.connor@cyberdyne.com"
-              className="flex-1 h-full px-3 bg-transparent border-0 outline-none text-[#131c2e] placeholder:text-[#9aa6b8] text-xs font-sans"
+              className="input-standard pl-10"
             />
           </div>
-          {touched.email && errors.email ? (
-            <p className="mt-1 text-[11px] text-red-600 font-medium">{errors.email}</p>
-          ) : (
-            <p className="mt-1 text-[10px] text-slate-400">
-              Unique corporate identifier used for billing and license governance.
+          <p className="mt-1 text-[11px] text-slate-400">
+            Each business email can belong to only one SubManSys account.
+          </p>
+          {touched.email && errors.email && (
+            <p className="mt-1 text-xs text-rose-600 font-medium">
+              {errors.email}
             </p>
           )}
         </div>
 
-        {/* Password Field */}
+        {/* Password */}
         <div>
-          <label className="block text-xs font-medium text-[#3a4658] mb-1.5">
+          <label
+            htmlFor={passwordId}
+            className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1"
+          >
             Password
           </label>
-          <div
-            className={`flex items-center h-12 bg-[#f3f6fb] border ${
-              touched.password && errors.password ? 'border-red-400' : 'border-[#d9e0ec]'
-            } rounded-xl overflow-hidden focus-within:border-[#2e3b49] focus-within:ring-2 focus-within:ring-[#c9ab70]/25 focus-within:bg-white transition-all`}
-          >
-            <span className="pl-3.5 text-slate-400">
-              <Lock className="w-4 h-4 text-[#64738a]" />
-            </span>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <Lock className="w-4 h-4" />
+            </div>
             <input
-              type={showPassword ? 'text' : 'password'}
+              id={passwordId}
+              type={showPassword ? "text" : "password"}
               disabled={isLoading}
               value={formData.password}
-              onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, password: e.target.value }))
+              }
               onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
               placeholder="Create strong password"
-              className="flex-1 h-full px-3 bg-transparent border-0 outline-none text-[#131c2e] placeholder:text-[#9aa6b8] text-xs font-sans"
+              className="input-standard pl-10 pr-11"
             />
             <button
               type="button"
-              tabIndex={-1}
+              aria-label={showPassword ? "Hide password" : "Show password"}
               onClick={() => setShowPassword((p) => !p)}
-              className="w-10 h-full flex items-center justify-center text-[#64738a] hover:text-[#131c2e] cursor-pointer"
+              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600"
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
 
-          {/* Real-Time Password Criteria Checklist */}
-          <div className="mt-2 p-2.5 rounded-xl bg-[#f3f6fb] border border-[#d9e0ec] space-y-1 text-[11px]">
-            <span className="font-semibold text-slate-700 block text-[10px] uppercase tracking-wider">
+          {/* Real-time Password Requirements Checklist */}
+          <div className="mt-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5 text-xs">
+            <span className="font-semibold text-slate-700 block mb-1">
               Required Security Criteria:
             </span>
             <div className="grid grid-cols-2 gap-1.5">
               <div
                 className={`flex items-center gap-1.5 ${
-                  passwordCriteria.length ? 'text-emerald-700 font-medium' : 'text-slate-400'
+                  passwordCriteria.length
+                    ? "text-emerald-700 font-medium"
+                    : "text-slate-400"
                 }`}
               >
                 {passwordCriteria.length ? (
-                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
+                  <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-emerald-600" />
                 ) : (
-                  <XCircle className="w-3.5 h-3.5 shrink-0 text-slate-400" />
+                  <XCircle className="w-3.5 h-3.5 flex-shrink-0 text-slate-400" />
                 )}
-                <span>More than 8 chars</span>
+                <span>More than 8 characters</span>
               </div>
 
               <div
                 className={`flex items-center gap-1.5 ${
-                  passwordCriteria.uppercase ? 'text-emerald-700 font-medium' : 'text-slate-400'
+                  passwordCriteria.uppercase
+                    ? "text-emerald-700 font-medium"
+                    : "text-slate-400"
                 }`}
               >
                 {passwordCriteria.uppercase ? (
-                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
+                  <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-emerald-600" />
                 ) : (
-                  <XCircle className="w-3.5 h-3.5 shrink-0 text-slate-400" />
+                  <XCircle className="w-3.5 h-3.5 flex-shrink-0 text-slate-400" />
                 )}
                 <span>One uppercase (A-Z)</span>
               </div>
 
               <div
                 className={`flex items-center gap-1.5 ${
-                  passwordCriteria.lowercase ? 'text-emerald-700 font-medium' : 'text-slate-400'
+                  passwordCriteria.lowercase
+                    ? "text-emerald-700 font-medium"
+                    : "text-slate-400"
                 }`}
               >
                 {passwordCriteria.lowercase ? (
-                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
+                  <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-emerald-600" />
                 ) : (
-                  <XCircle className="w-3.5 h-3.5 shrink-0 text-slate-400" />
+                  <XCircle className="w-3.5 h-3.5 flex-shrink-0 text-slate-400" />
                 )}
                 <span>One lowercase (a-z)</span>
               </div>
 
               <div
                 className={`flex items-center gap-1.5 ${
-                  passwordCriteria.special ? 'text-emerald-700 font-medium' : 'text-slate-400'
+                  passwordCriteria.special
+                    ? "text-emerald-700 font-medium"
+                    : "text-slate-400"
                 }`}
               >
                 {passwordCriteria.special ? (
-                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
+                  <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-emerald-600" />
                 ) : (
-                  <XCircle className="w-3.5 h-3.5 shrink-0 text-slate-400" />
+                  <XCircle className="w-3.5 h-3.5 flex-shrink-0 text-slate-400" />
                 )}
                 <span>One special (!@#$)</span>
               </div>
@@ -409,120 +440,126 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
 
         {/* Confirm Password */}
         <div>
-          <label className="block text-xs font-medium text-[#3a4658] mb-1.5">
+          <label
+            htmlFor={confirmPasswordId}
+            className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1"
+          >
             Confirm Password
           </label>
-          <div
-            className={`flex items-center h-12 bg-[#f3f6fb] border ${
-              touched.confirmPassword && errors.confirmPassword ? 'border-red-400' : 'border-[#d9e0ec]'
-            } rounded-xl overflow-hidden focus-within:border-[#2e3b49] focus-within:ring-2 focus-within:ring-[#c9ab70]/25 focus-within:bg-white transition-all`}
-          >
-            <span className="pl-3.5 text-slate-400">
-              <Lock className="w-4 h-4 text-[#64738a]" />
-            </span>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <Lock className="w-4 h-4" />
+            </div>
             <input
-              type={showConfirmPassword ? 'text' : 'password'}
+              id={confirmPasswordId}
+              type={showConfirmPassword ? "text" : "password"}
               disabled={isLoading}
               value={formData.confirmPassword}
-              onChange={(e) => setFormData((prev) => ({ ...prev, confirmPassword: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, confirmPassword: e.target.value }))
+              }
               onBlur={() => setTouched((prev) => ({ ...prev, confirmPassword: true }))}
               placeholder="Re-enter password"
-              className="flex-1 h-full px-3 bg-transparent border-0 outline-none text-[#131c2e] placeholder:text-[#9aa6b8] text-xs font-sans"
+              className="input-standard pl-10 pr-11"
             />
             <button
               type="button"
-              tabIndex={-1}
+              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
               onClick={() => setShowConfirmPassword((p) => !p)}
-              className="w-10 h-full flex items-center justify-center text-[#64738a] hover:text-[#131c2e] cursor-pointer"
+              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600"
             >
-              {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {showConfirmPassword ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
             </button>
           </div>
           {touched.confirmPassword && errors.confirmPassword && (
-            <p className="mt-1 text-[11px] text-red-600 font-medium">{errors.confirmPassword}</p>
+            <p className="mt-1 text-xs text-rose-600 font-medium">
+              {errors.confirmPassword}
+            </p>
           )}
         </div>
 
         {/* Terms Agreement Checkbox */}
         <div className="pt-1">
-          <label className="flex items-start gap-2.5 cursor-pointer select-none">
+          <label
+            htmlFor={termsId}
+            className="flex items-start gap-2.5 cursor-pointer select-none"
+          >
             <input
+              id={termsId}
               type="checkbox"
               checked={formData.agreeTerms}
               disabled={isLoading}
-              onChange={(e) => setFormData((prev) => ({ ...prev, agreeTerms: e.target.checked }))}
-              className="w-4 h-4 mt-0.5 rounded border-[#d9e0ec] text-[#212c37] focus:ring-[#c9ab70]/25 cursor-pointer"
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, agreeTerms: e.target.checked }))
+              }
+              className="w-4 h-4 mt-0.5 rounded border-slate-300 text-[#171f28] focus:ring-[#c9ab70]/20 focus:ring-2 cursor-pointer"
             />
             <span className="text-xs text-slate-600">
-              I agree to the{' '}
-              <span className="text-[#131c2e] font-semibold underline">
-                Enterprise Subscription Master Terms
-              </span>{' '}
-              and Privacy Policy.
+              I agree to the{" "}
+              <a href="#terms" className="text-slate-900 font-semibold hover:underline">
+                Subscription Master Terms
+              </a>{" "}
+              and acknowledge the Privacy Policy.
             </span>
           </label>
           {touched.agreeTerms && errors.agreeTerms && (
-            <p className="mt-1 text-[11px] text-red-600 font-medium">{errors.agreeTerms}</p>
+            <p className="mt-1 text-xs text-rose-600 font-medium">
+              {errors.agreeTerms}
+            </p>
           )}
         </div>
 
-        {/* Submit Button (56px LoomOne gradient styling) */}
+        {/* Submit Button */}
         <button
           type="submit"
           disabled={isLoading}
-          className="group relative w-full h-14 mt-4 rounded-[14px] text-white text-[15px] font-medium flex items-center justify-center gap-2.5 transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_12px_22px_-10px_rgba(23,31,40,0.7)] active:scale-[0.985] cursor-pointer bg-gradient-to-b from-[#3c4a5a] to-[#212c37] hover:from-[#47576a] hover:to-[#273441] disabled:opacity-70 disabled:cursor-not-allowed"
+          className="btn-gold w-full py-3 mt-2 text-sm justify-center flex items-center gap-2"
         >
           {isLoading ? (
-            <span className="flex items-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin text-white" />
+            <>
+              <Loader2 className="w-4 h-4 animate-spin text-slate-900" />
               <span>Registering Organization...</span>
-            </span>
+            </>
           ) : (
             <>
               <span>Create Account</span>
-              <svg
-                className={`w-[18px] h-[18px] transition-all duration-200 ${
-                  isFormReady ? 'text-[#c9ab70] translate-x-0.5' : 'text-[#a9b5c3]'
-                }`}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M5 12h14M13 6l6 6-6 6" />
-              </svg>
+              <ArrowRight className="w-4 h-4" />
             </>
           )}
         </button>
       </form>
 
       {/* Sign In Navigation */}
-      <div className="mt-6 pt-5 border-t border-slate-100 text-center text-xs text-[#64738a]">
-        Already have a SubMan account?{' '}
-        {onSignInClick ? (
-          <button
-            type="button"
-            onClick={onSignInClick}
-            className="font-semibold text-[#131c2e] hover:text-[#c9ab70] hover:underline transition-colors cursor-pointer"
-          >
-            Sign In
-          </button>
-        ) : (
-          <Link
-            href="/login"
-            className="font-semibold text-[#131c2e] hover:text-[#c9ab70] hover:underline transition-colors"
-          >
-            Sign In
-          </Link>
-        )}
+      <div className="mt-6 pt-5 border-t border-slate-200 text-center">
+        <p className="text-xs text-slate-500">
+          Already have a SubManSys account?{" "}
+          {onSignInClick ? (
+            <button
+              type="button"
+              onClick={onSignInClick}
+              className="font-semibold text-slate-900 hover:text-[#c9ab70] transition-colors hover:underline"
+            >
+              Sign In
+            </button>
+          ) : (
+            <a
+              href="/login"
+              className="font-semibold text-slate-900 hover:text-[#c9ab70] transition-colors hover:underline"
+            >
+              Sign In
+            </a>
+          )}
+        </p>
       </div>
 
       {/* Trust Seal */}
       <div className="mt-4 flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
         <ShieldCheck className="w-3.5 h-3.5 text-[#c9ab70]" />
-        <span>Strict Password Protection &bull; TLS 1.3 Certified</span>
+        <span>Strict Password Protection • TLS 1.3 Certified</span>
       </div>
     </div>
   );

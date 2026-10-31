@@ -10,9 +10,11 @@
     "build": "npm run build --prefix frontend",
     "start": "npm run start --prefix frontend",
     "lint": "npm run lint --prefix frontend",
-    "backend": ".venv\\Scripts\\uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8000 --reload",
-    "backend:test": ".venv\\Scripts\\python backend\\test_api_suite.py",
-    "db:test": ".venv\\Scripts\\python test_database.py",
-    "db:init": ".venv\\Scripts\\python -m database.init_db"
+    "backend": "npm run backend:dev",
+    "backend:dev": "powershell -Command \"$env:PYTHONPATH='backend;.'; .venv\\Scripts\\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload\"",
+    "backend:test": "powershell -Command \".venv\\Scripts\\python.exe backend\\test_api_suite.py\"",
+    "db:init": "powershell -Command \".venv\\Scripts\\python.exe database\\init_db.py\"",
+    "db:test": "powershell -Command \".venv\\Scripts\\python.exe test_database.py\"",
+    "test:full": "powershell -Command \"$env:PYTHONPATH='backend;.'; .venv\\Scripts\\python.exe test_full_stack.py\""
   }
 }

@@ -33,7 +33,7 @@ export default function TopNavbar({
   searchQuery,
   onSearchChange,
 }: TopNavbarProps) {
-  const { currentUser, loginAs, users, notification, backendStatus, refreshBackendData } = useSubscription();
+  const { currentUser, loginAs, users, notification, isBackendConnected, backendStatus, checkBackendHealth, refreshBackendData } = useSubscription();
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -133,11 +133,12 @@ export default function TopNavbar({
 
       {/* Right Controls */}
       <div className="flex items-center gap-2.5 sm:gap-3.5">
-        {/* Backend & Database Connection Status Pill */}
+        {/* Backend & Database Connection Status Pill (Dark Theme Reference) */}
         <button
-          onClick={() => refreshBackendData()}
+          type="button"
+          onClick={() => (refreshBackendData ? refreshBackendData() : checkBackendHealth())}
           title={`Backend & Database: ${
-            backendStatus === 'connected'
+            backendStatus === 'connected' || isBackendConnected
               ? 'Connected (FastAPI + Database)'
               : backendStatus === 'checking'
               ? 'Checking connection...'
@@ -147,7 +148,7 @@ export default function TopNavbar({
         >
           <span
             className={`h-2 w-2 rounded-full ${
-              backendStatus === 'connected'
+              backendStatus === 'connected' || isBackendConnected
                 ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]'
                 : backendStatus === 'checking'
                 ? 'bg-amber-400 animate-pulse'
@@ -155,7 +156,7 @@ export default function TopNavbar({
             }`}
           />
           <span className="hidden md:inline text-[11px] font-medium text-white/80">
-            {backendStatus === 'connected'
+            {backendStatus === 'connected' || isBackendConnected
               ? 'DB & API Live'
               : backendStatus === 'checking'
               ? 'Connecting...'

@@ -73,14 +73,22 @@ def get_engine() -> Engine:
             logger.warning(f"PostgreSQL initialization failed ({exc}). Falling back to SQLite.")
 
     if _active_engine is None:
-        sqlite_path = BACKEND_DIR / "brightloop360.db"
-        sqlite_url = f"sqlite:///{sqlite_path}"
-        _active_engine = create_engine(
-            sqlite_url,
-            connect_args={"check_same_thread": False},
-            echo=False,
-        )
-        logger.info(f"Using SQLite database at {sqlite_path}")
+        if db_url.startswith("sqlite"):
+            _active_engine = create_engine(
+                db_url,
+                connect_args={"check_same_thread": False},
+                echo=False,
+            )
+            logger.info(f"Using SQLite database specified in DATABASE_URL: {db_url}")
+        else:
+            sqlite_path = BACKEND_DIR / "brightloop360.db"
+            sqlite_url = f"sqlite:///{sqlite_path}"
+            _active_engine = create_engine(
+                sqlite_url,
+                connect_args={"check_same_thread": False},
+                echo=False,
+            )
+            logger.info(f"Using SQLite database at {sqlite_path}")
 
     _SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=_active_engine)
     
@@ -107,31 +115,39 @@ def seed_demo_data():
     """Seeds initial demonstration data required by the problem statement if empty."""
     db = _SessionLocal()
     try:
-        # 1. Seed Users (Admin, Staff, Customer)
-        admin_user = db.query(User).filter(User.email == "admin@brightloop.com").first()
-        if not admin_user:
-            admin = User(
-                email="admin@brightloop.com",
-                full_name="Admin Director",
-                hashed_password=hash_password("Admin@12345!"),
-                role=UserRole.ADMIN,
-                is_active=True,
-            )
-            staff = User(
-                email="staff@brightloop.com",
-                full_name="Sarah Sales Rep",
-                hashed_password=hash_password("Staff@12345!"),
-                role=UserRole.STAFF,
-                is_active=True,
-            )
-            customer_user = User(
-                email="customer@acme.com",
-                full_name="John Customer",
-                hashed_password=hash_password("Customer@12345!"),
-                role=UserRole.CUSTOMER,
-                is_active=True,
-            )
-            db.add_all([admin, staff, customer_user])
+        # 1. Seed Users (Admin, Staff, Customer personas)
+        seed_accounts = [
+            ("alex.mercer@brightloop.io", "Alex Mercer", "Brightloop@360", UserRole.ADMIN, "Brightloop Software HQ"),
+            ("admin@brightloop.com", "Admin Director", "Admin@12345!", UserRole.ADMIN, "Brightloop Software HQ"),
+            ("marcus.v@brightloop.io", "Marcus Vance", "Brightloop@360", UserRole.STAFF, "Brightloop Sales Ops"),
+            ("staff@brightloop.com", "Sarah Sales Rep", "Staff@12345!", UserRole.STAFF, "Brightloop Sales Ops"),
+            ("sarah.j@acmetech.io", "Sarah Jenkins", "Brightloop@360", UserRole.CUSTOMER, "Acme Technologies Inc."),
+            ("customer@acme.com", "John Customer", "Customer@12345!", UserRole.CUSTOMER, "Acme Technologies Inc."),
+            ("d.alvarez@orbitflow.co", "David Alvarez", "Brightloop@360", UserRole.CUSTOMER, "OrbitFlow Logistics"),
+        ]
+        users_to_add = []
+        for email, full_name, raw_pw, role, company in seed_accounts:
+            existing = db.query(User).filter(User.email == email.lower()).first()
+            if not existing:
+                cust_id = None
+                if role == UserRole.CUSTOMER:
+                    cust = db.query(Customer).filter(Customer.email == email.lower()).first()
+                    if not cust:
+                        cust = Customer(full_name=full_name, email=email.lower(), company_name=company or full_name)
+                        db.add(cust)
+                        db.flush()
+                    cust_id = cust.id
+                u = User(
+                    email=email.lower(),
+                    full_name=full_name,
+                    hashed_password=hash_password(raw_pw),
+                    role=role,
+                    is_active=True,
+                    customer_id=cust_id,
+                )
+                users_to_add.append(u)
+        if users_to_add:
+            db.add_all(users_to_add)
             db.commit()
 
         # 2. Seed Tax Rules

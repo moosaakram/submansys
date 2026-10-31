@@ -108,6 +108,7 @@ def create_db_engine(db_url: Optional[str] = None) -> Engine:
             echo=pool_cfg["echo"],
         )
 
+    connect_args = {"connect_timeout": int(os.getenv("DB_CONNECT_TIMEOUT", "2"))}
     return create_engine(
         url,
         pool_pre_ping=True,  # Proactively test connection validity before issuing SQL
@@ -116,6 +117,7 @@ def create_db_engine(db_url: Optional[str] = None) -> Engine:
         pool_timeout=pool_cfg["pool_timeout"],
         pool_recycle=pool_cfg["pool_recycle"],
         echo=pool_cfg["echo"],
+        connect_args=connect_args,
     )
 
 

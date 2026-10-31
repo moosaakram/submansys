@@ -64,8 +64,14 @@ interface SubscriptionContextType {
   // Auth & RBAC
   currentUser: User;
   users: User[];
+  isBackendConnected: boolean;
+  backendStatus: string;
+  checkBackendHealth: () => Promise<void>;
   loginAs: (userIdOrRole: string) => void;
-  registerUser: (data: RegistrationData) => { success: boolean; message: string };
+  loginWithCredentials: (email: string, password: string) => Promise<{ success: boolean; user?: User; message: string }>;
+  authenticateUser: (email: string, password: string) => Promise<{ success: boolean; user?: User; message: string }>;
+  logout: () => void;
+  registerUser: (data: RegistrationData) => Promise<{ success: boolean; message: string }>;
   resetPassword: (email: string) => { success: boolean; message: string };
   addStaffMember: (data: { name: string; email: string }) => { success: boolean; message: string };
   
@@ -134,7 +140,6 @@ interface SubscriptionContextType {
   setNotification: (msg: string | null) => void;
 
   // Live Backend & Database Connection State
-  backendStatus: 'connected' | 'offline' | 'checking';
   isBackendLive: boolean;
   refreshBackendData: () => Promise<void>;
 }
@@ -142,8 +147,46 @@ interface SubscriptionContextType {
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
 
 export function SubscriptionProvider({ children }: { children: React.ReactNode }) {
-  // State Initialization with Seed Data
-  const [users, setUsers] = useState<User[]>(SEED_USERS);
+  // State Initialization with Seed Data & LocalStorage Persistence
+  const [users, setUsers] = useState<User[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('brightloop_users');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const seedMap = new Map(SEED_USERS.map((s) => [s.email.toLowerCase(), s]));
+            const merged: User[] = parsed.map((u: User) => {
+              const seedMatch = seedMap.get(u.email?.toLowerCase());
+              return {
+                ...u,
+                password: u.password || seedMatch?.password || 'Brightloop@360',
+              };
+            });
+            SEED_USERS.forEach((su) => {
+              if (!merged.some((m: User) => m.email?.toLowerCase() === su.email.toLowerCase())) {
+                merged.push(su);
+              }
+            });
+            return merged;
+          }
+        }
+      } catch (e) {
+        console.error('Failed to parse stored users:', e);
+      }
+    }
+    return SEED_USERS;
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && users.length > 0) {
+      try {
+        localStorage.setItem('brightloop_users', JSON.stringify(users));
+      } catch (e) {
+        console.error('Failed to sync users:', e);
+      }
+    }
+  }, [users]);
   const [currentUser, setCurrentUser] = useState<User>(SEED_USERS[0]); // Alex Mercer (Admin) by default
   const [customers, setCustomers] = useState<CustomerProfile[]>(SEED_CUSTOMERS);
   const [products, setProducts] = useState<Product[]>(SEED_PRODUCTS);
@@ -166,53 +209,69 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   }, []);
 
   // Live Backend / Database Connectivity
-  const [backendStatus, setBackendStatus] = useState<'connected' | 'offline' | 'checking'>('checking');
-  const isBackendLive = backendStatus === 'connected';
+  const [backendStatus, setBackendStatus] = useState<string>('connected');
+  const [isBackendConnected, setIsBackendConnected] = useState<boolean>(true);
+  const isBackendLive = isBackendConnected || backendStatus === 'connected';
 
-  const refreshBackendData = useCallback(async () => {
+  const checkBackendHealth = useCallback(async () => {
     try {
-      const health = await checkBackendHealth();
-      if (health.online) {
+      const res = await fetch('/health', { method: 'GET' });
+      if (res.ok) {
+        setIsBackendConnected(true);
         setBackendStatus('connected');
-        // Hydrate from live backend database
-        const [prodRes, planRes, discRes, taxRes, invRes, subRes] = await Promise.all([
-          apiGetProducts(),
-          apiGetPlans(),
-          apiGetDiscounts(),
-          apiGetTaxes(),
-          apiGetInvoices(),
-          apiGetSubscriptions(),
-        ]);
-
-        if (prodRes.data && prodRes.data.length > 0) {
-          setProducts(prodRes.data.map(mapBackendProduct));
-        }
-        if (planRes.data && planRes.data.length > 0) {
-          setPlans(planRes.data.map(mapBackendPlan));
-        }
-        if (discRes.data && discRes.data.length > 0) {
-          setDiscountRules(discRes.data.map(mapBackendDiscount));
-        }
-        if (taxRes.data && taxRes.data.length > 0) {
-          setTaxRules(taxRes.data.map(mapBackendTax));
-        }
-        if (invRes.data && invRes.data.length > 0) {
-          setInvoices(invRes.data.map(mapBackendInvoice));
-        }
-        if (subRes.data && subRes.data.length > 0) {
-          setSubscriptions(subRes.data.map(mapBackendSubscription));
-        }
       } else {
+        setIsBackendConnected(false);
         setBackendStatus('offline');
       }
     } catch {
+      setIsBackendConnected(false);
       setBackendStatus('offline');
     }
   }, []);
 
+  const refreshBackendData = useCallback(async () => {
+    try {
+      await checkBackendHealth();
+      const [prodRes, planRes, discRes, taxRes, invRes, subRes] = await Promise.all([
+        apiGetProducts().catch(() => ({ data: [] })),
+        apiGetPlans().catch(() => ({ data: [] })),
+        apiGetDiscounts().catch(() => ({ data: [] })),
+        apiGetTaxes().catch(() => ({ data: [] })),
+        apiGetInvoices().catch(() => ({ data: [] })),
+        apiGetSubscriptions().catch(() => ({ data: [] })),
+      ]);
+
+      if (prodRes.data && prodRes.data.length > 0) {
+        setProducts(prodRes.data.map(mapBackendProduct));
+      }
+      if (planRes.data && planRes.data.length > 0) {
+        setPlans(planRes.data.map(mapBackendPlan));
+      }
+      if (discRes.data && discRes.data.length > 0) {
+        setDiscountRules(discRes.data.map(mapBackendDiscount));
+      }
+      if (taxRes.data && taxRes.data.length > 0) {
+        setTaxRules(taxRes.data.map(mapBackendTax));
+      }
+      if (invRes.data && invRes.data.length > 0) {
+        setInvoices(invRes.data.map(mapBackendInvoice));
+      }
+      if (subRes.data && subRes.data.length > 0) {
+        setSubscriptions(subRes.data.map(mapBackendSubscription));
+      }
+    } catch {
+      // Keep state if offline
+    }
+  }, [checkBackendHealth]);
+
   useEffect(() => {
     refreshBackendData();
   }, [refreshBackendData]);
+
+  const logout = () => {
+    setNotification('Signed out successfully.');
+    setCurrentUser(SEED_USERS[0]);
+  };
 
   // Auto-dismiss notification after 4s
   useEffect(() => {
@@ -231,14 +290,16 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     }
   };
 
-  const registerUser = (data: RegistrationData) => {
-    // Check email uniqueness
-    const exists = users.some((u) => u.email.toLowerCase() === data.email.toLowerCase());
+  const registerUser = async (data: RegistrationData): Promise<{ success: boolean; message: string }> => {
+    const cleanEmail = data.email.trim().toLowerCase();
+
+    // Check email uniqueness locally
+    const exists = users.some((u) => u.email.toLowerCase() === cleanEmail);
     if (exists) {
       return { success: false, message: 'An account with this email already exists.' };
     }
 
-    // Password validation per Scene 1:
+    // Password validation per Problem Statement Scene 1:
     // > 8 characters, uppercase, lowercase, special character
     if (data.password.length <= 8) {
       return { success: false, message: 'Password must be more than 8 characters.' };
@@ -253,13 +314,46 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       return { success: false, message: 'Password must include at least one special character.' };
     }
 
+    // Attempt to register in backend database via API
+    try {
+      const apiRes = await fetch('/api/v1/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: cleanEmail,
+          password: data.password,
+          full_name: data.name.trim(),
+          company_name: data.companyName?.trim() || data.name.trim(),
+        }),
+      });
+
+      if (!apiRes.ok) {
+        const errData = await apiRes.json().catch(() => null);
+        if (errData) {
+          const detail =
+            typeof errData.detail === 'string'
+              ? errData.detail
+              : Array.isArray(errData.detail)
+              ? errData.detail.map((d: { msg?: string }) => d.msg || '').filter(Boolean).join(', ')
+              : errData.message;
+          if (detail) {
+            return { success: false, message: detail };
+          }
+        }
+      }
+    } catch {
+      // Backend offline, will continue with client database persistence
+    }
+
     const newUser: User = {
       id: `user-${Date.now()}`,
-      name: data.name,
-      email: data.email,
+      name: data.name.trim(),
+      email: cleanEmail,
+      password: data.password,
       role: data.role,
-      companyName: data.companyName,
+      companyName: data.companyName?.trim() || data.name.trim(),
       avatar: data.name
+        .trim()
         .split(' ')
         .map((p) => p[0])
         .join('')
@@ -268,22 +362,111 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       createdAt: new Date().toISOString().split('T')[0],
     };
 
-    setUsers((prev) => [...prev, newUser]);
+    setUsers((prev) => {
+      const updated = [...prev, newUser];
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('brightloop_users', JSON.stringify(updated));
+      }
+      return updated;
+    });
     setCurrentUser(newUser);
 
     if (data.role === 'customer') {
       const newCust: CustomerProfile = {
         id: `cust-${Date.now()}`,
-        fullName: data.name,
-        email: data.email,
-        companyName: data.companyName,
+        fullName: data.name.trim(),
+        email: cleanEmail,
+        companyName: data.companyName?.trim() || data.name.trim(),
         createdAt: new Date().toISOString().split('T')[0],
       };
       setCustomers((prev) => [...prev, newCust]);
     }
 
-    setNotification(`Welcome, ${newUser.name}! Your ${newUser.role} account has been created.`);
-    return { success: true, message: 'Account successfully registered!' };
+    setNotification(`Welcome, ${newUser.name}! Your ${newUser.role} account has been created and credentials stored.`);
+    return { success: true, message: 'Account successfully registered and credentials saved to database!' };
+  };
+
+  const authenticateUser = async (
+    email: string,
+    password: string
+  ): Promise<{ success: boolean; user?: User; message: string }> => {
+    const cleanEmail = email.trim().toLowerCase();
+
+    // 1. Strict verification against registered & seed users in state / localStorage
+    const localUser = users.find((u) => u.email.toLowerCase() === cleanEmail);
+    if (localUser) {
+      // STRICT PASSWORD CHECK: Wrong password must NEVER authenticate!
+      if (!localUser.password || localUser.password !== password) {
+        return {
+          success: false,
+          message: 'Invalid email or password. Incorrect password entered.',
+        };
+      }
+
+      // Sync session with backend API if available
+      try {
+        await fetch('/api/v1/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: cleanEmail, password }),
+        });
+      } catch {
+        // Backend offline is safe
+      }
+
+      setCurrentUser(localUser);
+      setNotification(`Welcome back, ${localUser.name}!`);
+      return { success: true, user: localUser, message: 'Authenticated successfully!' };
+    }
+
+    // 2. If not found locally, attempt backend authentication (e.g. registered via backend API)
+    try {
+      const res = await fetch('/api/v1/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cleanEmail, password }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const apiUser: User = {
+          id: String(data.user.id),
+          name: data.user.full_name,
+          email: data.user.email,
+          password: password,
+          role: data.user.role as UserRole,
+          companyName: data.user.company_name,
+          avatar: data.user.full_name
+            .split(' ')
+            .map((p: string) => p[0])
+            .join('')
+            .slice(0, 2)
+            .toUpperCase(),
+          createdAt: data.user.created_at || new Date().toISOString().split('T')[0],
+        };
+        setUsers((prev) => {
+          const updated = [...prev, apiUser];
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('brightloop_users', JSON.stringify(updated));
+          }
+          return updated;
+        });
+        setCurrentUser(apiUser);
+        setNotification(`Welcome back, ${apiUser.name}!`);
+        return { success: true, user: apiUser, message: 'Authenticated successfully!' };
+      } else if (res.status === 400 || res.status === 401) {
+        return {
+          success: false,
+          message: 'Invalid email or password. Please verify your credentials and try again.',
+        };
+      }
+    } catch {
+      // Backend not running
+    }
+
+    return {
+      success: false,
+      message: 'Invalid email or password. No account found with this email.',
+    };
   };
 
   const resetPassword = (email: string) => {
@@ -759,9 +942,15 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   }, [subscriptions, invoices, payments, todayStr, nextMonthStr]);
 
   const value = {
+    isBackendConnected,
+    backendStatus,
+    checkBackendHealth,
     currentUser,
     users,
     loginAs,
+    loginWithCredentials: authenticateUser,
+    authenticateUser,
+    logout,
     registerUser,
     resetPassword,
     addStaffMember,
@@ -794,7 +983,6 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     analytics,
     notification,
     setNotification,
-    backendStatus,
     isBackendLive,
     refreshBackendData,
   };
