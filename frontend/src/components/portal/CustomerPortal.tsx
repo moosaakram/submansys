@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
+import Logo from '@/components/common/Logo';
 import {
   FileText,
   Repeat,
@@ -66,7 +68,7 @@ export const CustomerPortal: React.FC = () => {
     {
       id: 'sub-001',
       subscriptionNumber: 'SUB-2026-0891',
-      productName: 'Brightloop Business Cloud',
+      productName: 'SubMan Business Suite',
       variant: 'Odoo Enterprise Integration (+560)',
       planName: 'Growth Tier (Annual)',
       billingFrequency: 'Yearly',
@@ -148,39 +150,24 @@ export const CustomerPortal: React.FC = () => {
       <header className="topbar-surface sticky top-0 z-30 border-b border-white/10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-[#1c2530] border border-[#c9ab70]/40 text-[#c9ab70] flex items-center justify-center font-bold text-xs tracking-wider">
-              360
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-[family-name:var(--font-cinzel)] font-bold text-white text-base">
-                  Brightloop
-                </span>
-                <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#1c2530] text-[#c9ab70] font-semibold border border-[#c9ab70]/30">
-                  Customer Self-Service Portal
-                </span>
-              </div>
-              <p className="text-[11px] text-white/60">
-                {customerInfo.company} • {customerInfo.email}
-              </p>
-            </div>
+            <Logo size="md" theme="light" subtext={`${customerInfo.company} • ${customerInfo.email}`} />
           </div>
 
           <div className="flex items-center gap-3">
-            <a
+            <Link
               href="/"
               className="text-xs font-semibold text-[#c9ab70] hover:text-[#dcc28a] flex items-center gap-1 transition-colors"
             >
               <span>Admin Console</span>
               <ChevronRight className="w-3.5 h-3.5" />
-            </a>
-            <a
+            </Link>
+            <Link
               href="/login"
               className="p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />
-            </a>
+            </Link>
           </div>
         </div>
       </header>

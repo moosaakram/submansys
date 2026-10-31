@@ -21,8 +21,12 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Brightloop 360 | Subscription Management System",
-  description: "Enterprise SaaS subscription management, recurring billing, and revenue analytics.",
+  title: "SubMan | Subscription Management System",
+  description: "SubMan – Enterprise subscription lifecycle management, automated billing, and revenue analytics.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

@@ -1,16 +1,17 @@
-"use client";
+'use client';
 
-import React, { useState, useId } from "react";
+import React, { useState } from 'react';
+import Link from 'next/link';
 import {
   Mail,
-  Loader2,
-  AlertCircle,
   CheckCircle2,
+  AlertCircle,
+  Loader2,
   ArrowLeft,
-  ArrowRight,
   ShieldCheck,
-  KeyRound,
-} from "lucide-react";
+  Send,
+} from 'lucide-react';
+import { useSubscription } from '@/context/SubscriptionContext';
 
 export interface ForgotPasswordFormProps {
   onSubmit?: (email: string) => Promise<void> | void;
@@ -21,13 +22,15 @@ export interface ForgotPasswordFormProps {
 export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   onSubmit,
   onBackToSignIn,
-  className = "",
+  className = '',
 }) => {
-  const emailId = useId();
-  const [email, setEmail] = useState("");
+  const { resetPassword } = useSubscription();
+  const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const isFormReady = email.trim().length > 3 && email.includes('@');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,11 +38,11 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!trimmed) {
-      setError("Please enter your registered business email address.");
+      setError('Please enter your registered business email address.');
       return;
     }
     if (!emailRegex.test(trimmed)) {
-      setError("Please enter a valid business email address format.");
+      setError('Please enter a valid work email address format.');
       return;
     }
 
@@ -50,15 +53,17 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       if (onSubmit) {
         await onSubmit(trimmed);
       } else {
-        // Simulated password reset link dispatch
-        await new Promise((res) => setTimeout(res, 1000));
+        const res = resetPassword(trimmed);
+        if (!res.success) {
+          throw new Error(res.message);
+        }
       }
       setIsSubmitted(true);
     } catch (err: unknown) {
       const msg =
         err instanceof Error
           ? err.message
-          : "Unable to dispatch reset link. Please check your network and try again.";
+          : 'Unable to dispatch reset link. Please verify your email and try again.';
       setError(msg);
     } finally {
       setIsLoading(false);
@@ -67,66 +72,53 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
 
   return (
     <div
-      className={`w-full max-w-md mx-auto p-6 sm:p-8 card-surface ${className}`}
+      className={`bg-[#fbfcfe] rounded-[26px] p-6 sm:p-8 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_2px_4px_rgba(10,16,24,0.12),0_28px_50px_-18px_rgba(5,9,14,0.65)] border border-slate-100/90 text-left ${className}`}
     >
       {/* Brand Header */}
-      <div className="flex flex-col items-center text-center mb-6">
-        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-[#171f28] to-[#212c37] border border-[#c9ab70]/30 text-[#c9ab70] shadow-md shadow-slate-900/10 mb-3">
-          <KeyRound className="w-6 h-6 text-[#c9ab70]" />
-        </div>
-        <div className="flex items-center gap-1.5 mb-1">
-          <span className="font-[family-name:var(--font-cinzel)] text-xl font-bold tracking-tight text-slate-900">
-            SUBMANSYS
-          </span>
-          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#1c2530] text-[#c9ab70] tracking-wider uppercase border border-[#c9ab70]/20">
-            RECOVERY
-          </span>
-        </div>
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight font-[family-name:var(--font-cinzel)] mt-1">
+      <div className="mb-6">
+        <h2 className="font-[family-name:var(--font-serif)] text-[28px] sm:text-[29px] font-medium text-[#131c2e] tracking-tight leading-tight">
           Reset Your Password
-        </h1>
-        <div className="title-accent-rule mt-2 mb-2" />
-        <p className="text-xs text-slate-500 mt-1">
-          Enter your registered email address and we will dispatch a secure password reset link
+        </h2>
+        <p className="text-[13.5px] sm:text-[14px] text-[#33507f] font-sans mt-1">
+          Enter your registered email and we will dispatch a secure one-time password reset link
         </p>
       </div>
 
       {isSubmitted ? (
         <div className="text-center space-y-5 py-4">
-          <div className="w-14 h-14 mx-auto rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
-            <CheckCircle2 className="w-7 h-7" />
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shadow-xs">
+            <CheckCircle2 className="w-8 h-8" />
           </div>
+
           <div>
-            <h2 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-cinzel)]">
+            <h3 className="text-xl font-bold text-[#131c2e] font-[family-name:var(--font-cinzel)]">
               Reset Link Dispatched
-            </h2>
+            </h3>
             <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-              We have dispatched a confidential password reset link to{" "}
-              <span className="font-semibold text-slate-800">
-                {email}
-              </span>
-              . The link will remain active for 30 minutes.
+              We have dispatched a confidential password reset link to{' '}
+              <span className="font-semibold text-slate-800">{email}</span>.
+              The link will remain active for 30 minutes.
             </p>
           </div>
 
-          <div className="pt-2">
+          <div className="pt-3">
             {onBackToSignIn ? (
               <button
                 type="button"
                 onClick={onBackToSignIn}
-                className="btn-light-secondary w-full py-2.5 px-4 text-xs font-semibold flex items-center justify-center gap-2"
+                className="w-full h-12 rounded-[14px] border border-[#d9e0ec] bg-white hover:bg-[#f3f6fb] text-[#131c2e] text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>Return to Sign In</span>
               </button>
             ) : (
-              <a
+              <Link
                 href="/login"
-                className="btn-light-secondary w-full inline-flex py-2.5 px-4 text-xs font-semibold items-center justify-center gap-2"
+                className="w-full h-12 rounded-[14px] border border-[#d9e0ec] bg-white hover:bg-[#f3f6fb] text-[#131c2e] text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>Return to Sign In</span>
-              </a>
+              </Link>
             )}
           </div>
         </div>
@@ -135,53 +127,55 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
           {error && (
             <div
               role="alert"
-              className="p-3.5 rounded-xl text-xs badge-danger text-rose-800 flex items-center gap-2 font-medium"
+              className="p-3 bg-red-50 border border-red-200/80 rounded-xl text-xs text-red-600 font-medium text-center flex items-center justify-center gap-2"
             >
-              <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600" />
+              <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
               <span>{error}</span>
             </div>
           )}
 
           <div>
-            <label
-              htmlFor={emailId}
-              className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5"
-            >
-              Registered Business Email
+            <label className="block text-[13px] font-medium text-[#3a4658] mb-2">
+              Registered Work Email
             </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <Mail className="w-4 h-4" />
-              </div>
+            <div className="flex items-center h-14 bg-[#f3f6fb] border border-[#d9e0ec] rounded-[14px] overflow-hidden focus-within:border-[#2e3b49] focus-within:ring-4 focus-within:ring-[#c9ab70]/25 focus-within:bg-white transition-all">
+              <span className="flex items-center px-3.5 h-full text-[#64738a] select-none shrink-0 border-r border-[#d9e0ec]">
+                <Mail className="w-5 h-5 text-[#64738a]" />
+              </span>
               <input
-                id={emailId}
                 type="email"
+                required
                 disabled={isLoading}
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
                   if (error) setError(null);
                 }}
-                placeholder="name@company.com"
-                className="input-standard pl-10"
+                placeholder="alex.mercer@subman.io"
+                className="flex-1 h-full px-3.5 bg-transparent border-0 outline-none text-[#131c2e] placeholder:text-[#9aa6b8] text-[15px] font-sans"
               />
             </div>
           </div>
 
+          {/* Submit Button (56px LoomOne gradient styling) */}
           <button
             type="submit"
             disabled={isLoading}
-            className="btn-gold w-full py-3 text-sm font-semibold flex items-center justify-center gap-2"
+            className="group relative w-full h-14 mt-4 rounded-[14px] text-white text-[15px] font-medium flex items-center justify-center gap-2.5 transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_12px_22px_-10px_rgba(23,31,40,0.7)] active:scale-[0.985] cursor-pointer bg-gradient-to-b from-[#3c4a5a] to-[#212c37] hover:from-[#47576a] hover:to-[#273441] disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin text-slate-900" />
+              <span className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
                 <span>Sending Reset Link...</span>
-              </>
+              </span>
             ) : (
               <>
                 <span>Send Reset Link</span>
-                <ArrowRight className="w-4 h-4" />
+                <Send
+                  className={`w-[18px] h-[18px] transition-all duration-200 ${
+                    isFormReady ? 'text-[#c9ab70] translate-x-0.5' : 'text-[#a9b5c3]'
+                  }`}
+                />
               </>
             )}
           </button>
@@ -191,26 +185,26 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
               <button
                 type="button"
                 onClick={onBackToSignIn}
-                className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors inline-flex items-center gap-1.5"
+                className="text-xs font-medium text-[#33507f] hover:underline transition-colors inline-flex items-center gap-1.5 cursor-pointer"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Remember your credentials? Sign In</span>
               </button>
             ) : (
-              <a
+              <Link
                 href="/login"
-                className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors inline-flex items-center gap-1.5"
+                className="text-xs font-medium text-[#33507f] hover:underline transition-colors inline-flex items-center gap-1.5"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Remember your credentials? Sign In</span>
-              </a>
+              </Link>
             )}
           </div>
         </form>
       )}
 
       {/* Security Seal */}
-      <div className="mt-6 pt-4 border-t border-slate-200 flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
+      <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
         <ShieldCheck className="w-3.5 h-3.5 text-[#c9ab70]" />
         <span>Cryptographically Signed One-Time Reset Tokens</span>
       </div>

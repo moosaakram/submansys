@@ -275,7 +275,7 @@ export default function SettingsView() {
               </span>
               <h3 className="mt-2 font-[family-name:var(--font-cinzel)] text-xl font-bold text-slate-900">Invite New Staff Member</h3>
               <p className="text-xs text-slate-500">
-                Only the admin can invite new team members to Brightloop 360.
+                Only the admin can invite new team members to SubMan.
               </p>
             </div>
 
@@ -316,7 +316,7 @@ export default function SettingsView() {
                   required
                   value={staffEmail}
                   onChange={(e) => setStaffEmail(e.target.value)}
-                  placeholder="liam.s@brightloop.io"
+                  placeholder="liam.s@subman.io"
                   className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                 />
               </div>

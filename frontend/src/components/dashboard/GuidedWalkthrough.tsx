@@ -42,7 +42,7 @@ export default function GuidedWalkthrough({
               </span>
             </h3>
             <p className="text-[11px] text-slate-400">
-              Directly verify Brightloop subscription workflows with pre-configured parameters:
+              Directly verify SubMan subscription workflows with pre-configured parameters:
             </p>
           </div>
         </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Logo from '@/components/common/Logo';
 import {
   LayoutDashboard,
   Users,
@@ -177,22 +178,7 @@ export default function Sidebar({
       >
         {/* Brand / Logo Header */}
         <div className="flex h-16 items-center justify-between border-b border-white/[0.08] px-5">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-[#c9ab70] to-[#dcc28a] shadow-md shadow-[#c9ab70]/20 text-[#171f28]">
-              <Sparkles className="h-4.5 w-4.5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-[family-name:var(--font-cinzel)] font-bold text-base tracking-tight text-white">
-                  Brightloop
-                </span>
-                <span className="rounded bg-[#c9ab70]/20 px-1 py-0.2 text-[9px] font-extrabold text-[#dcc28a] border border-[#c9ab70]/30">
-                  360
-                </span>
-              </div>
-              <p className="text-[10px] text-white/40 font-medium">Subscription Platform</p>
-            </div>
-          </div>
+          <Logo size="md" theme="light" subtext="Subscription Platform" />
 
           <button
             onClick={onCloseMobile}

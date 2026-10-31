@@ -15,18 +15,18 @@ export const SEED_USERS: User[] = [
   {
     id: 'user-admin-1',
     name: 'Alex Mercer',
-    email: 'alex.mercer@brightloop.io',
+    email: 'alex.mercer@subman.io',
     role: 'admin',
-    companyName: 'Brightloop Software HQ',
+    companyName: 'SubMan Software HQ',
     avatar: 'AM',
     createdAt: '2026-01-01',
   },
   {
     id: 'user-staff-1',
     name: 'Marcus Vance',
-    email: 'marcus.v@brightloop.io',
+    email: 'marcus.v@subman.io',
     role: 'staff',
-    companyName: 'Brightloop Sales Ops',
+    companyName: 'SubMan Sales Ops',
     avatar: 'MV',
     createdAt: '2026-02-15',
   },
@@ -83,7 +83,7 @@ export const SEED_CUSTOMERS: CustomerProfile[] = [
 export const SEED_PRODUCTS: Product[] = [
   {
     id: 'prod-1',
-    name: 'Brightloop Business ERP Suite',
+    name: 'SubMan Business ERP Suite',
     productType: 'software',
     salesPrice: 299.0,
     costPrice: 45.0,
@@ -331,7 +331,7 @@ export const SEED_SUBSCRIPTIONS: Subscription[] = [
       {
         id: 'subline-1',
         productId: 'prod-1',
-        productName: 'Brightloop Business ERP Suite',
+        productName: 'SubMan Business ERP Suite',
         variantId: 'var-1-odoo',
         variantName: 'Odoo Ecosystem Brand Integration (+$560)',
         quantity: 5,
@@ -378,7 +378,7 @@ export const SEED_SUBSCRIPTIONS: Subscription[] = [
       {
         id: 'subline-3',
         productId: 'prod-1',
-        productName: 'Brightloop Business ERP Suite',
+        productName: 'SubMan Business ERP Suite',
         variantId: 'var-1-standard',
         variantName: 'Standard Native Edition',
         quantity: 2,
@@ -425,7 +425,7 @@ export const SEED_SUBSCRIPTIONS: Subscription[] = [
       {
         id: 'subline-5',
         productId: 'prod-1',
-        productName: 'Brightloop Business ERP Suite',
+        productName: 'SubMan Business ERP Suite',
         variantId: 'var-1-standard',
         variantName: 'Standard Native Edition',
         quantity: 3,
@@ -493,7 +493,7 @@ export const SEED_INVOICES: Invoice[] = [
     lines: [
       {
         id: 'invline-1',
-        description: 'Brightloop Business ERP Suite (Odoo Brand Variant) x 5',
+        description: 'SubMan Business ERP Suite (Odoo Brand Variant) x 5',
         quantity: 5,
         unitPrice: 859.0,
         taxRate: 10.0,
@@ -594,7 +594,7 @@ export const SEED_INVOICES: Invoice[] = [
     lines: [
       {
         id: 'invline-5',
-        description: 'Brightloop Business ERP Suite x 3',
+        description: 'SubMan Business ERP Suite x 3',
         quantity: 3,
         unitPrice: 299.0,
         taxRate: 10.0,

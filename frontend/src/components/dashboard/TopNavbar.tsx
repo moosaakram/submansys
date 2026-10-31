@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Logo from '@/components/common/Logo';
 import {
   Search,
   Bell,
@@ -32,7 +33,7 @@ export default function TopNavbar({
   searchQuery,
   onSearchChange,
 }: TopNavbarProps) {
-  const { currentUser, loginAs, users, notification } = useSubscription();
+  const { currentUser, loginAs, users, notification, backendStatus, refreshBackendData } = useSubscription();
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -112,14 +113,7 @@ export default function TopNavbar({
         </button>
 
         {/* Mobile-only logo */}
-        <div className="flex items-center gap-2 lg:hidden">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-[#c9ab70] to-[#dcc28a] text-[#171f28]">
-            <Sparkles className="h-3.5 w-3.5" />
-          </div>
-          <span className="font-[family-name:var(--font-cinzel)] font-bold text-white text-sm">
-            Brightloop
-          </span>
-        </div>
+        <Logo size="sm" theme="light" subtext="" className="lg:hidden" />
 
         {/* Search Field: UI_DESIGN_SYSTEM.md Sec 5.2 */}
         <div className="relative hidden w-72 md:block lg:w-80">
@@ -139,6 +133,36 @@ export default function TopNavbar({
 
       {/* Right Controls */}
       <div className="flex items-center gap-2.5 sm:gap-3.5">
+        {/* Backend & Database Connection Status Pill */}
+        <button
+          onClick={() => refreshBackendData()}
+          title={`Backend & Database: ${
+            backendStatus === 'connected'
+              ? 'Connected (FastAPI + Database)'
+              : backendStatus === 'checking'
+              ? 'Checking connection...'
+              : 'Offline (Local simulation)'
+          } - Click to refresh`}
+          className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.06] px-2.5 py-1.5 text-xs transition-all hover:bg-white/[0.10] hover:border-white/20 cursor-pointer"
+        >
+          <span
+            className={`h-2 w-2 rounded-full ${
+              backendStatus === 'connected'
+                ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]'
+                : backendStatus === 'checking'
+                ? 'bg-amber-400 animate-pulse'
+                : 'bg-rose-400/80'
+            }`}
+          />
+          <span className="hidden md:inline text-[11px] font-medium text-white/80">
+            {backendStatus === 'connected'
+              ? 'DB & API Live'
+              : backendStatus === 'checking'
+              ? 'Connecting...'
+              : 'API Offline'}
+          </span>
+        </button>
+
         {/* Persona Switcher Dropdown (Scene 1 Role Requirement) */}
         <div className="relative" ref={personaRef}>
           <button
@@ -266,7 +290,7 @@ export default function TopNavbar({
                 <p className="text-xs font-semibold text-white">{currentUser.name}</p>
                 <p className="text-[11px] text-white/50 truncate">{currentUser.email}</p>
                 <p className="text-[10px] text-[#c9ab70] font-medium mt-0.5">
-                  {currentUser.companyName || 'Brightloop 360'}
+                  {currentUser.companyName || 'SubMan Technologies'}
                 </p>
               </div>
 

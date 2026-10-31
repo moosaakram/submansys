@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Logo from '@/components/common/Logo';
 import {
   FileText,
   Zap,
@@ -349,15 +350,7 @@ export default function InvoiceListView() {
             {/* Print Header */}
             <div className="flex items-start justify-between border-b border-slate-100 pb-6">
               <div>
-                <div className="flex items-center gap-2.5">
-                  <div className="h-9 w-9 rounded-lg bg-[#1c2530] border border-[#c9ab70]/40 flex items-center justify-center text-[#c9ab70] font-bold text-xs tracking-wider">
-                    BL
-                  </div>
-                  <div>
-                    <span className="font-[family-name:var(--font-cinzel)] text-lg font-bold text-slate-900 block leading-tight">Brightloop</span>
-                    <span className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Subscription Management</span>
-                  </div>
-                </div>
+                <Logo size="md" theme="dark" subtext="Subscription Management" />
                 <p className="text-xs text-slate-500 mt-2">
                   100 Innovation Way, Suite 400<br />San Francisco, CA 94105
                 </p>
