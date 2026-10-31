@@ -44,6 +44,7 @@ interface SubscriptionContextType {
   currentUser: User;
   users: User[];
   loginAs: (userIdOrRole: string) => void;
+  authenticateUser: (email: string, password: string) => Promise<{ success: boolean; user?: User; message: string }>;
   registerUser: (data: RegistrationData) => { success: boolean; message: string };
   resetPassword: (email: string) => { success: boolean; message: string };
   addStaffMember: (data: { name: string; email: string }) => { success: boolean; message: string };
@@ -622,6 +623,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     currentUser,
     users,
     loginAs,
+    authenticateUser,
     registerUser,
     resetPassword,
     addStaffMember,
