@@ -63,9 +63,8 @@ export default function Sidebar({
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 flex w-72 flex-col border-r border-slate-200 bg-white transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 ${
-          isMobileOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed top-0 bottom-0 left-0 z-50 flex w-72 flex-col border-r border-slate-200 bg-white transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         {/* Brand / Logo Header */}
         <div className="flex h-16 items-center justify-between border-b border-slate-100 px-6">
@@ -125,28 +124,25 @@ export default function Sidebar({
                     onTabChange(item.id);
                     onCloseMobile();
                   }}
-                  className={`group relative flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all ${
-                    isActive
-                      ? 'bg-indigo-50/90 text-indigo-700 shadow-xs'
-                      : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
-                  }`}
+                  className={`group relative flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all ${isActive
+                    ? 'bg-indigo-50/90 text-indigo-700 shadow-xs'
+                    : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <Icon
-                      className={`h-4.5 w-4.5 transition-colors ${
-                        isActive
-                          ? 'text-indigo-600'
-                          : 'text-slate-400 group-hover:text-slate-600'
-                      }`}
+                      className={`h-4.5 w-4.5 transition-colors ${isActive
+                        ? 'text-indigo-600'
+                        : 'text-slate-400 group-hover:text-slate-600'
+                        }`}
                     />
                     <span>{item.label}</span>
                   </div>
 
                   {item.badge && (
                     <span
-                      className={`rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide ${
-                        item.badgeColor || (isActive ? 'bg-indigo-200/70 text-indigo-800' : 'bg-slate-100 text-slate-600')
-                      }`}
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide ${item.badgeColor || (isActive ? 'bg-indigo-200/70 text-indigo-800' : 'bg-slate-100 text-slate-600')
+                        }`}
                     >
                       {item.badge}
                     </span>
