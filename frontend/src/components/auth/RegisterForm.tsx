@@ -148,15 +148,21 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       if (onSubmit) {
         await onSubmit(formData);
       } else {
-        const regRes = await registerUser({
+        const res = await registerUser({
           name: formData.fullName.trim(),
           email: formData.email.trim(),
           password: formData.password,
           role: 'customer',
           companyName: formData.businessName.trim(),
         });
-        if (!regRes.success) {
-          throw new Error(regRes.message);
+
+        if (!res.success) {
+          setStatusMessage({
+            type: 'error',
+            text: res.message,
+          });
+          setIsLoading(false);
+          return;
         }
       }
 

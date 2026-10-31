@@ -4,6 +4,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  password?: string;
   role: UserRole;
   companyName?: string;
   avatar?: string;
@@ -195,4 +196,3 @@ export interface CustomerProfile {
   address?: string;
   createdAt: string;
 }
-

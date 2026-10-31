@@ -12,6 +12,7 @@ import {
   ArrowRight,
   ShieldCheck,
   UserCheck,
+  KeyRound,
 } from 'lucide-react';
 import { useSubscription } from '@/context/SubscriptionContext';
 import SignupModal from './SignupModal';
@@ -42,7 +43,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   defaultEmail = '',
   className = '',
 }) => {
-  const { loginAs, loginWithCredentials, isBackendConnected, backendStatus, users } = useSubscription();
+  const { loginAs, loginWithCredentials, authenticateUser, isBackendConnected, backendStatus, users } = useSubscription();
 
   const [formData, setFormData] = useState<LoginFormData>({
     email: defaultEmail,
@@ -63,61 +64,82 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     text: '',
   });
 
-  const handleDemoLogin = async (userId: string) => {
-    setIsLoading(true);
-    setStatusMessage({ type: 'idle', text: '' });
-    await loginAs(userId);
-    setIsLoading(false);
-    setStatusMessage({ type: 'success', text: 'Persona authenticated successfully (JWT session established)!' });
-    setTimeout(() => {
-      if (onSuccess) onSuccess({ email: formData.email, rememberMe: true });
-    }, 400);
+  const handleDemoLogin = (userId: string) => {
+    const matchedUser = users.find((u) => u.id === userId);
+    if (matchedUser) {
+      setFormData({
+        email: matchedUser.email,
+        password: matchedUser.password || 'Brightloop@360',
+        rememberMe: true,
+      });
+      setFieldErrors({});
+      setStatusMessage({
+        type: 'idle',
+        text: '',
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setStatusMessage({ type: 'idle', text: '' });
+    setFieldErrors({});
 
-    if (!formData.email.trim()) {
+    const cleanEmail = formData.email.trim();
+    if (!cleanEmail) {
       setIsLoading(false);
-      setFieldErrors({ email: 'Please enter your account email.' });
+      setFieldErrors({ email: 'Please enter your account email address.' });
       return;
     }
-    if (formData.password.length < 4) {
+
+    if (!formData.password) {
       setIsLoading(false);
       setFieldErrors({ password: 'Enter your account password.' });
       return;
     }
 
-    const res = await loginWithCredentials(formData.email.trim(), formData.password);
-    setIsLoading(false);
+    // STRICT AUTHENTICATION VERIFICATION:
+    // Checks against backend database and registered user credentials.
+    // Rejects invalid email or wrong password strictly.
+    const authFn = authenticateUser || loginWithCredentials;
+    const authResult = await authFn(cleanEmail, formData.password);
 
-    if (res.success) {
-      setStatusMessage({ type: 'success', text: res.message });
-      setTimeout(() => {
-        if (onSuccess) {
-          onSuccess({ email: formData.email.trim(), rememberMe: formData.rememberMe });
-        }
-      }, 500);
-    } else {
-      // Local fallback if user is in seed data and offline
-      const matchedUser = users.find((u) => u.email.toLowerCase() === formData.email.trim().toLowerCase());
-      if (matchedUser) {
-        loginAs(matchedUser.id);
-        setStatusMessage({ type: 'success', text: `Welcome back, ${matchedUser.name}!` });
-        setTimeout(() => {
-          if (onSuccess) {
-            onSuccess({ email: matchedUser.email, rememberMe: formData.rememberMe });
-          }
-        }, 500);
-      } else {
-        setStatusMessage({
-          type: 'error',
-          text: res.message || 'No account found with this email. Please sign up or choose a Demo Persona below.',
-        });
+    if (!authResult.success) {
+      setIsLoading(false);
+      setStatusMessage({
+        type: 'error',
+        text: authResult.message || 'Invalid email or password. Please verify your credentials and try again.',
+      });
+      setFieldErrors({
+        password: 'Authentication failed. Please verify credentials.',
+      });
+      if (onError) onError(authResult.message);
+      return; // STRICT: HALT HERE. Do NOT log in on wrong credentials!
+    }
+
+    if (onSubmit) {
+      try {
+        await onSubmit(formData);
+      } catch (err: unknown) {
+        const errorText = err instanceof Error ? err.message : 'Login failed.';
+        setIsLoading(false);
+        setStatusMessage({ type: 'error', text: errorText });
+        return;
       }
     }
+
+    setIsLoading(false);
+    setStatusMessage({
+      type: 'success',
+      text: `Welcome back, ${authResult.user?.name || 'User'}! Authentication verified.`,
+    });
+
+    setTimeout(() => {
+      if (onSuccess) {
+        onSuccess({ email: cleanEmail, rememberMe: formData.rememberMe });
+      }
+    }, 450);
   };
 
   return (
@@ -147,9 +169,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             Scene 1 Personas
           </span>
         </div>
-        <p className="text-[11px] text-slate-500 mb-2.5">
-          Select any persona to immediately experience their role-based view and permissions:
-        </p>
+        <div className="flex items-center gap-1.5 text-[11px] text-slate-600 mb-2.5">
+          <KeyRound className="h-3 w-3 shrink-0 text-[#c9ab70]" />
+          <span>Click to fill credentials (Default Password: <strong>Brightloop@360</strong>)</span>
+        </div>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           <button
             type="button"
@@ -197,6 +220,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
       {statusMessage.type !== 'idle' && (
         <div
+          role="alert"
           className={`mb-4 flex items-center gap-2 rounded-lg p-3 text-xs border ${
             statusMessage.type === 'error'
               ? 'badge-danger'
@@ -208,12 +232,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           ) : (
             <CheckCircle2 className="h-4 w-4 shrink-0" />
           )}
-          <span>{statusMessage.text}</span>
+          <span className="font-medium leading-relaxed">{statusMessage.text}</span>
         </div>
       )}
 
       {/* Main Login Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} noValidate className="space-y-4">
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1">
             Work Email Address
@@ -224,9 +248,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               type="email"
               required
               value={formData.email}
+              disabled={isLoading}
               onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
               placeholder="alex.mercer@brightloop.io"
-              className="w-full rounded-lg border border-slate-200 pl-9 pr-3 py-2 text-xs text-slate-900 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
+              className="w-full rounded-lg border border-slate-200 pl-9 pr-3 py-2 text-xs text-slate-900 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden disabled:opacity-60"
             />
           </div>
           {fieldErrors.email && (
@@ -254,9 +279,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               type={showPassword ? 'text' : 'password'}
               required
               value={formData.password}
+              disabled={isLoading}
               onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
               placeholder="••••••••••••"
-              className="w-full rounded-lg border border-slate-200 pl-9 pr-10 py-2 text-xs text-slate-900 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
+              className="w-full rounded-lg border border-slate-200 pl-9 pr-10 py-2 text-xs text-slate-900 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden disabled:opacity-60"
             />
             <button
               type="button"
@@ -276,6 +302,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             <input
               type="checkbox"
               checked={formData.rememberMe}
+              disabled={isLoading}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, rememberMe: e.target.checked }))
               }
