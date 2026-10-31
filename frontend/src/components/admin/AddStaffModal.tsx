@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useState, useId } from "react";
+import React, { useState, useId } from 'react';
 import {
   X,
   UserPlus,
@@ -11,7 +11,7 @@ import {
   AlertCircle,
   Loader2,
   Lock,
-} from "lucide-react";
+} from 'lucide-react';
 
 export interface AddStaffModalProps {
   isOpen: boolean;
@@ -28,9 +28,9 @@ export const AddStaffModal: React.FC<AddStaffModalProps> = ({
   const emailId = useId();
   const roleId = useId();
 
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [role, setRole] = useState("Sales Representative");
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState('Sales Representative');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -40,13 +40,13 @@ export const AddStaffModal: React.FC<AddStaffModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName.trim() || !email.trim()) {
-      setError("Please fill out both staff name and email address.");
+      setError('Please fill out both staff name and email address.');
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
-      setError("Please enter a valid business email address for the staff member.");
+      setError('Please enter a valid business email address for the staff member.');
       return;
     }
 
@@ -64,27 +64,27 @@ export const AddStaffModal: React.FC<AddStaffModalProps> = ({
       setSuccess(true);
       setTimeout(() => {
         setSuccess(false);
-        setFullName("");
-        setEmail("");
+        setFullName('');
+        setEmail('');
         onClose();
       }, 1500);
     } catch (err) {
-      setError("Failed to add staff member. Please try again.");
+      setError('Failed to add staff member. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-      <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-5 animate-in fade-in zoom-in-95 duration-150">
-        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3.5">
+    <div className="modal-backdrop">
+      <div className="modal-panel max-w-md space-y-5">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#1c2530] border border-[#c9ab70]/30 text-[#c9ab70] flex items-center justify-center">
               <UserPlus className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
+              <h2 className="font-[family-name:var(--font-cinzel)] text-base font-bold text-slate-900">
                 Add New Staff Member
               </h2>
               <p className="text-[11px] text-slate-500">
@@ -94,21 +94,21 @@ export const AddStaffModal: React.FC<AddStaffModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs text-rose-700 dark:text-rose-300 flex items-center gap-2">
+          <div className="badge-danger p-3 rounded-lg flex items-center gap-2 text-xs">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {success && (
-          <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
+          <div className="badge-success p-3 rounded-lg flex items-center gap-2 text-xs">
             <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
             <span>Invitation dispatched to {email}! Account provisioned.</span>
           </div>
@@ -118,7 +118,7 @@ export const AddStaffModal: React.FC<AddStaffModalProps> = ({
           <div>
             <label
               htmlFor={nameId}
-              className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1"
+              className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1"
             >
               Full Name
             </label>
@@ -132,7 +132,7 @@ export const AddStaffModal: React.FC<AddStaffModalProps> = ({
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Marcus Vance"
-                className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/10 outline-none"
+                className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-200 text-sm bg-white text-slate-900 placeholder:text-slate-400 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] outline-none"
               />
             </div>
           </div>
@@ -140,7 +140,7 @@ export const AddStaffModal: React.FC<AddStaffModalProps> = ({
           <div>
             <label
               htmlFor={emailId}
-              className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1"
+              className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1"
             >
               Staff Corporate Email
             </label>
@@ -154,7 +154,7 @@ export const AddStaffModal: React.FC<AddStaffModalProps> = ({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="m.vance@brightloop.io"
-                className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/10 outline-none"
+                className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-200 text-sm bg-white text-slate-900 placeholder:text-slate-400 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] outline-none"
               />
             </div>
           </div>
@@ -162,7 +162,7 @@ export const AddStaffModal: React.FC<AddStaffModalProps> = ({
           <div>
             <label
               htmlFor={roleId}
-              className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1"
+              className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1"
             >
               Staff Assigned Role
             </label>
@@ -174,7 +174,7 @@ export const AddStaffModal: React.FC<AddStaffModalProps> = ({
                 id={roleId}
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/10 outline-none"
+                className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-200 text-sm bg-white text-slate-900 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] outline-none"
               >
                 <option value="Sales Representative">Sales Representative (Quotes & Deals)</option>
                 <option value="Billing Specialist">Billing Specialist (Invoices & Chasing)</option>
@@ -184,8 +184,8 @@ export const AddStaffModal: React.FC<AddStaffModalProps> = ({
             </div>
           </div>
 
-          <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 text-xs text-slate-500 dark:text-slate-400 flex items-start gap-2">
-            <Lock className="w-3.5 h-3.5 text-indigo-500 flex-shrink-0 mt-0.5" />
+          <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-500 flex items-start gap-2">
+            <Lock className="w-3.5 h-3.5 text-[#c9ab70] flex-shrink-0 mt-0.5" />
             <span>
               Internal staff accounts have restricted operational access and cannot modify tax rules, discount formulas, or create additional staff accounts.
             </span>
@@ -196,14 +196,14 @@ export const AddStaffModal: React.FC<AddStaffModalProps> = ({
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="btn-light-secondary cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-all flex items-center gap-1.5 disabled:opacity-60"
+              className="btn-gold cursor-pointer"
             >
               {isLoading ? (
                 <>
@@ -222,4 +222,3 @@ export const AddStaffModal: React.FC<AddStaffModalProps> = ({
 };
 
 export default AddStaffModal;
-

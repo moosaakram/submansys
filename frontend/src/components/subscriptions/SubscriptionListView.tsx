@@ -251,22 +251,22 @@ export default function SubscriptionListView() {
   const getStatusBadge = (status: SubscriptionStatus, isPaused?: boolean) => {
     if (isPaused) {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800">
+        <span className="badge-warning">
           <Pause className="h-3 w-3" /> Paused
         </span>
       );
     }
     switch (status) {
       case 'draft':
-        return <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700">Draft</span>;
+        return <span className="badge-neutral">Draft</span>;
       case 'quotation':
-        return <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-[11px] font-semibold text-blue-700">Quotation</span>;
+        return <span className="badge-info">Quotation</span>;
       case 'confirmed':
-        return <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-[11px] font-semibold text-purple-700">Confirmed</span>;
+        return <span className="badge-warning">Confirmed</span>;
       case 'active':
-        return <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">Active</span>;
+        return <span className="badge-success">Active</span>;
       case 'closed':
-        return <span className="rounded-full bg-rose-100 px-2.5 py-0.5 text-[11px] font-semibold text-rose-700">Closed</span>;
+        return <span className="badge-danger">Closed</span>;
     }
   };
 
@@ -275,14 +275,15 @@ export default function SubscriptionListView() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
-            <Repeat className="h-3.5 w-3.5" />
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
+            <Repeat className="h-3 w-3" />
             <span>Scene 3: Quotation to Subscription Lifecycle</span>
           </div>
-          <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+          <h2 className="mt-1 font-[family-name:var(--font-cinzel)] text-2xl font-bold tracking-tight text-slate-900">
             {currentUser.role === 'customer' ? 'My Active Subscriptions' : 'Subscriptions & Quotes'}
           </h2>
-          <p className="text-xs text-slate-500">
+          <div className="title-accent-rule" />
+          <p className="mt-0.5 text-xs text-slate-500">
             Track full progression: Draft &rarr; Quotation &rarr; Confirmed &rarr; Active &rarr; Closed.
           </p>
         </div>
@@ -294,7 +295,7 @@ export default function SubscriptionListView() {
               setSelectedTemplateId('');
               setIsBuilderOpen(true);
             }}
-            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-indigo-700 transition-colors cursor-pointer"
+            className="btn-gold cursor-pointer"
           >
             <Plus className="h-4 w-4" />
             <span>New Quote / Subscription</span>
@@ -303,24 +304,24 @@ export default function SubscriptionListView() {
       </div>
 
       {/* Lifecycle Stage Visual Bar */}
-      <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-2xs">
+      <div className="card-surface p-4">
         <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2.5">
           Lifecycle State Progression (Scene 3)
         </span>
         <div className="grid grid-cols-5 gap-2 text-center text-xs">
-          <div className="rounded-xl bg-slate-100 p-2 text-slate-700 font-semibold border border-slate-200">
+          <div className="rounded-lg bg-slate-100 p-2 text-slate-700 font-semibold border border-slate-200">
             1. Draft
           </div>
-          <div className="rounded-xl bg-blue-50 p-2 text-blue-700 font-semibold border border-blue-200">
+          <div className="rounded-lg bg-sky-50 p-2 text-sky-800 font-semibold border border-sky-200">
             2. Quotation
           </div>
-          <div className="rounded-xl bg-purple-50 p-2 text-purple-700 font-semibold border border-purple-200">
+          <div className="rounded-lg bg-amber-50 p-2 text-amber-800 font-semibold border border-amber-200">
             3. Confirmed
           </div>
-          <div className="rounded-xl bg-emerald-50 p-2 text-emerald-700 font-semibold border border-emerald-200">
+          <div className="rounded-lg bg-emerald-50 p-2 text-emerald-800 font-semibold border border-emerald-200">
             4. Active
           </div>
-          <div className="rounded-xl bg-rose-50 p-2 text-rose-700 font-semibold border border-rose-200">
+          <div className="rounded-lg bg-rose-50 p-2 text-rose-800 font-semibold border border-rose-200">
             5. Closed
           </div>
         </div>
@@ -333,9 +334,9 @@ export default function SubscriptionListView() {
             <button
               key={st}
               onClick={() => setSelectedStatus(st)}
-              className={`rounded-xl px-3 py-1.5 text-xs font-semibold capitalize transition-colors cursor-pointer ${
+              className={`rounded-lg px-3 py-1.5 text-xs font-semibold capitalize transition-all cursor-pointer ${
                 selectedStatus === st
-                  ? 'bg-indigo-600 text-white shadow-xs'
+                  ? 'bg-[#1c2530] text-[#c9ab70] border border-[#c9ab70]/30 shadow-xs'
                   : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
               }`}
             >
@@ -351,17 +352,17 @@ export default function SubscriptionListView() {
             placeholder="Search number, customer..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-1.5 text-xs bg-white focus:outline-hidden"
+            className="w-full rounded-lg border border-slate-200 pl-9 pr-3 py-1.5 text-xs bg-white text-slate-900 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
           />
         </div>
       </div>
 
       {/* Subscriptions Table */}
-      <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-2xs">
+      <div className="table-container">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="border-b border-slate-100 bg-slate-50/75 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-              <tr>
+            <thead>
+              <tr className="table-header">
                 <th className="px-5 py-3.5">Subscription #</th>
                 <th className="px-5 py-3.5">Customer</th>
                 <th className="px-5 py-3.5">Plan & Frequency</th>
@@ -380,11 +381,11 @@ export default function SubscriptionListView() {
                 </tr>
               ) : (
                 filteredSubs.map((sub) => (
-                  <tr key={sub.id} className="hover:bg-slate-50/60 transition-colors">
+                  <tr key={sub.id} className="table-row">
                     <td className="px-5 py-3.5 font-bold text-slate-900">
                       <button
                         onClick={() => setSelectedSubDetail(sub)}
-                        className="text-indigo-600 hover:underline cursor-pointer"
+                        className="font-mono text-xs font-semibold text-[#1c2530] hover:text-[#c9ab70] cursor-pointer"
                       >
                         {sub.subscriptionNumber}
                       </button>
@@ -398,7 +399,7 @@ export default function SubscriptionListView() {
                       <div className="text-[11px] text-slate-400 capitalize">{sub.billingCycle}</div>
                     </td>
                     <td className="px-5 py-3.5">{getStatusBadge(sub.status, sub.isPaused)}</td>
-                    <td className="px-5 py-3.5 font-bold text-slate-900">
+                    <td className="px-5 py-3.5 font-[family-name:var(--font-serif)] font-bold text-slate-900 text-sm">
                       ${sub.totalAmount.toFixed(2)}
                     </td>
                     <td className="px-5 py-3.5 text-slate-600">{sub.expiryDate}</td>
@@ -408,7 +409,7 @@ export default function SubscriptionListView() {
                         {sub.status === 'draft' && (
                           <button
                             onClick={() => updateSubscriptionStatus(sub.id, 'quotation')}
-                            className="rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-100 cursor-pointer"
+                            className="rounded-lg bg-sky-50 border border-sky-200 px-2.5 py-1 text-xs font-semibold text-sky-800 hover:bg-sky-100 cursor-pointer transition-colors"
                             title="Turn Draft into Quotation offer"
                           >
                             To Quotation &rarr;
@@ -418,7 +419,7 @@ export default function SubscriptionListView() {
                         {sub.status === 'quotation' && (
                           <button
                             onClick={() => updateSubscriptionStatus(sub.id, 'confirmed')}
-                            className="rounded-lg bg-purple-50 px-2.5 py-1 text-xs font-semibold text-purple-700 hover:bg-purple-100 cursor-pointer"
+                            className="rounded-lg bg-amber-50 border border-amber-200 px-2.5 py-1 text-xs font-semibold text-amber-800 hover:bg-amber-100 cursor-pointer transition-colors"
                             title="Confirm Customer Order"
                           >
                             Confirm Order &rarr;
@@ -428,7 +429,7 @@ export default function SubscriptionListView() {
                         {sub.status === 'confirmed' && (
                           <button
                             onClick={() => updateSubscriptionStatus(sub.id, 'active')}
-                            className="rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 cursor-pointer"
+                            className="rounded-lg bg-emerald-50 border border-emerald-200 px-2.5 py-1 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 cursor-pointer transition-colors"
                             title="Activate Subscription"
                           >
                             Activate &rarr;
@@ -439,14 +440,14 @@ export default function SubscriptionListView() {
                           <>
                             <button
                               onClick={() => togglePauseSubscription(sub.id)}
-                              className="rounded-lg border border-slate-200 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 cursor-pointer"
+                              className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 cursor-pointer transition-colors"
                               title={sub.isPaused ? 'Resume billing' : 'Pause billing'}
                             >
                               {sub.isPaused ? <Play className="h-3.5 w-3.5 text-emerald-600" /> : <Pause className="h-3.5 w-3.5 text-amber-600" />}
                             </button>
                             <button
                               onClick={() => updateSubscriptionStatus(sub.id, 'closed')}
-                              className="rounded-lg bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-100 cursor-pointer"
+                              className="rounded-lg bg-rose-50 border border-rose-200 px-2 py-1 text-xs font-semibold text-rose-800 hover:bg-rose-100 cursor-pointer transition-colors"
                               title="Close / Cancel early"
                             >
                               Close
@@ -457,7 +458,7 @@ export default function SubscriptionListView() {
                         {sub.status === 'closed' && (
                           <button
                             onClick={() => renewSubscription(sub.id, 12)}
-                            className="rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 cursor-pointer"
+                            className="rounded-lg bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-1 text-xs font-semibold text-[#c9ab70] hover:bg-[#212c37] cursor-pointer transition-colors"
                           >
                             <RotateCcw className="h-3 w-3 inline mr-1" /> Renew
                           </button>
@@ -474,20 +475,20 @@ export default function SubscriptionListView() {
 
       {/* Modal: New Quote / Subscription Builder */}
       {isBuilderOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 overflow-y-auto">
-          <div className="relative w-full max-w-3xl rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-slate-200 my-8">
+        <div className="modal-backdrop">
+          <div className="modal-panel max-w-3xl my-8">
             <button
               onClick={() => setIsBuilderOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 rounded-lg p-1 cursor-pointer"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 rounded-lg p-1 cursor-pointer transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
 
             <div className="mb-4">
-              <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+              <span className="rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
                 Scene 3: Turn Quote into Subscription
               </span>
-              <h3 className="mt-2 text-xl font-bold text-slate-900">
+              <h3 className="mt-2 font-[family-name:var(--font-cinzel)] text-xl font-bold text-slate-900">
                 Quote & Subscription Builder
               </h3>
               <p className="text-xs text-slate-500">
@@ -496,15 +497,15 @@ export default function SubscriptionListView() {
             </div>
 
             {/* Template Selector Banner (Scene 3 requirement) */}
-            <div className="mb-4 rounded-xl border border-indigo-100 bg-indigo-50/50 p-3">
-              <label className="block text-xs font-bold text-indigo-950 mb-1.5 flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-indigo-600" />
+            <div className="mb-4 rounded-xl border border-[#c9ab70]/30 bg-[#c9ab70]/5 p-3">
+              <label className="block text-xs font-bold text-[#1c2530] mb-1.5 flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-[#c9ab70]" />
                 <span>Start from Quotation Template (Scene 3):</span>
               </label>
               <select
                 value={selectedTemplateId}
                 onChange={(e) => handleTemplateSelect(e.target.value)}
-                className="w-full rounded-lg border border-indigo-200 bg-white px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-800 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
               >
                 <option value="">-- Start from Blank Quote --</option>
                 {quotationTemplates.map((t) => (
@@ -522,8 +523,8 @@ export default function SubscriptionListView() {
                     onClick={() => handleTemplateSelect(t.id)}
                     className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold border transition-all cursor-pointer ${
                       selectedTemplateId === t.id
-                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
-                        : 'bg-white text-indigo-700 border-indigo-200 hover:bg-indigo-50'
+                        ? 'bg-[#1c2530] text-[#c9ab70] border-[#c9ab70]/40 shadow-xs'
+                        : 'bg-white text-slate-700 border-slate-200 hover:border-[#c9ab70]/50'
                     }`}
                   >
                     ⚡ {t.name}
@@ -539,7 +540,7 @@ export default function SubscriptionListView() {
                   <select
                     value={customerId}
                     onChange={(e) => setCustomerId(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                   >
                     {customers.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -554,7 +555,7 @@ export default function SubscriptionListView() {
                   <select
                     value={planId}
                     onChange={(e) => setPlanId(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                   >
                     {plans.map((p) => (
                       <option key={p.id} value={p.id}>
@@ -571,7 +572,7 @@ export default function SubscriptionListView() {
                   <select
                     value={initialStatus}
                     onChange={(e) => setInitialStatus(e.target.value as SubscriptionStatus)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:outline-hidden capitalize"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden capitalize"
                   >
                     <option value="draft">Draft</option>
                     <option value="quotation">Quotation</option>
@@ -589,7 +590,7 @@ export default function SubscriptionListView() {
                     required
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-1.5 text-xs focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                   />
                 </div>
                 <div>
@@ -599,7 +600,7 @@ export default function SubscriptionListView() {
                     required
                     value={expiryDate}
                     onChange={(e) => setExpiryDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-1.5 text-xs focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                   />
                 </div>
                 <div>
@@ -607,7 +608,7 @@ export default function SubscriptionListView() {
                   <select
                     value={paymentTerms}
                     onChange={(e) => setPaymentTerms(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-1.5 text-xs focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                   >
                     <option value="Due on Receipt">Due on Receipt</option>
                     <option value="Net 15">Net 15</option>
@@ -626,7 +627,7 @@ export default function SubscriptionListView() {
                   <button
                     type="button"
                     onClick={handleAddLine}
-                    className="inline-flex items-center gap-1 rounded-lg bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 cursor-pointer"
+                    className="inline-flex items-center gap-1 rounded-lg bg-[#1c2530] px-2.5 py-1 text-xs font-semibold text-[#c9ab70] hover:bg-[#212c37] cursor-pointer transition-colors"
                   >
                     <Plus className="h-3 w-3" /> Add Product Line
                   </button>
@@ -638,13 +639,13 @@ export default function SubscriptionListView() {
                     return (
                       <div
                         key={idx}
-                        className="flex flex-wrap items-center gap-2 rounded-xl bg-white p-2.5 border border-slate-200 text-xs"
+                        className="flex flex-wrap items-center gap-2 rounded-lg bg-white p-2.5 border border-slate-200 text-xs"
                       >
                         {/* Product Selector */}
                         <select
                           value={line.productId}
                           onChange={(e) => handleProductChangeInLine(idx, e.target.value)}
-                          className="flex-1 min-w-40 rounded-lg border border-slate-200 px-2 py-1.5 focus:outline-hidden"
+                          className="flex-1 min-w-40 rounded-lg border border-slate-200 px-2 py-1.5 focus:border-[#c9ab70] focus:outline-hidden"
                         >
                           {products.map((p) => (
                             <option key={p.id} value={p.id}>
@@ -658,7 +659,7 @@ export default function SubscriptionListView() {
                           <select
                             value={line.variantId || ''}
                             onChange={(e) => handleVariantChangeInLine(idx, e.target.value)}
-                            className="w-44 rounded-lg border border-indigo-200 bg-indigo-50/50 px-2 py-1.5 text-indigo-950 focus:outline-hidden font-medium"
+                            className="w-44 rounded-lg border border-[#c9ab70]/40 bg-[#c9ab70]/10 px-2 py-1.5 text-slate-900 focus:outline-hidden font-medium"
                           >
                             <option value="">No Variant / Base</option>
                             {currentProd.variants.map((v) => (
@@ -677,7 +678,7 @@ export default function SubscriptionListView() {
                             min="1"
                             value={line.quantity}
                             onChange={(e) => handleQuantityChange(idx, parseInt(e.target.value) || 1)}
-                            className="w-full rounded-lg border border-slate-200 px-2 py-1 text-center focus:outline-hidden"
+                            className="w-full rounded-lg border border-slate-200 px-2 py-1 text-center focus:border-[#c9ab70] focus:outline-hidden"
                           />
                         </div>
 
@@ -701,7 +702,7 @@ export default function SubscriptionListView() {
                           <button
                             type="button"
                             onClick={() => handleRemoveLine(idx)}
-                            className="text-slate-400 hover:text-rose-600 p-1 cursor-pointer"
+                            className="text-slate-400 hover:text-rose-600 p-1 cursor-pointer transition-colors"
                           >
                             <X className="h-4 w-4" />
                           </button>
@@ -734,7 +735,7 @@ export default function SubscriptionListView() {
                     </div>
                     <div className="flex justify-between border-t border-slate-200 pt-1 text-sm font-bold text-slate-900">
                       <span>Total Amount:</span>
-                      <span className="text-indigo-600">${calculatedTotal.toFixed(2)}</span>
+                      <span className="font-[family-name:var(--font-serif)] font-bold text-[#1c2530] text-base">${calculatedTotal.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -747,7 +748,7 @@ export default function SubscriptionListView() {
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Quotation validity notes or customer terms..."
-                  className="w-full rounded-xl border border-slate-200 px-3 py-1.5 text-xs focus:outline-hidden"
+                  className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                 />
               </div>
 
@@ -755,13 +756,13 @@ export default function SubscriptionListView() {
                 <button
                   type="button"
                   onClick={() => setIsBuilderOpen(false)}
-                  className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                  className="btn-light-secondary cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 shadow-xs cursor-pointer"
+                  className="btn-gold cursor-pointer"
                 >
                   Create {initialStatus === 'quotation' ? 'Quotation' : 'Subscription'}
                 </button>
@@ -773,20 +774,20 @@ export default function SubscriptionListView() {
 
       {/* Modal: Subscription Detail View */}
       {selectedSubDetail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-          <div className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-slate-200">
+        <div className="modal-backdrop">
+          <div className="modal-panel max-w-lg">
             <button
               onClick={() => setSelectedSubDetail(null)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 rounded-lg p-1 cursor-pointer"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 rounded-lg p-1 cursor-pointer transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
 
             <div className="mb-4">
-              <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-700">
+              <span className="rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
                 {selectedSubDetail.subscriptionNumber}
               </span>
-              <h3 className="mt-2 text-xl font-bold text-slate-900">
+              <h3 className="mt-2 font-[family-name:var(--font-cinzel)] text-xl font-bold text-slate-900">
                 {selectedSubDetail.planName}
               </h3>
               <p className="text-xs text-slate-500">
@@ -794,7 +795,7 @@ export default function SubscriptionListView() {
               </p>
             </div>
 
-            <div className="rounded-xl bg-slate-50 p-3 space-y-2 text-xs mb-4">
+            <div className="rounded-lg bg-slate-50 border border-slate-100 p-3 space-y-2 text-xs mb-4">
               <div className="flex justify-between">
                 <span className="text-slate-500">Lifecycle Status:</span>
                 <div>{getStatusBadge(selectedSubDetail.status, selectedSubDetail.isPaused)}</div>
@@ -833,7 +834,7 @@ export default function SubscriptionListView() {
               </div>
               <div className="mt-3 flex justify-between border-t border-slate-200 pt-2 font-bold text-sm text-slate-900">
                 <span>Total Amount:</span>
-                <span className="text-indigo-600">${selectedSubDetail.totalAmount.toFixed(2)}</span>
+                <span className="font-[family-name:var(--font-serif)] font-bold text-base text-[#1c2530]">${selectedSubDetail.totalAmount.toFixed(2)}</span>
               </div>
             </div>
 
@@ -841,7 +842,7 @@ export default function SubscriptionListView() {
               <button
                 type="button"
                 onClick={() => setSelectedSubDetail(null)}
-                className="rounded-xl bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200 cursor-pointer"
+                className="btn-light-secondary cursor-pointer"
               >
                 Close Details
               </button>

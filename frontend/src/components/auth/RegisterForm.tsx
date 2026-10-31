@@ -14,7 +14,7 @@ import {
   Loader2,
   ArrowRight,
   ShieldCheck,
-  RefreshCw,
+  Sparkles,
 } from "lucide-react";
 
 export interface RegisterFormData {
@@ -152,7 +152,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
 
       setStatusMessage({
         type: "success",
-        text: `Account created successfully for ${formData.businessName}! Welcome to Brightloop 360.`,
+        text: `Account created successfully for ${formData.businessName}! Welcome to SubManSys.`,
       });
 
       if (onSuccess) {
@@ -175,27 +175,26 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   const errors = validate();
 
   return (
-    <div
-      className={`w-full max-w-lg mx-auto p-6 sm:p-8 bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-900/5 dark:shadow-indigo-950/20 border border-slate-200 dark:border-slate-800 transition-all ${className}`}
-    >
+    <div className={`w-full max-w-lg mx-auto p-6 sm:p-8 card-surface ${className}`}>
       {/* Brand Header */}
       <div className="flex flex-col items-center text-center mb-6">
-        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md shadow-indigo-500/25 mb-3 ring-4 ring-indigo-50 dark:ring-indigo-950/50">
-          <RefreshCw className="w-6 h-6 animate-[spin_12s_linear_infinite]" />
+        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-[#171f28] to-[#212c37] border border-[#c9ab70]/30 text-[#c9ab70] shadow-md shadow-slate-900/10 mb-3">
+          <Sparkles className="w-6 h-6 text-[#c9ab70]" />
         </div>
         <div className="flex items-center gap-1.5 mb-1">
-          <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Brightloop
+          <span className="font-[family-name:var(--font-cinzel)] text-xl font-bold tracking-tight text-slate-900">
+            SUBMANSYS
           </span>
-          <span className="text-xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            360
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#1c2530] text-[#c9ab70] tracking-wider uppercase border border-[#c9ab70]/20">
+            ENTERPRISE
           </span>
         </div>
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+        <h1 className="text-2xl font-bold text-slate-900 tracking-tight font-[family-name:var(--font-cinzel)] mt-1">
           Create Business Account
         </h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Start managing recurring subscriptions, quotes, and billing in one unified platform
+        <div className="title-accent-rule mt-2 mb-2" />
+        <p className="text-xs text-slate-500 mt-1 max-w-sm">
+          Unified recurring subscriptions, quote-to-cash workflows, and automated billing.
         </p>
       </div>
 
@@ -205,14 +204,14 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           role="alert"
           className={`mb-6 p-3.5 rounded-xl text-sm flex items-start gap-3 ${
             statusMessage.type === "success"
-              ? "bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300"
-              : "bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300"
+              ? "badge-success text-emerald-800"
+              : "badge-danger text-rose-800"
           }`}
         >
           {statusMessage.type === "success" ? (
-            <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-600 dark:text-emerald-400 mt-0.5" />
+            <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-600 mt-0.5" />
           ) : (
-            <AlertCircle className="w-5 h-5 flex-shrink-0 text-rose-600 dark:text-rose-400 mt-0.5" />
+            <AlertCircle className="w-5 h-5 flex-shrink-0 text-rose-600 mt-0.5" />
           )}
           <span className="font-medium leading-relaxed">{statusMessage.text}</span>
         </div>
@@ -225,7 +224,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           <div>
             <label
               htmlFor={nameId}
-              className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1"
+              className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1"
             >
               Full Name
             </label>
@@ -243,11 +242,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                 }
                 onBlur={() => setTouched((prev) => ({ ...prev, fullName: true }))}
                 placeholder="Sarah Connor"
-                className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                className="input-standard pl-9"
               />
             </div>
             {touched.fullName && errors.fullName && (
-              <p className="mt-1 text-xs text-rose-600 dark:text-rose-400 font-medium">
+              <p className="mt-1 text-xs text-rose-600 font-medium">
                 {errors.fullName}
               </p>
             )}
@@ -256,7 +255,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           <div>
             <label
               htmlFor={businessId}
-              className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1"
+              className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1"
             >
               Business Name
             </label>
@@ -274,11 +273,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                 }
                 onBlur={() => setTouched((prev) => ({ ...prev, businessName: true }))}
                 placeholder="Cyberdyne Systems"
-                className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                className="input-standard pl-9"
               />
             </div>
             {touched.businessName && errors.businessName && (
-              <p className="mt-1 text-xs text-rose-600 dark:text-rose-400 font-medium">
+              <p className="mt-1 text-xs text-rose-600 font-medium">
                 {errors.businessName}
               </p>
             )}
@@ -289,7 +288,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         <div>
           <label
             htmlFor={emailId}
-            className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1"
+            className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1"
           >
             Work Email Address
           </label>
@@ -307,14 +306,14 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
               }
               onBlur={() => setTouched((prev) => ({ ...prev, email: true }))}
               placeholder="s.connor@cyberdyne.com"
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+              className="input-standard pl-10"
             />
           </div>
           <p className="mt-1 text-[11px] text-slate-400">
-            Each business email can belong to only one Brightloop 360 account.
+            Each business email can belong to only one SubManSys account.
           </p>
           {touched.email && errors.email && (
-            <p className="mt-1 text-xs text-rose-600 dark:text-rose-400 font-medium">
+            <p className="mt-1 text-xs text-rose-600 font-medium">
               {errors.email}
             </p>
           )}
@@ -324,7 +323,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         <div>
           <label
             htmlFor={passwordId}
-            className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1"
+            className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1"
           >
             Password
           </label>
@@ -342,7 +341,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
               }
               onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
               placeholder="Create strong password"
-              className="w-full pl-10 pr-11 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+              className="input-standard pl-10 pr-11"
             />
             <button
               type="button"
@@ -355,20 +354,20 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           </div>
 
           {/* Real-time Password Requirements Checklist */}
-          <div className="mt-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 space-y-1.5 text-xs">
-            <span className="font-semibold text-slate-600 dark:text-slate-300 block mb-1">
+          <div className="mt-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5 text-xs">
+            <span className="font-semibold text-slate-700 block mb-1">
               Required Security Criteria:
             </span>
             <div className="grid grid-cols-2 gap-1.5">
               <div
                 className={`flex items-center gap-1.5 ${
                   passwordCriteria.length
-                    ? "text-emerald-600 dark:text-emerald-400 font-medium"
-                    : "text-slate-500 dark:text-slate-400"
+                    ? "text-emerald-700 font-medium"
+                    : "text-slate-400"
                 }`}
               >
                 {passwordCriteria.length ? (
-                  <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-emerald-600" />
                 ) : (
                   <XCircle className="w-3.5 h-3.5 flex-shrink-0 text-slate-400" />
                 )}
@@ -378,46 +377,46 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
               <div
                 className={`flex items-center gap-1.5 ${
                   passwordCriteria.uppercase
-                    ? "text-emerald-600 dark:text-emerald-400 font-medium"
-                    : "text-slate-500 dark:text-slate-400"
+                    ? "text-emerald-700 font-medium"
+                    : "text-slate-400"
                 }`}
               >
                 {passwordCriteria.uppercase ? (
-                  <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-emerald-600" />
                 ) : (
                   <XCircle className="w-3.5 h-3.5 flex-shrink-0 text-slate-400" />
                 )}
-                <span>One uppercase letter (A-Z)</span>
+                <span>One uppercase (A-Z)</span>
               </div>
 
               <div
                 className={`flex items-center gap-1.5 ${
                   passwordCriteria.lowercase
-                    ? "text-emerald-600 dark:text-emerald-400 font-medium"
-                    : "text-slate-500 dark:text-slate-400"
+                    ? "text-emerald-700 font-medium"
+                    : "text-slate-400"
                 }`}
               >
                 {passwordCriteria.lowercase ? (
-                  <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-emerald-600" />
                 ) : (
                   <XCircle className="w-3.5 h-3.5 flex-shrink-0 text-slate-400" />
                 )}
-                <span>One lowercase letter (a-z)</span>
+                <span>One lowercase (a-z)</span>
               </div>
 
               <div
                 className={`flex items-center gap-1.5 ${
                   passwordCriteria.special
-                    ? "text-emerald-600 dark:text-emerald-400 font-medium"
-                    : "text-slate-500 dark:text-slate-400"
+                    ? "text-emerald-700 font-medium"
+                    : "text-slate-400"
                 }`}
               >
                 {passwordCriteria.special ? (
-                  <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-emerald-600" />
                 ) : (
                   <XCircle className="w-3.5 h-3.5 flex-shrink-0 text-slate-400" />
                 )}
-                <span>One special character (!@#$)</span>
+                <span>One special (!@#$)</span>
               </div>
             </div>
           </div>
@@ -427,7 +426,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         <div>
           <label
             htmlFor={confirmPasswordId}
-            className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1"
+            className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1"
           >
             Confirm Password
           </label>
@@ -445,7 +444,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
               }
               onBlur={() => setTouched((prev) => ({ ...prev, confirmPassword: true }))}
               placeholder="Re-enter password"
-              className="w-full pl-10 pr-11 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+              className="input-standard pl-10 pr-11"
             />
             <button
               type="button"
@@ -461,7 +460,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
             </button>
           </div>
           {touched.confirmPassword && errors.confirmPassword && (
-            <p className="mt-1 text-xs text-rose-600 dark:text-rose-400 font-medium">
+            <p className="mt-1 text-xs text-rose-600 font-medium">
               {errors.confirmPassword}
             </p>
           )}
@@ -481,18 +480,18 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, agreeTerms: e.target.checked }))
               }
-              className="w-4 h-4 mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/20 focus:ring-2 cursor-pointer"
+              className="w-4 h-4 mt-0.5 rounded border-slate-300 text-[#171f28] focus:ring-[#c9ab70]/20 focus:ring-2 cursor-pointer"
             />
-            <span className="text-xs text-slate-600 dark:text-slate-400">
+            <span className="text-xs text-slate-600">
               I agree to the{" "}
-              <a href="#terms" className="text-indigo-600 hover:underline font-medium">
+              <a href="#terms" className="text-slate-900 font-semibold hover:underline">
                 Subscription Master Terms
               </a>{" "}
               and acknowledge the Privacy Policy.
             </span>
           </label>
           {touched.agreeTerms && errors.agreeTerms && (
-            <p className="mt-1 text-xs text-rose-600 dark:text-rose-400 font-medium">
+            <p className="mt-1 text-xs text-rose-600 font-medium">
               {errors.agreeTerms}
             </p>
           )}
@@ -502,11 +501,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full mt-2 py-3 px-4 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-700 hover:via-indigo-700 hover:to-indigo-800 shadow-lg shadow-indigo-500/25 active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-65"
+          className="btn-gold w-full py-3 mt-2 text-sm justify-center flex items-center gap-2"
         >
           {isLoading ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin text-white" />
+              <Loader2 className="w-4 h-4 animate-spin text-slate-900" />
               <span>Registering Organization...</span>
             </>
           ) : (
@@ -519,21 +518,21 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       </form>
 
       {/* Sign In Navigation */}
-      <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800/80 text-center">
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          Already have a Brightloop 360 account?{" "}
+      <div className="mt-6 pt-5 border-t border-slate-200 text-center">
+        <p className="text-xs text-slate-500">
+          Already have a SubManSys account?{" "}
           {onSignInClick ? (
             <button
               type="button"
               onClick={onSignInClick}
-              className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+              className="font-semibold text-slate-900 hover:text-[#c9ab70] transition-colors hover:underline"
             >
               Sign In
             </button>
           ) : (
             <a
               href="/login"
-              className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+              className="font-semibold text-slate-900 hover:text-[#c9ab70] transition-colors hover:underline"
             >
               Sign In
             </a>
@@ -542,8 +541,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       </div>
 
       {/* Trust Seal */}
-      <div className="mt-4 flex items-center justify-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-500">
-        <ShieldCheck className="w-3.5 h-3.5 text-indigo-500" />
+      <div className="mt-4 flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
+        <ShieldCheck className="w-3.5 h-3.5 text-[#c9ab70]" />
         <span>Strict Password Protection • TLS 1.3 Certified</span>
       </div>
     </div>
@@ -551,4 +550,3 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
 };
 
 export default RegisterForm;
-

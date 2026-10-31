@@ -1,17 +1,60 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  /* Surfaces */
+  --bg-deep: #171f28;
+  --bg-mid: #1c2530;
+  --bg-surface: #212c37;
+  --bg-elevated: #2e3b49;
+  --bg-workspace: #F7F8FA;
+  --bg-card: #FFFFFF;
+
+  /* Typography */
+  --font-sans: var(--font-sans), 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: var(--font-serif), 'Playfair Display', Georgia, serif;
+  --font-cinzel: var(--font-cinzel), 'Cinzel', serif;
+
+  /* Text colours */
+  --text-dark-primary: #f0f2f5;
+  --text-dark-secondary: #a9b5c3;
+  --text-dark-muted: #6b778a;
+  --text-light-primary: #1F2937;
+  --text-light-secondary: #6B7280;
+  --text-light-muted: #94A3B8;
+
+  /* Accent - Champagne Gold */
+  --gold: #c9ab70;
+  --gold-hover: #d4ba85;
+  --gold-top: #dcc28a;
+  --gold-text: #171f28;
+  --gold-subtle: rgba(201, 171, 112, 0.12);
+  --gold-ring: rgba(201, 171, 112, 0.28);
+  --gold-rule: linear-gradient(90deg, #c9ab70 0%, transparent 100%);
+
+  /* Navigation & Top Bar */
+  --nav-from: #212c37;
+  --nav-to: #171f28;
+  --nav-border: rgba(255, 255, 255, 0.08);
+  --nav-hover: rgba(255, 255, 255, 0.06);
+  --nav-active: rgba(201, 171, 112, 0.12);
+  --topbar-bg: #1c2530;
+  --topbar-border: rgba(255, 255, 255, 0.07);
+
+  /* Shadows */
+  --shadow-2xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 2px 4px rgba(10, 16, 24, 0.04), 0 12px 24px -12px rgba(10, 16, 24, 0.08);
+  --shadow-elevated: 0 8px 24px -4px rgba(10, 16, 24, 0.15), 0 4px 12px -4px rgba(10, 16, 24, 0.10);
+  --shadow-modal: 0 20px 40px -8px rgba(0, 0, 0, 0.25);
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--bg-workspace);
+  color: var(--text-light-primary);
+  font-family: var(--font-sans);
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
-/* Custom scrollbars for clean SaaS tables & sidebars */
+/* Custom scrollbars for clean luxury SaaS */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -28,4 +71,277 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* ==========================================================================
+   MANDATORY BACKGROUND & ATMOSPHERIC GRADIENTS (UI_DESIGN_SYSTEM.md Sec 3)
+   ========================================================================== */
+
+/* 280px Atmospheric Fog Transition connecting #1c2530 top bar with #F7F8FA canvas */
+.atmospheric-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 280px;
+  pointer-events: none;
+  z-index: 0;
+  background: 
+    radial-gradient(
+      ellipse 75% 240px at 85% 0%, 
+      rgba(94, 140, 184, 0.22) 0%, 
+      transparent 70%
+    ),
+    linear-gradient(
+      180deg, 
+      #1c2530 0px, 
+      #1f2a37 60px, 
+      #253342 120px, 
+      #3a4959 170px, 
+      #7a8fa6 220px, 
+      rgba(247, 248, 250, 0) 280px
+    );
+}
+
+/* Sidebar Radial Depth Background */
+.sidebar-surface {
+  background: radial-gradient(
+    120% 90% at 50% 0%, 
+    #3a4958 0%, 
+    #212c37 60%, 
+    #171f28 100%
+  );
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+}
+
+/* Sticky Top Navigation Surface */
+.topbar-surface {
+  background: #1c2530;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* Distinctive Decorative Gold Rule below H1 headers */
+.title-accent-rule {
+  width: 64px;
+  height: 2px;
+  margin: 8px 0 10px;
+  background: linear-gradient(90deg, #c9ab70 0%, transparent 100%);
+}
+
+/* ==========================================================================
+   BUTTON & ACTION STYLES (UI_DESIGN_SYSTEM.md Sec 5.3)
+   ========================================================================== */
+
+/* Metallic Champagne Gold Primary Button */
+.btn-gold {
+  height: 38px;
+  padding: 0 16px;
+  background: linear-gradient(180deg, #dcc28a 0%, #c9ab70 100%);
+  color: #171f28;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 12px;
+  border: 1px solid rgba(201, 171, 112, 0.40);
+  box-shadow: 0 2px 6px -1px rgba(201, 171, 112, 0.35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.btn-gold:hover {
+  background: linear-gradient(180deg, #e4cd9b 0%, #d4ba85 100%);
+  box-shadow: 0 4px 12px -2px rgba(201, 171, 112, 0.45);
+  transform: translateY(-1px);
+}
+.btn-gold:active {
+  transform: scale(0.97);
+}
+
+/* Dark Slate Secondary Action */
+.btn-dark {
+  height: 38px;
+  padding: 0 16px;
+  background: linear-gradient(180deg, #3c4a5a 0%, #212c37 100%);
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-dark:hover {
+  background: linear-gradient(180deg, #4a5868 0%, #2e3b49 100%);
+}
+
+/* Light Secondary / Toolbar Action */
+.btn-light-secondary {
+  height: 36px;
+  padding: 0 12px;
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-light-secondary:hover {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+  color: #0f172a;
+}
+
+/* ==========================================================================
+   CARDS, TABLES, FORMS & MODALS (UI_DESIGN_SYSTEM.md Sec 5.4 - 5.7)
+   ========================================================================== */
+
+/* Pure White Card Canvas with Micro-border */
+.card-surface {
+  background: #ffffff;
+  border: 1px solid #e2e6ec;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 6px 16px -4px rgba(0, 0, 0, 0.02);
+}
+
+/* Data Table Container */
+.table-container {
+  background: #ffffff;
+  border: 1px solid #e2e6ec;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.table-header {
+  background: #f8f9fb;
+  border-bottom: 1px solid #e2e6ec;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748B;
+}
+
+.table-row {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.15s ease;
+}
+.table-row:hover {
+  background-color: #f8fafc;
+}
+
+/* Standard Inputs */
+.input-standard {
+  height: 38px;
+  width: 100%;
+  padding: 0 12px;
+  background: #f8fafc;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  font-size: 12px;
+  color: #1e293b;
+  transition: all 0.2s ease;
+}
+.input-standard:focus {
+  background: #ffffff;
+  border-color: #c9ab70;
+  box-shadow: 0 0 0 3px rgba(201, 171, 112, 0.20);
+  outline: none;
+}
+
+/* Modals */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 100;
+}
+
+.modal-panel {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(226, 232, 240, 0.90);
+  box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.25);
+  overflow: hidden;
+}
+
+/* Semantic Status Badges */
+.badge-success {
+  background: rgba(34, 197, 94, 0.10);
+  color: #15803d;
+  border: 1px solid #A7F3D0;
+  border-radius: 9999px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-info {
+  background: rgba(59, 130, 246, 0.10);
+  color: #1d4ed8;
+  border: 1px solid #BFDBFE;
+  border-radius: 9999px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-warning {
+  background: rgba(245, 158, 11, 0.10);
+  color: #b45309;
+  border: 1px solid #FDE68A;
+  border-radius: 9999px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-danger {
+  background: rgba(239, 68, 68, 0.10);
+  color: #be123c;
+  border: 1px solid #FECDD3;
+  border-radius: 9999px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-draft {
+  background: rgba(100, 116, 139, 0.10);
+  color: #475569;
+  border: 1px solid #E2E8F0;
+  border-radius: 9999px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-gold {
+  background: rgba(201, 171, 112, 0.15);
+  color: #926d24;
+  border: 1px solid rgba(201, 171, 112, 0.35);
+  border-radius: 9999px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 700;
 }
