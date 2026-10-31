@@ -221,3 +221,4 @@ export const AddStaffModal: React.FC<AddStaffModalProps> = ({
 };
 
 export default AddStaffModal;
+
