@@ -72,11 +72,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         password: matchedUser.password || 'Brightloop@360',
         rememberMe: true,
       });
-      loginAs(userId);
-      setStatusMessage({ type: 'success', text: `Demo Persona ${matchedUser.name} authenticated!` });
-      setTimeout(() => {
-        if (onSuccess) onSuccess({ email: matchedUser.email, rememberMe: true });
-      }, 500);
+      setFieldErrors({});
+      setStatusMessage({
+        type: 'idle',
+        text: '',
+      });
     }
   };
 

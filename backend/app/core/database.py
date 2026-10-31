@@ -107,32 +107,37 @@ def seed_demo_data():
     """Seeds initial demonstration data required by the problem statement if empty."""
     db = _SessionLocal()
     try:
-        # 1. Seed Users (Admin, Staff, Customer)
-        admin_user = db.query(User).filter(User.email == "admin@brightloop.com").first()
-        if not admin_user:
-            admin = User(
-                email="admin@brightloop.com",
-                full_name="Admin Director",
-                hashed_password=hash_password("Admin@12345!"),
-                role=UserRole.ADMIN,
-                is_active=True,
-            )
-            staff = User(
-                email="staff@brightloop.com",
-                full_name="Sarah Sales Rep",
-                hashed_password=hash_password("Staff@12345!"),
-                role=UserRole.STAFF,
-                is_active=True,
-            )
-            customer_user = User(
-                email="customer@acme.com",
-                full_name="John Customer",
-                hashed_password=hash_password("Customer@12345!"),
-                role=UserRole.CUSTOMER,
-                is_active=True,
-            )
-            db.add_all([admin, staff, customer_user])
-            db.commit()
+        # 1. Seed Users (Admin, Staff, Customer personas)
+        seed_users_data = [
+            ("alex.mercer@brightloop.io", "Alex Mercer", "Brightloop@360", UserRole.ADMIN),
+            ("marcus.v@brightloop.io", "Marcus Vance", "Brightloop@360", UserRole.STAFF),
+            ("sarah.j@acmetech.io", "Sarah Jenkins", "Brightloop@360", UserRole.CUSTOMER),
+            ("admin@brightloop.com", "Admin Director", "Admin@12345!", UserRole.ADMIN),
+            ("staff@brightloop.com", "Sarah Sales Rep", "Staff@12345!", UserRole.STAFF),
+            ("customer@acme.com", "John Customer", "Customer@12345!", UserRole.CUSTOMER),
+        ]
+        for s_email, s_name, s_pwd, s_role in seed_users_data:
+            existing = db.query(User).filter(User.email == s_email).first()
+            if not existing:
+                c_id = None
+                if s_role == UserRole.CUSTOMER:
+                    cust_rec = db.query(Customer).filter(Customer.email == s_email).first()
+                    if not cust_rec:
+                        cust_rec = Customer(full_name=s_name, email=s_email, company_name=f"{s_name} Enterprise")
+                        db.add(cust_rec)
+                        db.commit()
+                        db.refresh(cust_rec)
+                    c_id = cust_rec.id
+                db_user = User(
+                    email=s_email,
+                    full_name=s_name,
+                    hashed_password=hash_password(s_pwd),
+                    role=s_role,
+                    is_active=True,
+                    customer_id=c_id,
+                )
+                db.add(db_user)
+                db.commit()
 
         # 2. Seed Tax Rules
         tax_rule = db.query(TaxRule).first()

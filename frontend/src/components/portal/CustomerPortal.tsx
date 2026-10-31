@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useSubscription } from "@/context/SubscriptionContext";
 import {
   FileText,
   Repeat,
@@ -47,14 +48,15 @@ export interface CustomerInvoiceItem {
 }
 
 export const CustomerPortal: React.FC = () => {
+  const { currentUser } = useSubscription();
   const [activeTab, setActiveTab] = useState<"subscriptions" | "invoices" | "billing">("subscriptions");
 
-  // Mock Customer Data representing a logged-in small business
+  // Customer Data representing the currently authenticated business account
   const customerInfo = {
-    name: "Alex Rivera",
-    email: "alex@riveradesign.io",
-    company: "Rivera Design Studio",
-    memberSince: "Jan 15, 2026",
+    name: currentUser?.name || "Alex Rivera",
+    email: currentUser?.email || "alex@riveradesign.io",
+    company: currentUser?.companyName || "Rivera Design Studio",
+    memberSince: currentUser?.createdAt || "Jan 15, 2026",
     paymentMethod: {
       brand: "Visa",
       last4: "4242",
