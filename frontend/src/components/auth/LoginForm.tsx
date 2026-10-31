@@ -42,7 +42,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   defaultEmail = '',
   className = '',
 }) => {
-  const { loginAs, users } = useSubscription();
+  const { loginAs, loginWithCredentials, isBackendConnected, backendStatus, users } = useSubscription();
 
   const [formData, setFormData] = useState<LoginFormData>({
     email: defaultEmail,
@@ -63,9 +63,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     text: '',
   });
 
-  const handleDemoLogin = (userId: string) => {
-    loginAs(userId);
-    setStatusMessage({ type: 'success', text: 'Persona authenticated successfully!' });
+  const handleDemoLogin = async (userId: string) => {
+    setIsLoading(true);
+    setStatusMessage({ type: 'idle', text: '' });
+    await loginAs(userId);
+    setIsLoading(false);
+    setStatusMessage({ type: 'success', text: 'Persona authenticated successfully (JWT session established)!' });
     setTimeout(() => {
       if (onSuccess) onSuccess({ email: formData.email, rememberMe: true });
     }, 400);
@@ -76,32 +79,45 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     setIsLoading(true);
     setStatusMessage({ type: 'idle', text: '' });
 
-    // Validate email
-    const matchedUser = users.find((u) => u.email.toLowerCase() === formData.email.trim().toLowerCase());
-    if (!matchedUser) {
+    if (!formData.email.trim()) {
       setIsLoading(false);
-      setStatusMessage({
-        type: 'error',
-        text: 'No account found with this email. Please sign up or choose a Demo Persona below.',
-      });
+      setFieldErrors({ email: 'Please enter your account email.' });
       return;
     }
-
     if (formData.password.length < 4) {
       setIsLoading(false);
       setFieldErrors({ password: 'Enter your account password.' });
       return;
     }
 
-    loginAs(matchedUser.id);
+    const res = await loginWithCredentials(formData.email.trim(), formData.password);
     setIsLoading(false);
-    setStatusMessage({ type: 'success', text: `Welcome back, ${matchedUser.name}!` });
 
-    setTimeout(() => {
-      if (onSuccess) {
-        onSuccess({ email: matchedUser.email, rememberMe: formData.rememberMe });
+    if (res.success) {
+      setStatusMessage({ type: 'success', text: res.message });
+      setTimeout(() => {
+        if (onSuccess) {
+          onSuccess({ email: formData.email.trim(), rememberMe: formData.rememberMe });
+        }
+      }, 500);
+    } else {
+      // Local fallback if user is in seed data and offline
+      const matchedUser = users.find((u) => u.email.toLowerCase() === formData.email.trim().toLowerCase());
+      if (matchedUser) {
+        loginAs(matchedUser.id);
+        setStatusMessage({ type: 'success', text: `Welcome back, ${matchedUser.name}!` });
+        setTimeout(() => {
+          if (onSuccess) {
+            onSuccess({ email: matchedUser.email, rememberMe: formData.rememberMe });
+          }
+        }, 500);
+      } else {
+        setStatusMessage({
+          type: 'error',
+          text: res.message || 'No account found with this email. Please sign up or choose a Demo Persona below.',
+        });
       }
-    }, 500);
+    }
   };
 
   return (

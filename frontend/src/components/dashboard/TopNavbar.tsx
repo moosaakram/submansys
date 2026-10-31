@@ -32,7 +32,7 @@ export default function TopNavbar({
   searchQuery,
   onSearchChange,
 }: TopNavbarProps) {
-  const { currentUser, loginAs, users, notification } = useSubscription();
+  const { currentUser, loginAs, users, notification, isBackendConnected, backendStatus, checkBackendHealth } = useSubscription();
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -122,6 +122,25 @@ export default function TopNavbar({
 
       {/* Right Controls */}
       <div className="flex items-center gap-2.5 sm:gap-3.5">
+        {/* Real-time Backend & Database Connection Status Badge */}
+        <button
+          type="button"
+          onClick={() => checkBackendHealth()}
+          title="Click to re-verify Backend & Database connectivity"
+          className={`hidden sm:inline-flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+            isBackendConnected
+              ? 'border-emerald-200 bg-emerald-50/80 text-emerald-800 hover:bg-emerald-100'
+              : 'border-amber-200 bg-amber-50/80 text-amber-800 hover:bg-amber-100'
+          }`}
+        >
+          <span
+            className={`h-2 w-2 rounded-full ${
+              isBackendConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
+            }`}
+          />
+          <span>{isBackendConnected ? 'DB & API: Connected' : 'DB & API: Offline'}</span>
+        </button>
+
         {/* Persona Switcher Dropdown (Scene 1 Role Requirement) */}
         <div className="relative" ref={personaRef}>
           <button

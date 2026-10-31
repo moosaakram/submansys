@@ -40,11 +40,11 @@ export default function SettingsView() {
 
   const isAdmin = currentUser.role === 'admin';
 
-  const handleStaffSubmit = (e: React.FormEvent) => {
+  const handleStaffSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!staffName.trim() || !staffEmail.trim()) return;
 
-    const res = addStaffMember({ name: staffName, email: staffEmail });
+    const res = await addStaffMember({ name: staffName, email: staffEmail });
     if (res.success) {
       setStaffMsg({ type: 'success', text: res.message });
       setStaffName('');

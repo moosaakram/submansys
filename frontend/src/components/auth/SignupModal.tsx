@@ -31,7 +31,7 @@ export default function SignupModal({ isOpen, onClose, onSuccess }: SignupModalP
   const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
   const isPasswordStrong = isLengthValid && hasUppercase && hasLowercase && hasSpecialChar;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
@@ -49,7 +49,7 @@ export default function SignupModal({ isOpen, onClose, onSuccess }: SignupModalP
       return;
     }
 
-    const res = registerUser({
+    const res = await registerUser({
       name,
       email,
       password,

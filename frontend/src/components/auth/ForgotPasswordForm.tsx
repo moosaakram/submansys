@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useId } from "react";
+import { useSubscription } from "@/context/SubscriptionContext";
 import {
   Mail,
   Loader2,
@@ -23,6 +24,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   onBackToSignIn,
   className = "",
 }) => {
+  const { resetPassword } = useSubscription();
   const emailId = useId();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -50,8 +52,10 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       if (onSubmit) {
         await onSubmit(trimmed);
       } else {
-        // Simulated password reset link dispatch
-        await new Promise((res) => setTimeout(res, 1000));
+        const resetRes = await resetPassword(trimmed);
+        if (!resetRes.success) {
+          throw new Error(resetRes.message);
+        }
       }
       setIsSubmitted(true);
     } catch (err: unknown) {
