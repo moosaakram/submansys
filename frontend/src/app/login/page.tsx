@@ -10,7 +10,7 @@ export default function LoginPage() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       {/* Top Navigation Back Link */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md px-4 mb-4">
         <Link
@@ -24,13 +24,17 @@ export default function LoginPage() {
 
       {/* Main Login Card */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-xl shadow-slate-100/60 sm:rounded-2xl sm:px-10 border border-slate-200/80">
-          <LoginForm
-            onSuccess={() => {
-              router.push('/');
-            }}
-          />
-        </div>
+        <LoginForm
+          onSuccess={() => {
+            router.push('/');
+          }}
+          onSignUpClick={() => {
+            router.push('/register');
+          }}
+          onForgotPasswordClick={() => {
+            router.push('/forgot-password');
+          }}
+        />
 
         {/* Footer info */}
         <p className="mt-6 text-center text-xs text-slate-400">

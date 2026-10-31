@@ -61,55 +61,55 @@ Modern recurring revenue businesses encounter substantial operational friction a
 
 ### Implemented Features (Current)
 
-- [x] **Frontend Architecture Setup:** Clean Next.js project bootstrap with TypeScript compiler configurations and Tailwind CSS design tokens.
-- [x] **Executive Dashboard UI (`src/components/dashboard/`):**
+- [x] **Frontend Architecture Setup:** Clean Next.js project bootstrap with TypeScript compiler configurations and Tailwind CSS design tokens inside `frontend/`.
+- [x] **Executive Dashboard UI (`frontend/src/components/dashboard/`):**
   - Metric cards for MRR, active subscribers, churn rate, and LTV.
   - Interactive plan distribution and recent activity modules.
   - Recent transactions table and dynamic sidebar navigation.
-- [x] **Authentication UI Component (`src/components/auth/LoginForm.tsx` & `/login` page):**
-  - Modern, responsive SaaS login interface with Brightloop 360 blue/indigo branding.
-  - Work email input with regular expression format validation.
-  - Secure password field with interactive show/hide visibility toggle.
-  - Controlled "Remember me" checkbox for device persistence state.
-  - "Forgot password?" interaction hook with customizable callback.
-  - Interactive submit button displaying an animated spinner during loading states.
-  - Accessible, real-time client-side validation and contextual field error alerts.
-  - Reusable TypeScript component interface (`LoginFormProps`) with modular callback handlers.
+- [x] **Authentication & Registration UI Suite (`frontend/src/components/auth/`):**
+  - **Login Form (`LoginForm.tsx` & `/login` page):** Email validation, show/hide password toggle, remember me checkbox, loading states, and error alerts.
+  - **Customer Sign Up (`RegisterForm.tsx` & `/register` page):** Business account creation enforcing strict problem-statement criteria (>8 chars, uppercase, lowercase, special character) with live checklist.
+  - **Password Reset (`ForgotPasswordForm.tsx` & `/forgot-password` page):** Self-service password reset dispatch interface.
+- [x] **Customer Self-Service Portal (`frontend/src/components/portal/CustomerPortal.tsx` & `/portal` page):**
+  - Personal subscription status view (rate, frequency, seats, renewal date, pause/resume toggle).
+  - Automated invoice history table with tax calculations and PDF download triggers.
+  - Default payment method management.
+- [x] **Admin Staff Provisioning Modal (`frontend/src/components/admin/AddStaffModal.tsx`):**
+  - Enforces rule that only admins can add limited-access internal staff (Sales, Billing, Support).
 - [x] **Backend API Foundation (`backend/app/`):**
   - FastAPI application structure with CORS configuration for Next.js.
   - Health check endpoint (`/api/v1/health`), OpenAPI Swagger docs (`/docs`), and root info endpoint (`/`).
+  - REST route modules for authentication, users, subscriptions, plans, products, invoices, payments, discounts, taxes, quotation templates, and analytics.
   - Structured global exception handlers for HTTP, validation, and internal errors.
 - [x] **Database Schema & ORM Layer (`database/`):**
-  - SQLAlchemy 2.0 declarative models for `Customer`, `Product`, and `Subscription`.
+  - SQLAlchemy 2.0 declarative models for `Customer`, `Product`, `ProductVariant`, `Plan`, `Subscription`, `Invoice`, `Payment`, `Discount`, `Tax`, and `User`.
   - Comprehensive status and billing cycle enums (`ACTIVE`, `CANCELED`, `MONTHLY`, `ANNUAL`).
   - Connection pooling, error handling, session factory, and database initialization CLI.
 
 ### Planned Features (Roadmap)
 
-- [ ] **Backend Authentication & Authorization:** JWT token generation and validation, password hashing (Argon2/bcrypt), and role-based access control (RBAC).
-- [ ] **Subscription CRUD Endpoints:** REST endpoints for creating, updating, pausing, and cancelling subscriptions.
-- [ ] **Payment Gateway Integration:** Stripe / PayPal webhook listeners and automated transaction ledger entries.
-- [ ] **Automated Invoicing & Dunning:** PDF invoice generation and scheduled automated email sequences for failed renewals.
-- [ ] **Live Dashboard Analytics:** Connect frontend dashboard cards to real-time database aggregate queries.
-- [ ] **Subscriber Self-Service Portal:** Customer billing update interface and self-serve upgrade/downgrade workflows.
+- [ ] **Payment Gateway Live Processing:** Production Stripe / PayPal webhook listeners and live gateway charge capture.
+- [ ] **Automated Invoicing & Dunning Dispatch:** Automated background cron job for PDF invoice generation and automated email notification sequences for failed renewals.
+- [ ] **Live Dashboard Analytics:** Connect frontend dashboard charts directly to real-time database aggregate endpoints.
 
 ---
 
 ## 5. Technology Stack
 
 ### Frontend (Active)
-- **Framework:** [Next.js](https://nextjs.org/) (App Router, Turbopack)
+- **Framework:** [Next.js](https://nextjs.org/) 15+ (App Router, Turbopack)
 - **Language:** [TypeScript](https://www.typescriptlang.org/)
-- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/) v4
 - **Icons:** [Lucide React](https://lucide.dev/)
-- **State Management:** React Hooks (`useState`, `useCallback`, `useId`)
+- **State Management:** React Hooks (`useState`, `useCallback`, `useId`, `useMemo`), React Context
 
-### Backend (Active / In Progress)
+### Backend (Active)
 - **Framework:** [FastAPI](https://fastapi.tiangolo.com/) (Python 3.10+)
 - **Server:** [Uvicorn](https://www.uvicorn.org/) ASGI server
 - **Validation:** [Pydantic](https://docs.pydantic.dev/) v2
+- **Security:** Passlib (bcrypt), PyJWT
 
-### Database & Persistence (Active / In Progress)
+### Database & Persistence (Active)
 - **Database:** [PostgreSQL](https://www.postgresql.org/) 16
 - **ORM:** [SQLAlchemy](https://www.sqlalchemy.org/) 2.0 (Declarative Base, UUID/Timestamp mixins)
 - **Driver:** `psycopg2-binary`
@@ -121,41 +121,54 @@ Modern recurring revenue businesses encounter substantial operational friction a
 ```text
 submansys/
 ├── README.md                      # Comprehensive project documentation
-├── package.json                   # Root frontend dependencies and scripts
-├── tsconfig.json                  # Root TypeScript configuration
-├── next.config.ts                 # Next.js framework configuration
-├── eslint.config.mjs              # Linting rules
+├── package.json                   # Root workspace configuration
 ├── requirements.txt               # Root Python dependencies
 ├── test_database.py               # Database verification test suite
-├── src/                           # Application source code
-│   ├── app/                       # App Router pages and layouts
-│   │   ├── favicon.ico            # Favicon
-│   │   ├── globals.css            # Global Tailwind CSS definitions
-│   │   ├── layout.tsx             # Root dashboard layout
-│   │   └── page.tsx               # Main dashboard view
-│   ├── components/                # Reusable UI components
-│   │   ├── auth/                  # Authentication UI
-│   │   │   └── LoginForm.tsx      # Reusable Brightloop 360 login component
-│   │   └── dashboard/             # Executive dashboard components
-│   │       ├── MetricCards.tsx
-│   │       ├── PlanDistributionCard.tsx
-│   │       ├── RecentActivity.tsx
-│   │       ├── RecentTransactionsTable.tsx
-│   │       ├── RevenueChart.tsx
-│   │       ├── Sidebar.tsx
-│   │       └── TopNavbar.tsx
-│   ├── data/                      # Mock data for demonstration
-│   └── types/                     # TypeScript type declarations
+├── frontend/                      # Next.js frontend application
+│   ├── src/                       # Application source code
+│   │   ├── app/                   # App Router pages and layouts
+│   │   │   ├── favicon.ico        # Favicon
+│   │   │   ├── globals.css        # Global Tailwind CSS definitions
+│   │   │   ├── layout.tsx         # Root dashboard layout
+│   │   │   ├── page.tsx           # Main dashboard view
+│   │   │   ├── login/page.tsx     # Dedicated Login route
+│   │   │   ├── register/page.tsx  # Dedicated Sign Up route
+│   │   │   ├── forgot-password/page.tsx # Password reset route
+│   │   │   └── portal/page.tsx    # Customer self-service portal route
+│   │   ├── components/            # Reusable UI components
+│   │   │   ├── auth/              # Authentication & onboarding UI
+│   │   │   │   ├── LoginForm.tsx
+│   │   │   │   ├── RegisterForm.tsx
+│   │   │   │   └── ForgotPasswordForm.tsx
+│   │   │   ├── portal/            # Customer self-service portal
+│   │   │   │   └── CustomerPortal.tsx
+│   │   │   ├── admin/             # Admin exclusive tools
+│   │   │   │   └── AddStaffModal.tsx
+│   │   │   ├── dashboard/         # Executive dashboard components
+│   │   │   ├── analytics/         # Financial & MRR analytics
+│   │   │   ├── subscriptions/     # Subscriptions lifecycle management
+│   │   │   ├── invoices/          # Automated billing & invoices
+│   │   │   ├── payments/          # Payment recording & reconciliation
+│   │   │   ├── plans/             # Subscription plans configuration
+│   │   │   └── products/          # Product catalog & variants
+│   │   ├── context/               # Global state contexts
+│   │   ├── data/                  # Mock and seed data
+│   │   └── types/                 # TypeScript type declarations
+│   ├── package.json               # Frontend dependencies & scripts
+│   ├── tsconfig.json              # TypeScript compiler configuration
+│   ├── next.config.ts             # Next.js configuration
+│   └── eslint.config.mjs          # Linting rules
 ├── backend/                       # FastAPI backend application
 │   ├── app/
-│   │   ├── routes/                # API routes (health, auth, subscriptions)
+│   │   ├── core/                  # Security, config, database session
+│   │   ├── routes/                # REST API routes (auth, plans, invoices, etc.)
 │   │   ├── schemas/               # Pydantic request/response schemas
 │   │   ├── services/              # Business logic
 │   │   └── main.py                # FastAPI entry point
 │   ├── requirements.txt
 │   └── .env.example
 └── database/                      # SQLAlchemy 2.0 database models & connection
-    ├── models/                    # Customer, Product, Subscription models
+    ├── models/                    # Customer, Product, Subscription, Invoice models
     ├── connection.py              # Engine configuration & session management
     ├── base.py                    # Declarative base & mixins
     └── init_db.py                 # Table creation script
@@ -186,6 +199,8 @@ cd submansys
 1. **Install project dependencies:**
    ```bash
    npm install
+   # or
+   npm install --prefix frontend
    ```
 
 2. **Start the local development server:**
@@ -193,15 +208,15 @@ cd submansys
    npm run dev
    ```
 
-3. **Access the frontend:**
-   Open your browser and navigate to [http://localhost:3000](http://localhost:3000).
+3. **Access the application routes:**
+   - **Executive Dashboard:** [http://localhost:3000](http://localhost:3000)
+   - **Customer Portal:** [http://localhost:3000/portal](http://localhost:3000/portal)
+   - **Sign In:** [http://localhost:3000/login](http://localhost:3000/login)
+   - **Business Sign Up:** [http://localhost:3000/register](http://localhost:3000/register)
+   - **Forgot Password:** [http://localhost:3000/forgot-password](http://localhost:3000/forgot-password)
 
 4. **Type check & build validation:**
    ```bash
-   # Type check
-   npx tsc --noEmit
-
-   # Production build
    npm run build
    ```
 
@@ -211,7 +226,6 @@ cd submansys
 
 1. **Set up Python Virtual Environment:**
    ```bash
-   # Create virtual environment
    python -m venv .venv
 
    # Activate virtual environment
@@ -235,7 +249,6 @@ cd submansys
 
 4. **Start the FastAPI backend server:**
    ```bash
-   # From the backend directory:
    cd backend
    python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
    ```
@@ -284,8 +297,8 @@ python test_database.py
 
 | Team Member | Role | Key Responsibilities | Component / Module |
 | :--- | :--- | :--- | :--- |
-| **Nihal** | Frontend & UI/UX Developer | Authentication UI component (`LoginForm.tsx`), client validation, responsive design, brand styling & core project documentation | `src/components/auth`, `frontend/components/auth`, `README.md` |
-| **Moosa** | Frontend Lead & Architect | Executive dashboard layout, navigation sidebar, top navbar, metric cards, and frontend build setup | `src/components/dashboard`, `src/app` |
+| **Nihal** | Frontend & UI/UX Developer | Authentication UI suite (`LoginForm`, `RegisterForm`, `ForgotPasswordForm`), Customer Self-Service Portal (`CustomerPortal`), Admin Staff Provisioning (`AddStaffModal`), App Router routes, and core project documentation | `frontend/src/components/auth`, `frontend/src/components/portal`, `frontend/src/components/admin`, `frontend/src/app/{login,register,forgot-password,portal}`, `README.md` |
+| **Moosa** | Frontend Lead & Architect | Executive dashboard layout, navigation sidebar, top navbar, metric cards, and frontend build setup | `frontend/src/components/dashboard`, `frontend/src/app` |
 | **Hrithu** | Backend Developer | FastAPI application setup, CORS middleware, health endpoints, Pydantic schemas, and error handlers | `backend/app/` |
 | **Rishy** | Database Engineer | PostgreSQL integration, SQLAlchemy 2.0 ORM models (`Customer`, `Product`, `Subscription`), and test verification suite | `database/`, `test_database.py` |
 
