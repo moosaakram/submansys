@@ -10,32 +10,26 @@ node_modules/
 !.yarn/releases
 !.yarn/versions
 
-# testing
+# Testing
 /coverage
+.pytest_cache/
 
-# next.js
+# Next.js build output
 /.next/
 /out/
-
-# production
 /build
+.vercel
+*.tsbuildinfo
+next-env.d.ts
 
-# misc
+# Misc & debug logs
 .DS_Store
 *.pem
-
-# debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+*.log
 
 # ==========================================
 # Backend & Database (Python / SQLAlchemy)
@@ -44,12 +38,10 @@ next-env.d.ts
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
+.Python
 
 # Distribution / packaging
-.Python
 build/
 develop-eggs/
 dist/
@@ -73,20 +65,19 @@ venv/
 ENV/
 env/
 
-# Environment variables
+# Environment files
 .env
 .env.local
 .env*.local
-
-# IDE and Editor files
-.vscode/
-.idea/
-*.swp
-*~
+!.env.example
 
 # Database files
 *.sqlite3
 *.db
 
-# Logs
-*.log
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
