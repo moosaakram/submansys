@@ -157,3 +157,4 @@ class Subscription(Base, UUIDPrimaryKeyMixin, TimestampMixin):
             f"customer_id={self.customer_id!r}, product_id={self.product_id!r}, "
             f"cycle={self.billing_cycle!r}, status={self.status!r})>"
         )
+

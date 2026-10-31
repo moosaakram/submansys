@@ -203,3 +203,4 @@ def init_db(target_engine: Optional[Engine] = None) -> None:
     except Exception as exc:
         logger.error(f"Failed to create database tables: {exc}")
         raise
+

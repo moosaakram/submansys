@@ -79,3 +79,4 @@ class Product(Base, UUIDPrimaryKeyMixin, TimestampMixin):
             f"product_type={self.product_type!r}, sales_price={self.sales_price!r}, "
             f"is_active={self.is_active!r})>"
         )
+

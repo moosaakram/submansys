@@ -59,3 +59,4 @@ class Customer(Base, UUIDPrimaryKeyMixin, TimestampMixin):
             f"<Customer(id={self.id!r}, email={self.email!r}, "
             f"full_name={self.full_name!r}, company_name={self.company_name!r})>"
         )
+

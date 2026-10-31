@@ -51,3 +51,4 @@ class UUIDPrimaryKeyMixin:
         nullable=False,
         comment="Unique identifier (UUID v4)",
     )
+

@@ -148,3 +148,4 @@ if __name__ == "__main__":
     run_model_verification()
     run_postgres_connection_check()
     print("\nAll database foundation checks completed!")
+
