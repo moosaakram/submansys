@@ -249,3 +249,4 @@ export const NOTIFICATIONS_DATA = [
     unread: false,
   },
 ];
+
