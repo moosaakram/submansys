@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useId, useMemo } from "react";
+import { useSubscription } from "@/context/SubscriptionContext";
 import {
   Mail,
   Lock,
@@ -39,6 +40,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   onSignInClick,
   className = "",
 }) => {
+  const { registerUser } = useSubscription();
   const nameId = useId();
   const businessId = useId();
   const emailId = useId();
@@ -146,8 +148,22 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       if (onSubmit) {
         await onSubmit(formData);
       } else {
-        // Simulated client registration delay
-        await new Promise((res) => setTimeout(res, 1200));
+        const res = await registerUser({
+          name: formData.fullName.trim(),
+          email: formData.email.trim(),
+          password: formData.password,
+          role: 'customer',
+          companyName: formData.businessName.trim(),
+        });
+
+        if (!res.success) {
+          setStatusMessage({
+            type: 'error',
+            text: res.message,
+          });
+          setIsLoading(false);
+          return;
+        }
       }
 
       setStatusMessage({

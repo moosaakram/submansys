@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Check, AlertCircle, ShieldCheck, Mail, Lock, User as UserIcon, Building } from 'lucide-react';
+import { X, Check, AlertCircle, ShieldCheck, Mail, Lock, User as UserIcon, Building, Loader2 } from 'lucide-react';
 import { useSubscription } from '@/context/SubscriptionContext';
 import { UserRole } from '@/types/subscription';
 
@@ -21,6 +21,7 @@ export default function SignupModal({ isOpen, onClose, onSuccess }: SignupModalP
   const [role, setRole] = useState<UserRole>('customer');
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!isOpen) return null;
 
@@ -31,7 +32,7 @@ export default function SignupModal({ isOpen, onClose, onSuccess }: SignupModalP
   const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
   const isPasswordStrong = isLengthValid && hasUppercase && hasLowercase && hasSpecialChar;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
@@ -49,22 +50,29 @@ export default function SignupModal({ isOpen, onClose, onSuccess }: SignupModalP
       return;
     }
 
-    const res = registerUser({
-      name,
-      email,
-      password,
-      role,
-      companyName,
-    });
+    setIsLoading(true);
+    try {
+      const res = await registerUser({
+        name,
+        email,
+        password,
+        role,
+        companyName,
+      });
 
-    if (!res.success) {
-      setErrorMsg(res.message);
-    } else {
-      setSuccessMsg(res.message);
-      setTimeout(() => {
-        onClose();
-        if (onSuccess) onSuccess();
-      }, 1200);
+      if (!res.success) {
+        setErrorMsg(res.message);
+      } else {
+        setSuccessMsg(res.message);
+        setTimeout(() => {
+          onClose();
+          if (onSuccess) onSuccess();
+        }, 1200);
+      }
+    } catch {
+      setErrorMsg('Registration failed. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -208,10 +216,17 @@ export default function SignupModal({ isOpen, onClose, onSuccess }: SignupModalP
             </button>
             <button
               type="submit"
-              disabled={!isPasswordStrong}
-              className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
+              disabled={!isPasswordStrong || isLoading}
+              className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-xs flex items-center gap-1.5"
             >
-              Complete Registration
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <span>Registering...</span>
+                </>
+              ) : (
+                'Complete Registration'
+              )}
             </button>
           </div>
         </form>
