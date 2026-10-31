@@ -43,13 +43,23 @@ def get_database_url() -> str:
     Returns:
         str: SQLAlchemy-compatible PostgreSQL connection URL.
     """
+    # Determine postgres driver: prefer psycopg if psycopg2 is missing
+    pg_driver = "postgresql+psycopg://"
+    try:
+        import psycopg2
+        pg_driver = "postgresql+psycopg2://"
+    except ImportError:
+        pass
+
     database_url = os.getenv("DATABASE_URL")
     if database_url:
         # Standardize SQLAlchemy 2.0 driver dialect
         if database_url.startswith("postgres://"):
-            database_url = database_url.replace("postgres://", "postgresql+psycopg2://", 1)
+            database_url = database_url.replace("postgres://", pg_driver, 1)
         elif database_url.startswith("postgresql://") and not database_url.startswith("postgresql+"):
-            database_url = database_url.replace("postgresql://", "postgresql+psycopg2://", 1)
+            database_url = database_url.replace("postgresql://", pg_driver, 1)
+        elif database_url.startswith("postgresql+psycopg2://") and pg_driver == "postgresql+psycopg://":
+            database_url = database_url.replace("postgresql+psycopg2://", "postgresql+psycopg://", 1)
         return database_url
 
     # Assemble from individual environment variables
@@ -63,7 +73,7 @@ def get_database_url() -> str:
     ssl_mode = os.getenv("DB_SSLMODE")
 
     auth = f"{user}:{password}" if password else user
-    url = f"postgresql+psycopg2://{auth}@{host}:{port}/{db_name}"
+    url = f"{pg_driver}{auth}@{host}:{port}/{db_name}"
     if ssl_mode:
         url += f"?sslmode={ssl_mode}"
 
@@ -86,9 +96,17 @@ def get_pool_settings() -> dict:
 def create_db_engine(db_url: Optional[str] = None) -> Engine:
     """
     Creates and configures a SQLAlchemy engine with connection health checks (pool_pre_ping).
+    Supports PostgreSQL and SQLite.
     """
     url = db_url or get_database_url()
     pool_cfg = get_pool_settings()
+
+    if url.startswith("sqlite"):
+        return create_engine(
+            url,
+            connect_args={"check_same_thread": False},
+            echo=pool_cfg["echo"],
+        )
 
     return create_engine(
         url,

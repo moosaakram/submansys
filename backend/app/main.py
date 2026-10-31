@@ -1,15 +1,52 @@
+"""
+Brightloop 360 - Subscription Management System Backend API.
+Main FastAPI application initialization, middleware, routes, and lifespan lifecycle.
+"""
+
 import logging
 import os
+import sys
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import List
 
-from dotenv import load_dotenv
+# Ensure parent and root directory paths are resolved for imports
+CURRENT_DIR = Path(__file__).resolve().parent
+BACKEND_DIR = CURRENT_DIR.parent
+ROOT_DIR = BACKEND_DIR.parent
+
+for path in [str(ROOT_DIR), str(BACKEND_DIR)]:
+    if path not in sys.path:
+        sys.path.insert(0, path)
+
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.routes.health import router as health_router
+from app.core.config import (
+    ALLOWED_ORIGINS,
+    APP_NAME,
+    APP_VERSION,
+    DEBUG,
+    HOST,
+    PORT,
+)
+from app.core.database import get_engine
+from app.routes import (
+    analytics_router,
+    auth_router,
+    discounts_router,
+    health_router,
+    invoices_router,
+    payments_router,
+    plans_router,
+    products_router,
+    quotations_router,
+    subscriptions_router,
+    taxes_router,
+    users_router,
+)
 from app.schemas.health import RootResponse
 
 # Setup logging
@@ -19,50 +56,43 @@ logging.basicConfig(
 )
 logger = logging.getLogger("brightloop360")
 
-# -----------------------------------------------------------------------------
-# Environment Configuration
-# -----------------------------------------------------------------------------
-BASE_DIR = Path(__file__).resolve().parent.parent
-ENV_PATH = BASE_DIR / ".env"
 
-if ENV_PATH.exists():
-    load_dotenv(dotenv_path=ENV_PATH)
-    logger.info(f"Loaded environment variables from {ENV_PATH}")
-else:
-    load_dotenv()
-    logger.info("Loaded environment variables from default environment")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initializes database engine, creates tables, and seeds initial catalog data."""
+    logger.info("Initializing Brightloop 360 database and seed data...")
+    get_engine()
+    logger.info("Database and schema verification completed successfully.")
+    yield
+    logger.info("Shutting down Brightloop 360 server process.")
 
-APP_NAME: str = os.getenv("APP_NAME", "Brightloop 360 API")
-APP_VERSION: str = os.getenv("APP_VERSION", "1.0.0")
-APP_ENV: str = os.getenv("APP_ENV", "development")
-DEBUG: bool = os.getenv("DEBUG", "True").lower() in ("true", "1", "yes")
-HOST: str = os.getenv("HOST", "0.0.0.0")
-PORT: int = int(os.getenv("PORT", "8000"))
-
-# Parse CORS origins for local Next.js frontend
-raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000")
-ALLOWED_ORIGINS: List[str] = [
-    origin.strip() for origin in raw_origins.split(",") if origin.strip()
-]
 
 # -----------------------------------------------------------------------------
 # FastAPI Application Initialization
 # -----------------------------------------------------------------------------
 app = FastAPI(
     title=APP_NAME,
-    description="Backend API for Brightloop 360 - Subscription Management System",
+    description="Unified software platform for Brightloop 360 (Odoo Subscription Management System). "
+                "Handles plans, product variants, quotations, subscriptions, billing day recurring invoices, "
+                "discount rules, payments reconciliation, and finance executive analytics.",
     version=APP_VERSION,
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
     openapi_tags=[
-        {
-            "name": "General",
-            "description": "General application information endpoints",
-        },
-        {
-            "name": "Health",
-            "description": "API health and readiness verification",
-        },
+        {"name": "General", "description": "General application root and info endpoints"},
+        {"name": "Health", "description": "API operational health check"},
+        {"name": "Authentication", "description": "Customer signup, login, session tokens, and password reset"},
+        {"name": "User Management", "description": "Admin-only user and internal staff management"},
+        {"name": "Products & Variants", "description": "Catalog products and price-modifying variants"},
+        {"name": "Subscription Plans", "description": "Billing plans, intervals, minimums, and lifecycle rules"},
+        {"name": "Quotation Templates", "description": "Reusable quote presets with default lines and validity"},
+        {"name": "Subscriptions & Quotes", "description": "Quote-to-subscription lifecycle (Draft -> Confirmed -> Active -> Closed/Paused)"},
+        {"name": "Invoicing & Billing Day", "description": "Billing Day engine, automated invoices, and tax calculation"},
+        {"name": "Tax Rules", "description": "Tax percentages and automated rules"},
+        {"name": "Discount Rules", "description": "Admin discount rules, seat/volume thresholds, and auto-application"},
+        {"name": "Payments & Collections", "description": "Multi-method payment records and invoice reconciliation"},
+        {"name": "Finance & Analytics", "description": "Real-time KPIs and executive metrics responding in under two seconds"},
     ],
 )
 
@@ -82,7 +112,6 @@ app.add_middleware(
 # -----------------------------------------------------------------------------
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
-    """Handles standard HTTP exceptions with structured error responses."""
     logger.warning(f"HTTPException [{exc.status_code}] on {request.url.path}: {exc.detail}")
     return JSONResponse(
         status_code=exc.status_code,
@@ -97,7 +126,6 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
 async def validation_exception_handler(
     request: Request, exc: RequestValidationError
 ) -> JSONResponse:
-    """Handles request payload / parameter validation errors."""
     logger.warning(f"Validation error on {request.url.path}: {exc.errors()}")
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -111,7 +139,6 @@ async def validation_exception_handler(
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    """Handles unexpected runtime exceptions without leaking internal stack traces."""
     logger.error(f"Unhandled exception on {request.url.path}: {exc}", exc_info=True)
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -123,7 +150,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
 
 
 # -----------------------------------------------------------------------------
-# Routes
+# Root & Health Endpoints
 # -----------------------------------------------------------------------------
 @app.get(
     "/",
@@ -141,8 +168,25 @@ async def get_root() -> RootResponse:
     )
 
 
-# Include health check router
+# Mount Health Check router directly at root
 app.include_router(health_router)
+
+# -----------------------------------------------------------------------------
+# API v1 Routers Mount
+# -----------------------------------------------------------------------------
+API_PREFIX = "/api/v1"
+
+app.include_router(auth_router, prefix=API_PREFIX)
+app.include_router(users_router, prefix=API_PREFIX)
+app.include_router(products_router, prefix=API_PREFIX)
+app.include_router(plans_router, prefix=API_PREFIX)
+app.include_router(quotations_router, prefix=API_PREFIX)
+app.include_router(subscriptions_router, prefix=API_PREFIX)
+app.include_router(invoices_router, prefix=API_PREFIX)
+app.include_router(taxes_router, prefix=API_PREFIX)
+app.include_router(discounts_router, prefix=API_PREFIX)
+app.include_router(payments_router, prefix=API_PREFIX)
+app.include_router(analytics_router, prefix=API_PREFIX)
 
 
 # -----------------------------------------------------------------------------
