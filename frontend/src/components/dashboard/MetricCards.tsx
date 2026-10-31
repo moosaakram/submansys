@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import {
   Users,
@@ -6,22 +8,56 @@ import {
   AlertCircle,
   ArrowUpRight,
   ArrowDownRight,
+  DollarSign,
 } from 'lucide-react';
-import { METRICS_DATA } from '@/data/mockData';
-import { MetricItem } from '@/types/dashboard';
-
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  Users,
-  Repeat,
-  TrendingUp,
-  AlertCircle,
-};
+import { useSubscription } from '@/context/SubscriptionContext';
 
 export default function MetricCards() {
+  const { analytics, customers, subscriptions, invoices } = useSubscription();
+
+  const metrics = [
+    {
+      id: 'active_subscriptions',
+      title: 'Active Subscriptions',
+      value: analytics.activeSubscriptionsCount.toLocaleString(),
+      change: '+100%',
+      isPositive: true,
+      comparisonText: `${subscriptions.length} total across all lifecycles`,
+      icon: Repeat,
+    },
+    {
+      id: 'mrr',
+      title: 'Monthly Recurring Rev (MRR)',
+      value: `$${analytics.mrr.toLocaleString()}`,
+      change: '+18.5%',
+      isPositive: true,
+      comparisonText: `ARR Run-rate: $${analytics.arr.toLocaleString()}`,
+      icon: TrendingUp,
+    },
+    {
+      id: 'total_collected',
+      title: 'Revenue Collected',
+      value: `$${analytics.totalRevenueCollected.toLocaleString()}`,
+      change: '+14.2%',
+      isPositive: true,
+      comparisonText: 'Settled bank receipts',
+      icon: DollarSign,
+    },
+    {
+      id: 'pending_payments',
+      title: 'Pending / Overdue Invoices',
+      value: `$${(analytics.pendingAmount + analytics.overdueAmount).toLocaleString()}`,
+      change: analytics.overdueInvoicesCount > 0 ? `-${analytics.overdueInvoicesCount} overdue` : '0 overdue',
+      isPositive: analytics.overdueInvoicesCount === 0,
+      comparisonText: `${analytics.overdueInvoicesCount} awaiting immediate settlement`,
+      icon: AlertCircle,
+    },
+  ];
+
   return (
     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-      {METRICS_DATA.map((metric: MetricItem) => {
-        const IconComponent = ICON_MAP[metric.iconName] || TrendingUp;
+      {metrics.map((metric) => {
+        const IconComponent = metric.icon;
 
         return (
           <div
@@ -51,7 +87,7 @@ export default function MetricCards() {
                 className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold ${
                   metric.isPositive
                     ? 'bg-emerald-50 text-emerald-700'
-                    : 'bg-amber-50 text-amber-700'
+                    : 'bg-rose-50 text-rose-700'
                 }`}
               >
                 {metric.isPositive ? (
@@ -74,4 +110,3 @@ export default function MetricCards() {
     </div>
   );
 }
-

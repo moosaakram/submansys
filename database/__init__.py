@@ -1,6 +1,6 @@
 """
 Database package for Brightloop 360.
-Provides the engine, session management, base declarative classes, and models.
+Provides the engine, session management, base declarative classes, and all models.
 """
 
 from database.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
@@ -17,15 +17,32 @@ from database.connection import (
 from database.models import (
     BillingCycle,
     Customer,
+    DiscountRule,
+    DiscountScope,
+    DiscountType,
+    Invoice,
+    InvoiceLine,
+    InvoiceStatus,
+    Payment,
+    Plan,
+    PlanBillingCycle,
     Product,
+    ProductVariant,
+    QuotationTemplate,
+    QuotationTemplateLine,
     Subscription,
+    SubscriptionLine,
     SubscriptionStatus,
+    TaxRule,
+    User,
+    UserRole,
 )
 
 # Convenient alias
 check_connection = verify_connection
 
 __all__ = [
+    # Engine & Session
     "Base",
     "TimestampMixin",
     "UUIDPrimaryKeyMixin",
@@ -38,10 +55,25 @@ __all__ = [
     "verify_connection",
     "check_connection",
     "init_db",
+    # Models
     "Customer",
     "Product",
+    "ProductVariant",
+    "Plan",
+    "PlanBillingCycle",
+    "QuotationTemplate",
+    "QuotationTemplateLine",
     "Subscription",
-    "BillingCycle",
     "SubscriptionStatus",
+    "SubscriptionLine",
+    "TaxRule",
+    "Invoice",
+    "InvoiceStatus",
+    "InvoiceLine",
+    "Payment",
+    "DiscountRule",
+    "DiscountType",
+    "DiscountScope",
+    "User",
+    "UserRole",
 ]
-
