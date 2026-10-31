@@ -28,7 +28,7 @@ def main():
     print("\nStep 2: Creating Database Tables (Base.metadata.create_all)...")
     try:
         init_db(engine)
-        print("[SUCCESS] All tables (customers, products, subscriptions) created successfully!")
+        print("[SUCCESS] All database tables created successfully!")
     except Exception as e:
         print(f"[ERROR] Failed to create tables: {e}")
         sys.exit(1)

@@ -262,6 +262,13 @@ DATABASE_URL=postgresql+psycopg2://postgres:yourpassword@localhost:5432/brightlo
 Run the table initialization script:
 ```bash
 python -m database.init_db
+`
+
+### 3. Seed Realistic Test Data (Brightloop Business Scenarios)
+
+Populate admin/staff users, Odoo brand variants, plans, quotations, multi-line subscriptions, invoices, and payments:
+`ash
+python -m database.seed_data
 ```
 
 ### 3. Verify Database Setup
