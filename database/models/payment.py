@@ -1,8 +1,10 @@
 """
 Payment Model for Brightloop 360.
 Records payments with payment method, amount, date, and notes mapped to invoices.
+Supports append-only transaction history, reversals, and refunds.
 """
 
+import enum
 import uuid
 from datetime import datetime
 from decimal import Decimal
@@ -10,6 +12,7 @@ from typing import TYPE_CHECKING, Optional
 from sqlalchemy import (
     CheckConstraint,
     DateTime,
+    Enum as SAEnum,
     ForeignKey,
     Numeric,
     String,
@@ -22,6 +25,19 @@ from database.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
     from database.models.invoice import Invoice
+
+
+class PaymentType(str, enum.Enum):
+    PAYMENT = "payment"
+    REFUND = "refund"
+    REVERSAL = "reversal"
+
+
+class PaymentStatus(str, enum.Enum):
+    PENDING = "pending"
+    SUCCESS = "success"
+    FAILED = "failed"
+    REFUNDED = "refunded"
 
 
 class Payment(Base, UUIDPrimaryKeyMixin, TimestampMixin):
@@ -40,23 +56,52 @@ class Payment(Base, UUIDPrimaryKeyMixin, TimestampMixin):
 
     invoice_id: Mapped[uuid.UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("invoices.id", ondelete="CASCADE"),
+        ForeignKey("invoices.id", ondelete="RESTRICT"),
         nullable=False,
         index=True,
         comment="Target invoice reference",
+    )
+
+    customer_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        Uuid(as_uuid=True),
+        ForeignKey("customers.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+        comment="Direct customer association",
     )
 
     payment_method: Mapped[str] = mapped_column(
         String(50),
         nullable=False,
         default="credit_card",
-        comment="Payment medium: credit_card, bank_transfer, cash, check, online",
+        comment="UPI, bank_transfer, cash, card, cheque, other",
+    )
+
+    payment_type: Mapped[PaymentType] = mapped_column(
+        SAEnum(PaymentType, name="payment_type_enum", native_enum=False),
+        nullable=False,
+        default=PaymentType.PAYMENT,
+        comment="payment, refund, reversal",
+    )
+
+    reversed_payment_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        Uuid(as_uuid=True),
+        ForeignKey("payments.id", ondelete="RESTRICT"),
+        nullable=True,
+        comment="Original payment transaction ID if this is a reversal or refund",
+    )
+
+    status: Mapped[PaymentStatus] = mapped_column(
+        SAEnum(PaymentStatus, name="payment_status_enum", native_enum=False),
+        nullable=False,
+        default=PaymentStatus.SUCCESS,
+        comment="pending, success, failed, refunded",
     )
 
     amount: Mapped[Decimal] = mapped_column(
         Numeric(12, 2),
         nullable=False,
-        comment="Payment transaction amount collected",
+        comment="Payment transaction amount collected in INR (₹)",
     )
 
     payment_date: Mapped[datetime] = mapped_column(

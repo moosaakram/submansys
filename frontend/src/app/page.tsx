@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import {
   Plus,
   FilePlus,
-  ArrowDownToLine,
   ChevronRight,
   Zap,
 } from 'lucide-react';
@@ -16,7 +15,6 @@ import RevenueChart from '@/components/dashboard/RevenueChart';
 import RecentTransactionsTable from '@/components/dashboard/RecentTransactionsTable';
 import RecentActivity from '@/components/dashboard/RecentActivity';
 import PlanDistributionCard from '@/components/dashboard/PlanDistributionCard';
-import GuidedWalkthrough from '@/components/dashboard/GuidedWalkthrough';
 
 // Modular Feature Views
 import ProductCatalogView from '@/components/products/ProductCatalogView';
@@ -36,8 +34,6 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const { currentUser, runBillingDay } = useSubscription();
-
-  const activeNav = ALL_NAV_ITEMS.find((item) => item.id === currentTab);
 
   return (
     <div className="flex min-h-screen bg-[#F7F8FA] text-[#1F2937]">
@@ -60,7 +56,6 @@ export default function DashboardPage() {
 
         {/* Dashboard Scrollable Body */}
         <main className="flex-1 overflow-y-auto px-4 py-6 sm:px-8 sm:py-8 relative">
-          {/* Mandatory Atmospheric Fog Transition from UI_DESIGN_SYSTEM.md Sec 3 */}
           <div className="atmospheric-backdrop" aria-hidden="true" />
 
           <div className="relative z-1 mx-auto max-w-7xl space-y-6">
@@ -71,23 +66,23 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.08em] text-white/70">
                     <span className="text-[#c9ab70]">SubMan</span>
                     <ChevronRight className="h-3 w-3 text-white/40" />
-                    <span className="text-white/80 capitalize">{currentUser.role} Console</span>
+                    <span className="text-white/80 capitalize">{currentUser?.role || 'User'} Console</span>
                   </div>
                   <h1 className="mt-1 font-[family-name:var(--font-cinzel)] text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                    {currentUser.role === 'customer'
+                    {currentUser?.role === 'customer'
                       ? 'Subscriber Portal & Overview'
                       : 'Subscription Overview'}
                   </h1>
                   <div className="title-accent-rule" />
                   <p className="mt-0.5 text-xs text-white/70 sm:text-sm">
-                    {currentUser.role === 'customer'
-                      ? `Welcome, ${currentUser.name}. Manage your recurring licenses and invoice receipts.`
+                    {currentUser?.role === 'customer'
+                      ? `Welcome, ${currentUser?.name || 'Subscriber'}. Manage your recurring licenses and invoice receipts.`
                       : 'Monitor customer growth, MRR trends, and recurring billing operations in real-time.'}
                   </p>
                 </div>
 
                 {/* Action Buttons with Gold / Dark Styling */}
-                {currentUser.role !== 'customer' && (
+                {currentUser?.role !== 'customer' && (
                   <div className="flex flex-wrap items-center gap-2.5">
                     <button
                       type="button"
@@ -95,7 +90,7 @@ export default function DashboardPage() {
                       className="btn-gold cursor-pointer"
                     >
                       <Zap className="h-4 w-4" />
-                      <span>⚡ Run Billing Day</span>
+                      <span>Run Billing Day</span>
                     </button>
 
                     <button
@@ -123,20 +118,12 @@ export default function DashboardPage() {
             {/* TAB VIEW ROUTER */}
             {currentTab === 'dashboard' && (
               <div className="space-y-6">
-                {/* 1-Click Interactive Scenario Shortcuts */}
-                {currentUser.role !== 'customer' && (
-                  <GuidedWalkthrough
-                    onNavigateTab={(tabId) => setCurrentTab(tabId)}
-                    onOpenNewQuote={() => setCurrentTab('subscriptions')}
-                  />
-                )}
-
-                {/* Requirement 4: Metrics Cards */}
+                {/* Key Performance Indicators */}
                 <section aria-label="Key Performance Indicators">
                   <MetricCards />
                 </section>
 
-                {/* Requirement 5: Revenue Overview Chart & Plan Distribution */}
+                {/* Revenue Overview Chart & Plan Distribution */}
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
                   <div className="lg:col-span-8">
                     <RevenueChart />
@@ -146,7 +133,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {/* Requirement 6 & 7: Recent Transactions Table & Recent Activity Feed */}
+                {/* Recent Transactions Table & Recent Activity Feed */}
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
                   <div className="lg:col-span-8">
                     <RecentTransactionsTable externalFilter={searchQuery} />
@@ -160,7 +147,7 @@ export default function DashboardPage() {
 
             {currentTab === 'customers' && (
               <CustomersView
-                onSelectCustomerForQuote={(custId) => {
+                onSelectCustomerForQuote={() => {
                   setCurrentTab('subscriptions');
                 }}
               />

@@ -85,7 +85,7 @@ export default function FinanceAnalyticsView() {
         category="Administration"
         badge={{
           icon: BarChart3,
-          text: 'Scene 7: Finance Lead End-of-Month Review (< 2s Latency)',
+          text: 'Finance & Revenue Analytics',
         }}
         actions={
           <button

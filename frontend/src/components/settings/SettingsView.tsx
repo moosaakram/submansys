@@ -85,7 +85,7 @@ export default function SettingsView() {
         category="Administration"
         badge={{
           icon: Settings,
-          text: 'Scene 1 & 4: Admin Controls & RBAC Governance',
+          text: 'Admin Controls & RBAC Governance',
         }}
       />
 
@@ -164,7 +164,7 @@ export default function SettingsView() {
           <div>
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <Percent className="h-4 w-4 text-[#c9ab70]" />
-              <span>Tax Rules Engine (Scene 4)</span>
+              <span>Tax Rules Engine</span>
             </h3>
             <p className="text-xs text-slate-500">
               Automatic consumption and sales tax calculations applied during billing.
@@ -207,7 +207,7 @@ export default function SettingsView() {
       <div className="card-surface p-6">
         <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
           <ShieldCheck className="h-4 w-4 text-[#c9ab70]" />
-          <span>Role-Based Access Control (RBAC) Matrix (Scene 1)</span>
+          <span>Role-Based Access Control (RBAC) Matrix</span>
         </h3>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs bg-white rounded-lg border border-slate-200 overflow-hidden">
@@ -268,7 +268,7 @@ export default function SettingsView() {
 
             <div className="mb-4">
               <span className="rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
-                Scene 1: Staff Authorization
+                Staff Authorization
               </span>
               <h3 className="mt-2 font-[family-name:var(--font-cinzel)] text-xl font-bold text-slate-900">Invite New Staff Member</h3>
               <p className="text-xs text-slate-500">
@@ -351,7 +351,7 @@ export default function SettingsView() {
 
             <div className="mb-4">
               <span className="rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
-                Scene 4: Tax Configuration
+                Tax Configuration
               </span>
               <h3 className="mt-2 font-[family-name:var(--font-cinzel)] text-xl font-bold text-slate-900">Add Tax Rule</h3>
               <p className="text-xs text-slate-500">

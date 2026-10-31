@@ -73,7 +73,7 @@ export default function PaymentsView() {
         category="Core Billing"
         badge={{
           icon: CreditCard,
-          text: 'Scene 6: The Money Comes In & Dunning Chaser',
+          text: 'Payment Reconciliation & Dunning Ledger',
         }}
       />
 
@@ -119,7 +119,7 @@ export default function PaymentsView() {
                 !
               </span>
               <span className="font-bold text-xs text-slate-900">
-                Action Required: Invoices Awaiting Settlement (Scene 6)
+                Action Required: Invoices Awaiting Settlement
               </span>
             </div>
             <span className="text-xs text-rose-600 font-semibold">

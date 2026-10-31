@@ -69,7 +69,7 @@ export default function PlanManagementView() {
         category="Catalog & Clients"
         badge={{
           icon: Layers,
-          text: 'Scene 2: Plan Lifecycle & Billing Cycles',
+          text: 'Plan Lifecycle & Billing Cycles',
         }}
         actions={
           isAdmin ? (
@@ -129,7 +129,7 @@ export default function PlanManagementView() {
               {/* Closure & Lifecycle Policies (Scene 2 explicit requirements) */}
               <div className="mt-4 border-t border-slate-100 pt-3">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-2">
-                  Plan Lifecycle Rules (Scene 2)
+                  Plan Lifecycle Rules
                 </span>
                 <div className="space-y-1.5 text-xs">
                   <div className="flex items-center justify-between">
@@ -191,7 +191,7 @@ export default function PlanManagementView() {
 
             <div className="mb-4">
               <span className="rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
-                Scene 2: Admin Plan Config
+                Plan Configuration
               </span>
               <h3 className="mt-2 font-[family-name:var(--font-cinzel)] text-xl font-bold text-slate-900">Create Subscription Plan</h3>
               <p className="text-xs text-slate-500">

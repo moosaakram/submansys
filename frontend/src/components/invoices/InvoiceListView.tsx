@@ -144,7 +144,7 @@ export default function InvoiceListView() {
         category="Core Billing"
         badge={{
           icon: FileText,
-          text: 'Scene 4: Billing Day & Automated Recurring Invoicing',
+          text: 'Automated Recurring Invoicing & Billing',
         }}
         actions={
           currentUser.role !== 'customer' ? (
@@ -508,7 +508,7 @@ export default function InvoiceListView() {
 
             <div className="mb-4">
               <span className="rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
-                Scene 6: The Money Comes In
+                Payment Processing
               </span>
               <h3 className="mt-2 font-[family-name:var(--font-cinzel)] text-xl font-bold text-slate-900">Record Payment</h3>
               <p className="text-xs text-slate-500">

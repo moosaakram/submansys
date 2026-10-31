@@ -106,7 +106,7 @@ export default function ProductCatalogView() {
         category="Catalog & Clients"
         badge={{
           icon: Package,
-          text: 'Scene 2: Product & Variant Management',
+          text: 'Product & Variant Management',
         }}
         actions={
           isAdmin ? (
@@ -196,7 +196,7 @@ export default function ProductCatalogView() {
                   </div>
                 </div>
 
-                {/* Variants List (Scene 2 requirement) */}
+                {/* Variants List (Add-on requirement) */}
                 <div className="mt-4 border-t border-slate-100 pt-3">
                   <div className="flex items-center justify-between text-xs font-semibold text-slate-700 mb-2">
                     <span className="flex items-center gap-1.5">
@@ -227,7 +227,7 @@ export default function ProductCatalogView() {
                               {v.name}
                               {isOdoo && (
                                 <span className="rounded bg-[#1c2530] text-[#c9ab70] border border-[#c9ab70]/40 px-1 py-0.2 text-[9px] font-bold">
-                                  Scene 2
+                                  Add-on
                                 </span>
                               )}
                             </span>
@@ -263,7 +263,7 @@ export default function ProductCatalogView() {
 
             <div className="mb-4">
               <span className="rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
-                Scene 2: Admin Product Setup
+                Product Setup
               </span>
               <h3 className="mt-2 font-[family-name:var(--font-cinzel)] text-xl font-bold text-slate-900">Launch New Product</h3>
               <p className="text-xs text-slate-500">

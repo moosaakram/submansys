@@ -8,16 +8,9 @@ import {
   Bell,
   Menu,
   ChevronDown,
-  Sparkles,
   CheckCircle2,
-  AlertTriangle,
-  FileCheck,
   ShieldCheck,
   LogOut,
-  User,
-  Sliders,
-  ExternalLink,
-  UserCheck,
 } from 'lucide-react';
 import { NOTIFICATIONS_DATA } from '@/data/mockData';
 import { useSubscription } from '@/context/SubscriptionContext';
@@ -33,16 +26,14 @@ export default function TopNavbar({
   searchQuery,
   onSearchChange,
 }: TopNavbarProps) {
-  const { currentUser, loginAs, users, notification, isBackendConnected, backendStatus, checkBackendHealth, refreshBackendData } = useSubscription();
+  const { currentUser, logout, notification, isBackendConnected, backendStatus, checkBackendHealth, refreshBackendData } = useSubscription();
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [showPersonaMenu, setShowPersonaMenu] = useState(false);
   const [notifications, setNotifications] = useState(NOTIFICATIONS_DATA);
 
   const notifRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
-  const personaRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 
@@ -55,9 +46,6 @@ export default function TopNavbar({
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
         setShowProfileMenu(false);
       }
-      if (personaRef.current && !personaRef.current.contains(event.target as Node)) {
-        setShowPersonaMenu(false);
-      }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -65,31 +53,6 @@ export default function TopNavbar({
 
   const markAllAsRead = () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
-  };
-
-  const getRoleBadge = (role: string) => {
-    switch (role) {
-      case 'admin':
-        return (
-          <span className="rounded-full bg-rose-500/20 px-2 py-0.5 text-[9px] font-bold text-rose-300 border border-rose-500/30">
-            Admin
-          </span>
-        );
-      case 'staff':
-        return (
-          <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[9px] font-bold text-amber-300 border border-amber-500/30">
-            Internal Staff
-          </span>
-        );
-      case 'customer':
-        return (
-          <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[9px] font-bold text-emerald-300 border border-emerald-500/30">
-            Customer Portal
-          </span>
-        );
-      default:
-        return null;
-    }
   };
 
   return (
@@ -115,7 +78,7 @@ export default function TopNavbar({
         {/* Mobile-only logo */}
         <Logo size="sm" theme="light" subtext="" className="lg:hidden" />
 
-        {/* Search Field: UI_DESIGN_SYSTEM.md Sec 5.2 */}
+        {/* Search Field */}
         <div className="relative hidden w-72 md:block lg:w-80">
           <Search className="absolute left-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-white/40" />
           <input
@@ -133,7 +96,7 @@ export default function TopNavbar({
 
       {/* Right Controls */}
       <div className="flex items-center gap-2.5 sm:gap-3.5">
-        {/* Backend & Database Connection Status Pill (Dark Theme Reference) */}
+        {/* Backend & Database Connection Status Pill */}
         <button
           type="button"
           onClick={() => (refreshBackendData ? refreshBackendData() : checkBackendHealth())}
@@ -164,51 +127,7 @@ export default function TopNavbar({
           </span>
         </button>
 
-        {/* Persona Switcher Dropdown (Scene 1 Role Requirement) */}
-        <div className="relative" ref={personaRef}>
-          <button
-            onClick={() => setShowPersonaMenu(!showPersonaMenu)}
-            className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs font-semibold text-[#f0f2f5] hover:bg-white/[0.10] hover:border-white/20 transition-all cursor-pointer"
-            title="Switch User Role Persona"
-          >
-            <UserCheck className="h-3.5 w-3.5 text-[#c9ab70]" />
-            <span className="hidden sm:inline text-white/50">Role:</span>
-            <span className="capitalize font-bold text-[#dcc28a]">{currentUser.role}</span>
-            <ChevronDown className="h-3 w-3 text-white/40" />
-          </button>
-
-          {showPersonaMenu && (
-            <div className="absolute right-0 mt-2 w-64 rounded-2xl border border-white/10 bg-[#1c2530] p-2 shadow-2xl ring-1 ring-black/40 animate-in fade-in slide-in-from-top-2 z-50">
-              <div className="px-3 py-1.5 border-b border-white/[0.08] text-[10px] font-bold text-white/40 uppercase tracking-[0.08em]">
-                Switch Role Persona
-              </div>
-              <div className="py-1 space-y-1">
-                {users.map((u) => (
-                  <button
-                    key={u.id}
-                    onClick={() => {
-                      loginAs(u.id);
-                      setShowPersonaMenu(false);
-                    }}
-                    className={`flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-xs transition-colors cursor-pointer ${
-                      currentUser.id === u.id
-                        ? 'bg-[#c9ab70]/15 text-white font-semibold border border-[#c9ab70]/30'
-                        : 'text-white/80 hover:bg-white/[0.06]'
-                    }`}
-                  >
-                    <div className="text-left">
-                      <div className="font-medium text-white">{u.name}</div>
-                      <div className="text-[10px] text-white/40">{u.email}</div>
-                    </div>
-                    {getRoleBadge(u.role)}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Notifications Dropdown (34px x 34px icon button) */}
+        {/* Notifications Dropdown */}
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => setShowNotifications(!showNotifications)}
@@ -266,17 +185,17 @@ export default function TopNavbar({
           >
             <div className="relative">
               <div className="flex h-8.5 w-8.5 items-center justify-center rounded-xl bg-gradient-to-b from-[#3c4a5a] to-[#1b242e] border border-white/15 font-semibold text-white shadow-xs text-xs">
-                {currentUser.avatar || 'BL'}
+                {currentUser?.avatar || 'BL'}
               </div>
               <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full border-2 border-[#1c2530] bg-emerald-500" />
             </div>
 
             <div className="hidden text-left sm:block">
               <div className="text-xs font-semibold text-white leading-tight">
-                {currentUser.name}
+                {currentUser?.name || 'User'}
               </div>
               <div className="text-[10px] font-medium text-white/50 flex items-center gap-1">
-                <span className="capitalize">{currentUser.role}</span>
+                <span className="capitalize">{currentUser?.role || 'Member'}</span>
                 <ShieldCheck className="h-3 w-3 text-[#c9ab70] inline" />
               </div>
             </div>
@@ -288,10 +207,10 @@ export default function TopNavbar({
           {showProfileMenu && (
             <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-white/10 bg-[#1c2530] p-2 shadow-2xl ring-1 ring-black/40 animate-in fade-in slide-in-from-top-2 z-50">
               <div className="px-3 py-2 border-b border-white/[0.08]">
-                <p className="text-xs font-semibold text-white">{currentUser.name}</p>
-                <p className="text-[11px] text-white/50 truncate">{currentUser.email}</p>
+                <p className="text-xs font-semibold text-white">{currentUser?.name}</p>
+                <p className="text-[11px] text-white/50 truncate">{currentUser?.email}</p>
                 <p className="text-[10px] text-[#c9ab70] font-medium mt-0.5">
-                  {currentUser.companyName || 'SubMan Technologies'}
+                  {currentUser?.companyName || 'SubMan Technologies'}
                 </p>
               </div>
 
@@ -300,12 +219,13 @@ export default function TopNavbar({
                   type="button"
                   onClick={() => {
                     setShowProfileMenu(false);
+                    logout();
                     window.location.href = '/login';
                   }}
                   className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
                 >
                   <LogOut className="h-4 w-4 text-rose-400" />
-                  <span>Sign Out / Switch Account</span>
+                  <span>Sign Out</span>
                 </button>
               </div>
             </div>

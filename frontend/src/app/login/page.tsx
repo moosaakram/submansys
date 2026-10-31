@@ -4,11 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AuthLayout from '@/components/auth/AuthLayout';
 import LoginForm from '@/components/auth/LoginForm';
+import { User } from '@/types/subscription';
 
 export default function LoginPage() {
   const router = useRouter();
   const [isTransitioningOut, setIsTransitioningOut] = useState(false);
-  const [transitionUser, setTransitionUser] = useState('Administrator');
+  const [transitionUser, setTransitionUser] = useState('User');
   const [targetDestination, setTargetDestination] = useState('/');
 
   // Reset departure state whenever login page is mounted/rendered
@@ -16,12 +17,11 @@ export default function LoginPage() {
     setIsTransitioningOut(false);
   }, []);
 
-  const handleLoginSuccess = (data: { email: string; rememberMe: boolean; userName?: string }) => {
-    if (data.userName) {
-      setTransitionUser(data.userName);
+  const handleLoginSuccess = (data: { email: string; rememberMe: boolean; user?: User }) => {
+    if (data.user?.name) {
+      setTransitionUser(data.user.name);
     }
-    // If Sarah Jenkins (customer), route to portal or overview
-    const isCustomer = data.email.toLowerCase().includes('sarah') || data.email.toLowerCase().includes('cust');
+    const isCustomer = data.user?.role === 'customer';
     setTargetDestination(isCustomer ? '/portal' : '/');
     setIsTransitioningOut(true);
   };

@@ -50,7 +50,7 @@ export interface CustomerInvoiceItem {
 }
 
 export const CustomerPortal: React.FC = () => {
-  const { currentUser } = useSubscription();
+  const { currentUser, logout } = useSubscription();
   const [activeTab, setActiveTab] = useState<'subscriptions' | 'invoices' | 'billing'>('subscriptions');
 
   // Customer Data representing the currently authenticated business account
@@ -156,16 +156,19 @@ export const CustomerPortal: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <Link
-              href="/"
-              className="text-xs font-semibold text-[#c9ab70] hover:text-[#dcc28a] flex items-center gap-1 transition-colors"
-            >
-              <span>Admin Console</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
+            {currentUser && (currentUser.role === 'admin' || currentUser.role === 'staff') && (
+              <Link
+                href="/"
+                className="text-xs font-semibold text-[#c9ab70] hover:text-[#dcc28a] flex items-center gap-1 transition-colors"
+              >
+                <span>Admin Console</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            )}
             <button
               type="button"
               onClick={() => {
+                logout();
                 window.location.href = '/login';
               }}
               className="p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"

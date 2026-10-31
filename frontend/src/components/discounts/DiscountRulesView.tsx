@@ -66,7 +66,7 @@ export default function DiscountRulesView() {
         category="Administration"
         badge={{
           icon: Tag,
-          text: 'Scene 5: Admin Discount Rules Engine',
+          text: 'Admin Discount Rules Engine',
         }}
         actions={
           isAdmin ? (
@@ -81,7 +81,7 @@ export default function DiscountRulesView() {
           ) : (
             <div className="flex items-center gap-1.5 rounded-lg bg-slate-100 border border-slate-200 px-3 py-1.5 text-xs text-slate-500">
               <ShieldAlert className="h-4 w-4 text-slate-400" />
-              <span>Admin-only privilege (Scene 5)</span>
+              <span>Admin-only privilege</span>
             </div>
           )
         }
@@ -177,7 +177,7 @@ export default function DiscountRulesView() {
 
             <div className="mb-4">
               <span className="rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
-                Scene 5: Admin Rule Setup
+                Admin Rule Setup
               </span>
               <h3 className="mt-2 font-[family-name:var(--font-cinzel)] text-xl font-bold text-slate-900">Add Discount Rule</h3>
               <p className="text-xs text-slate-500">

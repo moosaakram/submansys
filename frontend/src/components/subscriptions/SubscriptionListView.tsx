@@ -280,7 +280,7 @@ export default function SubscriptionListView() {
         category="Core Billing"
         badge={{
           icon: Repeat,
-          text: 'Scene 3: Quotation to Subscription Lifecycle',
+          text: 'Quotation to Subscription Lifecycle',
         }}
         actions={
           currentUser.role !== 'customer' ? (
@@ -302,7 +302,7 @@ export default function SubscriptionListView() {
       {/* Lifecycle Stage Visual Bar */}
       <div className="card-surface p-5">
         <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 block mb-3">
-          Lifecycle State Progression (Scene 3)
+          Lifecycle State Progression
         </span>
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-center text-xs">
           <div className="rounded-xl bg-slate-50 p-2.5 text-slate-700 font-semibold border border-slate-200 shadow-2xs">
@@ -482,7 +482,7 @@ export default function SubscriptionListView() {
 
             <div className="mb-4">
               <span className="rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
-                Scene 3: Turn Quote into Subscription
+                Create Subscription
               </span>
               <h3 className="mt-2 font-[family-name:var(--font-cinzel)] text-xl font-bold text-slate-900">
                 Quote & Subscription Builder
@@ -496,7 +496,7 @@ export default function SubscriptionListView() {
             <div className="mb-4 rounded-xl border border-[#c9ab70]/30 bg-[#c9ab70]/5 p-3">
               <label className="block text-xs font-bold text-[#1c2530] mb-1.5 flex items-center gap-1.5">
                 <Sparkles className="h-3.5 w-3.5 text-[#c9ab70]" />
-                <span>Start from Quotation Template (Scene 3):</span>
+                <span>Start from Quotation Template:</span>
               </label>
               <select
                 value={selectedTemplateId}
@@ -618,7 +618,7 @@ export default function SubscriptionListView() {
               <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-bold text-slate-900">
-                    Product Lines & Variants (Scene 3)
+                    Product Lines & Variants
                   </span>
                   <button
                     type="button"

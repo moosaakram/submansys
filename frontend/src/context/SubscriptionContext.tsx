@@ -187,7 +187,32 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       }
     }
   }, [users]);
-  const [currentUser, setCurrentUser] = useState<User>(SEED_USERS[0]); // Alex Mercer (Admin) by default
+  const [currentUser, setCurrentUser] = useState<User>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('brightloop_current_user');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed && parsed.email) {
+            return parsed;
+          }
+        }
+      } catch (e) {
+        console.error('Failed to parse current user:', e);
+      }
+    }
+    return SEED_USERS[0];
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && currentUser) {
+      try {
+        localStorage.setItem('brightloop_current_user', JSON.stringify(currentUser));
+      } catch (e) {
+        console.error('Failed to sync current user:', e);
+      }
+    }
+  }, [currentUser]);
   const [customers, setCustomers] = useState<CustomerProfile[]>(SEED_CUSTOMERS);
   const [products, setProducts] = useState<Product[]>(SEED_PRODUCTS);
   const [plans, setPlans] = useState<Plan[]>(SEED_PLANS);
@@ -269,6 +294,10 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   }, [refreshBackendData]);
 
   const logout = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('brightloop_current_user');
+      localStorage.removeItem('brightloop_auth_token');
+    }
     setNotification('Signed out successfully.');
     setCurrentUser(SEED_USERS[0]);
   };

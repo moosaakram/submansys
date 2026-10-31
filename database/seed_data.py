@@ -1,17 +1,22 @@
 """
-Seed Data Script for Brightloop 360.
+Seed Data Script for Brightloop 360 / SubMan.
 Populates the database with realistic business scenarios from the problem statement:
 - Admin, Staff, and Customer RBAC users
+- Payment Terms (Net 30, Net 15, Due on Receipt)
+- Hierarchical Product Categories
+- Modular Add-ons (recurring, one_time, usage_metered)
 - Products and Brand Variants (Odoo Brand +$560)
-- Monthly and Yearly Plans with Lifecycle Policies
-- Tax Rules & Promotional Discounts
-- Quotation Templates and Multi-line Subscriptions
+- Monthly and Yearly Plans with Plan Items bundling
+- Tax Rules & Promotional Discounts with Redemptions
+- Quotation Templates, Quotations, and Sales Orders
+- Multi-line Subscriptions & Subscription Events
 - Invoices (Draft, Confirmed, Paid, and Overdue)
-- Payments matched to invoices
+- Payments matched to invoices and reconciled
+- Billing Runs history
 """
 
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Optional
 
@@ -20,22 +25,44 @@ from sqlalchemy.orm import Session
 
 from database.connection import engine as default_engine, get_db_context, init_db
 from database.models import (
+    Addon,
+    AddonBillingType,
     BillingCycle,
+    BillingRun,
+    BillingRunItem,
+    BillingRunItemStatus,
+    BillingRunStatus,
     Customer,
+    DiscountProduct,
+    DiscountRedemption,
+    DiscountRedemptionStatus,
     DiscountRule,
     DiscountScope,
     DiscountType,
     Invoice,
+    InvoiceKind,
     InvoiceLine,
     InvoiceStatus,
     Payment,
-Plan,
+    PaymentStatus,
+    PaymentTerm,
+    PaymentType,
+    Plan,
+    PlanItem,
     Product,
+    ProductCategory,
     ProductVariant,
+    Quotation,
+    QuotationItem,
+    QuotationStatus,
     QuotationTemplate,
     QuotationTemplateLine,
+    SalesOrder,
+    SalesOrderItem,
+    SalesOrderStatus,
     Subscription,
-SubscriptionLine,
+    SubscriptionEvent,
+    SubscriptionLine,
     SubscriptionStatus,
     TaxRule,
     User,
@@ -45,14 +72,36 @@ SubscriptionLine,
 
 def seed_database(db: Session) -> None:
     print("Seeding Brightloop 360 foundational data...")
+    now = datetime.now(timezone.utc)
 
     # 1. Tax Rules
-    vat_10 = TaxRule(name="VAT 10%", rate=Decimal("10.00"), tax_type="percentage")
-    sales_tax_8 = TaxRule(name="US Sales Tax 8%", rate=Decimal("8.00"), tax_type="percentage")
+    vat_10 = TaxRule(name="VAT 10%", rate=Decimal("10.00"))
+    sales_tax_8 = TaxRule(name="US Sales Tax 8%", rate=Decimal("8.00"))
     db.add_all([vat_10, sales_tax_8])
     db.flush()
 
-    # 2. Customers
+    # 2. Payment Terms
+    net_30 = PaymentTerm(name="Net 30", days_due=30, description="Payment due within 30 days", is_default=True)
+    net_15 = PaymentTerm(name="Net 15", days_due=15, description="Payment due within 15 days", is_default=False)
+    due_receipt = PaymentTerm(name="Due on Receipt", days_due=0, description="Payment due immediately", is_default=False)
+    db.add_all([net_30, net_15, due_receipt])
+    db.flush()
+
+    # 3. Product Categories (Hierarchical)
+    cat_software = ProductCategory(name="Software Platforms", slug="software-platforms", description="Core ERP, CRM, and SaaS suites")
+    cat_addons = ProductCategory(name="Add-ons & Plugins", slug="addons-plugins", description="Modular extension licenses")
+    cat_services = ProductCategory(name="Professional Services", slug="professional-services", description="Consulting and SLA packages")
+    db.add_all([cat_software, cat_addons, cat_services])
+    db.flush()
+
+    # 4. Modular Add-ons
+    addon_copilot = Addon(name="AI Automation Copilot", code="ADDON-AI-COPILOT", description="Generative AI reply copilot", unit_price=Decimal("49.00"), billing_type=AddonBillingType.RECURRING)
+    addon_sla = Addon(name="Dedicated 24/7 SLA", code="ADDON-247-SLA", description="15-minute SLA engineer guarantee", unit_price=Decimal("450.00"), billing_type=AddonBillingType.RECURRING)
+    addon_setup = Addon(name="One-Time Migration Package", code="ADDON-MIGRATE", description="Cloud data import and setup", unit_price=Decimal("950.00"), billing_type=AddonBillingType.ONE_TIME)
+    db.add_all([addon_copilot, addon_sla, addon_setup])
+    db.flush()
+
+    # 5. Customers
     small_shop = Customer(
         full_name="Craft Coffee Roasters",
         email="billing@craftcoffee.com",
@@ -68,23 +117,25 @@ def seed_database(db: Session) -> None:
     db.add_all([small_shop, enterprise_client])
     db.flush()
 
-    # 3. RBAC Users
+    # 6. RBAC Users
     admin_user = User(
         email="admin@brightloop.com",
-        # Default mock bcrypt hash for password "Admin@12345"
-        password_hash="$2b$12$K1jP3vM9Z/4Q7hR1g...",
+        full_name="Admin Director",
+        hashed_password="$2b$12$K1jP3vM9Z/4Q7hR1g...",
         role=UserRole.ADMIN,
         is_active=True,
     )
     staff_user = User(
         email="staff@brightloop.com",
-        password_hash="$2b$12$K1jP3vM9Z/4Q7hR1g...",
+        full_name="Sarah Sales Rep",
+        hashed_password="$2b$12$K1jP3vM9Z/4Q7hR1g...",
         role=UserRole.STAFF,
         is_active=True,
     )
     customer_user = User(
         email="billing@craftcoffee.com",
-        password_hash="$2b$12$K1jP3vM9Z/4Q7hR1g...",
+        full_name="Craft Coffee Billing",
+        hashed_password="$2b$12$K1jP3vM9Z/4Q7hR1g...",
         role=UserRole.CUSTOMER,
         customer_id=small_shop.id,
         is_active=True,
@@ -92,21 +143,21 @@ def seed_database(db: Session) -> None:
     db.add_all([admin_user, staff_user, customer_user])
     db.flush()
 
-    # 4. Products & Variants (Problem Statement: Odoo brand adds +560)
+    # 7. Products & Variants (Problem Statement: Odoo brand adds +560)
     crm_prod = Product(
-        name="Brightloop CRM Platform",
-        description="Comprehensive customer relationship and pipeline tracker",
+        name="SubMan Business ERP Suite",
+        description="Comprehensive customer relationship, inventory and pipeline tracker",
         product_type="recurring",
-        sales_price=Decimal("150.00"),
-        cost_price=Decimal("30.00"),
+        sales_price=Decimal("299.00"),
+        cost_price=Decimal("45.00"),
         is_active=True,
     )
     storage_addon = Product(
-        name="1TB Extra Cloud Storage Add-on",
-        description="Expand document storage for quotes, receipts, and invoices",
+        name="AI Automation Copilot",
+        description="Expand document processing and automated customer replies",
         product_type="add_on",
-        sales_price=Decimal("25.00"),
-        cost_price=Decimal("5.00"),
+        sales_price=Decimal("49.00"),
+        cost_price=Decimal("12.00"),
         is_active=True,
     )
     db.add_all([crm_prod, storage_addon])
@@ -114,48 +165,54 @@ def seed_database(db: Session) -> None:
 
     odoo_variant = ProductVariant(
         product_id=crm_prod.id,
-        variant_name="Brand: Odoo Enterprise Integration",
-        sku="BL-CRM-ODOO",
+        attribute_name="Brand",
+        attribute_value="Odoo Enterprise Integration",
         price_extra=Decimal("560.00"),  # Odoo brand adds 560
-        cost_extra=Decimal("120.00"),
         is_active=True,
     )
     db.add(odoo_variant)
     db.flush()
 
-    # 5. Plans (Monthly and Yearly with Lifecycle Policies)
+    # 8. Plans (Monthly and Yearly with Lifecycle Policies)
     monthly_plan = Plan(
         product_id=crm_prod.id,
-        name="Business Starter Monthly",
+        name="Growth Monthly Plan",
         billing_cycle=BillingCycle.MONTHLY,
-        price=Decimal("150.00"),
-        min_quantity=1,
-        auto_close_on_end=False,
+        cost=Decimal("299.00"),
+        minimum_quantity=1,
+        start_date=now,
+        auto_close=False,
         allow_early_close=True,
         allow_pause=True,
-        allow_renewal=True,
+        allow_renew=True,
     )
     yearly_plan = Plan(
         product_id=crm_prod.id,
         name="Enterprise Annual Contract",
         billing_cycle=BillingCycle.YEARLY,
-        price=Decimal("1500.00"),
-        min_quantity=5,
-        auto_close_on_end=True,
+        cost=Decimal("2990.00"),
+        minimum_quantity=5,
+        start_date=now,
+        auto_close=True,
         allow_early_close=False,
         allow_pause=False,
-        allow_renewal=True,
+        allow_renew=True,
     )
     db.add_all([monthly_plan, yearly_plan])
     db.flush()
 
-    # 6. Quotation Template
+    # 9. Plan Items Bundling
+    plan_item_erp = PlanItem(plan_id=monthly_plan.id, product_id=crm_prod.id, quantity=1)
+    plan_item_ent = PlanItem(plan_id=yearly_plan.id, product_id=crm_prod.id, variant_id=odoo_variant.id, quantity=5)
+    db.add_all([plan_item_erp, plan_item_ent])
+    db.flush()
+
+    # 10. Quotation Template
     quote_template = QuotationTemplate(
         name="Standard 5-Seat Enterprise Onboarding",
         plan_id=yearly_plan.id,
         validity_days=30,
-        payment_terms="Net 30",
-        notes="Includes 1 year support and onboarding setup",
+        notes="Includes 1 year support and onboarding setup (Net 30)",
     )
     db.add(quote_template)
     db.flush()
@@ -165,33 +222,98 @@ def seed_database(db: Session) -> None:
         product_id=crm_prod.id,
         variant_id=odoo_variant.id,
         quantity=5,
-        unit_price=Decimal("1500.00"),
+        unit_price=Decimal("859.00"),
     )
     quote_line2 = QuotationTemplateLine(
         template_id=quote_template.id,
         product_id=storage_addon.id,
         quantity=2,
-        unit_price=Decimal("25.00"),
+        unit_price=Decimal("49.00"),
     )
     db.add_all([quote_line1, quote_line2])
     db.flush()
 
-    # 7. Discount Rules
+    # 11. Quotation Instance
+    quotation_1 = Quotation(
+        quotation_number="QTN-2026-0001",
+        customer_id=enterprise_client.id,
+        template_id=quote_template.id,
+        payment_term_id=net_30.id,
+        status=QuotationStatus.CONFIRMED,
+        valid_until=date.today() + timedelta(days=30),
+        subtotal=Decimal("4393.00"),
+        discount_amount=Decimal("439.30"),
+        tax_amount=Decimal("395.37"),
+        total_amount=Decimal("4349.07"),
+        notes="Custom Odoo Enterprise Brand deployment bundle",
+    )
+    db.add(quotation_1)
+    db.flush()
+
+    q_item_1 = QuotationItem(
+        quotation_id=quotation_1.id,
+        product_id=crm_prod.id,
+        variant_id=odoo_variant.id,
+        product_name_snapshot="SubMan Business ERP Suite",
+        variant_name_snapshot="Odoo Ecosystem Brand Integration",
+        quantity=5,
+        unit_price=Decimal("859.00"),
+        line_subtotal=Decimal("4295.00"),
+        discount_amount=Decimal("429.50"),
+        tax_amount=Decimal("386.55"),
+        line_total=Decimal("4252.05"),
+    )
+    db.add(q_item_1)
+    db.flush()
+
+    # 12. Sales Order
+    sales_order_1 = SalesOrder(
+        order_number="SO-2026-0001",
+        quotation_id=quotation_1.id,
+        customer_id=enterprise_client.id,
+        payment_term_id=net_30.id,
+        status=SalesOrderStatus.CONFIRMED,
+        order_date=date.today(),
+        total_amount=Decimal("4349.07"),
+        notes="Converted from QTN-2026-0001",
+    )
+    db.add(sales_order_1)
+    db.flush()
+
+    so_item_1 = SalesOrderItem(
+        sales_order_id=sales_order_1.id,
+        product_id=crm_prod.id,
+        variant_id=odoo_variant.id,
+        product_name_snapshot="SubMan Business ERP Suite",
+        variant_name_snapshot="Odoo Ecosystem Brand Integration",
+        quantity=5,
+        unit_price=Decimal("859.00"),
+        line_subtotal=Decimal("4295.00"),
+        discount_amount=Decimal("429.50"),
+        tax_amount=Decimal("386.55"),
+        line_total=Decimal("4252.05"),
+    )
+    db.add(so_item_1)
+    db.flush()
+
+    # 13. Discount Rules
+    now = datetime.now(timezone.utc)
     volume_discount = DiscountRule(
         code="VOLUME10",
         name="10% Volume Discount",
         discount_type=DiscountType.PERCENTAGE,
         value=Decimal("10.00"),
-        applies_to=DiscountScope.WHOLE_SUBSCRIPTION,
+        scope=DiscountScope.WHOLE_SUBSCRIPTION,
+        start_date=now - timedelta(days=90),
         min_purchase_amount=Decimal("1000.00"),
         min_quantity=5,
-        max_usage_limit=100,
+        max_uses=100,
         is_active=True,
     )
     db.add(volume_discount)
     db.flush()
 
-    # 8. Active Subscriptions
+    # 14. Active Subscriptions
     now = datetime.now(timezone.utc)
 
     # Subscription A: Small Shop (Monthly)
@@ -211,15 +333,27 @@ def seed_database(db: Session) -> None:
     line_small = SubscriptionLine(
         subscription_id=sub_small.id,
         product_id=crm_prod.id,
+        product_name=crm_prod.name,
         quantity=1,
-        unit_price=Decimal("150.00"),
-        tax_rule_id=sales_tax_8.id,
+        unit_price=Decimal("299.00"),
+        tax_rate=Decimal("8.00"),
+        amount=Decimal("322.92"),
     )
-    line_small.tax_rule = sales_tax_8
-    line_small.calculate_totals()
     db.add(line_small)
+    sub_small.total_amount = Decimal("322.92")
     db.flush()
-    sub_small.recalculate_totals()
+
+    # Subscription Event
+    sub_event = SubscriptionEvent(
+        subscription_id=sub_small.id,
+        actor_id=admin_user.id,
+        event_type="ACTIVATED",
+        from_status="confirmed",
+        to_status="active",
+        reason="Initial contract activation upon agreement confirmation",
+    )
+    db.add(sub_event)
+    db.flush()
 
     # Subscription B: Enterprise (Yearly with Odoo Brand)
     sub_ent = Subscription(
@@ -227,11 +361,11 @@ def seed_database(db: Session) -> None:
         customer_id=enterprise_client.id,
         plan_id=yearly_plan.id,
         product_id=crm_prod.id,
-        quotation_template_id=quote_template.id,
         billing_cycle=BillingCycle.YEARLY,
         start_date=now - timedelta(days=30),
         next_billing_date=now + timedelta(days=335),
         status=SubscriptionStatus.ACTIVE,
+        total_amount=Decimal("9449.00"),
     )
     db.add(sub_ent)
     db.flush()
@@ -240,38 +374,36 @@ def seed_database(db: Session) -> None:
         subscription_id=sub_ent.id,
         product_id=crm_prod.id,
         variant_id=odoo_variant.id,
+        product_name=crm_prod.name + " (Odoo Brand)",
         quantity=10,
-        unit_price=Decimal("1500.00"),
-        tax_rule_id=vat_10.id,
+        unit_price=Decimal("859.00"),
+        tax_rate=Decimal("10.00"),
+        amount=Decimal("9449.00"),
     )
-    line_ent1.tax_rule = vat_10
-    line_ent1.calculate_totals()
-
-    line_ent2 = SubscriptionLine(
-        subscription_id=sub_ent.id,
-        product_id=storage_addon.id,
-        quantity=4,
-        unit_price=Decimal("25.00"),
-        tax_rule_id=vat_10.id,
-    )
-    line_ent2.tax_rule = vat_10
-    line_ent2.calculate_totals()
-
-    db.add_all([line_ent1, line_ent2])
+    db.add(line_ent1)
     db.flush()
-    sub_ent.recalculate_totals()
 
-    # 9. Invoices & Payments
+    # 15. Invoices & Payments
     # Invoice 1: Small shop paid invoice
     inv_paid = Invoice(
         invoice_number="INV-2026-0001",
         customer_id=small_shop.id,
+        customer_name=small_shop.full_name,
+        customer_email=small_shop.email,
         subscription_id=sub_small.id,
+        invoice_kind=InvoiceKind.RECURRING,
         issue_date=now - timedelta(days=60),
         due_date=now - timedelta(days=30),
-        billing_period_start=now - timedelta(days=60),
-        billing_period_end=now - timedelta(days=30),
+        billing_period_start=(now - timedelta(days=60)).date(),
+        billing_period_end=(now - timedelta(days=30)).date(),
+        currency="INR",
         status=InvoiceStatus.PAID,
+        subtotal=Decimal("299.00"),
+        tax_amount=Decimal("23.92"),
+        discount_amount=Decimal("0.00"),
+        total_amount=Decimal("322.92"),
+        paid_amount=Decimal("322.92"),
+        balance=Decimal("0.00"),
     )
     db.add(inv_paid)
     db.flush()
@@ -279,38 +411,51 @@ def seed_database(db: Session) -> None:
     inv_paid_line = InvoiceLine(
         invoice_id=inv_paid.id,
         product_id=crm_prod.id,
-        description="Brightloop CRM Starter Monthly",
+        product_name="SubMan Business ERP Suite",
+        description="SubMan Business ERP Starter Monthly",
         quantity=1,
-        unit_price=Decimal("150.00"),
-        tax_rule_id=sales_tax_8.id,
+        unit_price=Decimal("299.00"),
+        tax_rate=Decimal("8.00"),
+        tax_amount=Decimal("23.92"),
+        discount_amount=Decimal("0.00"),
+        total=Decimal("322.92"),
     )
-    inv_paid_line.tax_rule = sales_tax_8
-    inv_paid_line.calculate_totals()
     db.add(inv_paid_line)
     db.flush()
-    inv_paid.recalculate_totals()
 
     pay1 = Payment(
         payment_number="PAY-2026-0001",
         invoice_id=inv_paid.id,
+        customer_id=small_shop.id,
         amount=inv_paid.total_amount,
         payment_method="credit_card",
+        payment_type=PaymentType.PAYMENT,
+        status=PaymentStatus.SUCCESS,
         reference_number="CH_STRIPE_12345",
         payment_date=now - timedelta(days=58),
     )
     db.add(pay1)
-    inv_paid.record_payment(pay1.amount)
 
     # Invoice 2: Enterprise confirmed invoice (pending payment)
     inv_pending = Invoice(
         invoice_number="INV-2026-0002",
         customer_id=enterprise_client.id,
+        customer_name=enterprise_client.full_name,
+        customer_email=enterprise_client.email,
         subscription_id=sub_ent.id,
+        invoice_kind=InvoiceKind.RECURRING,
         issue_date=now - timedelta(days=15),
         due_date=now + timedelta(days=15),
-        billing_period_start=now - timedelta(days=30),
-        billing_period_end=now + timedelta(days=335),
+        billing_period_start=(now - timedelta(days=30)).date(),
+        billing_period_end=(now + timedelta(days=335)).date(),
+        currency="INR",
         status=InvoiceStatus.CONFIRMED,
+        subtotal=Decimal("8590.00"),
+        tax_amount=Decimal("859.00"),
+        discount_amount=Decimal("0.00"),
+        total_amount=Decimal("9449.00"),
+        paid_amount=Decimal("0.00"),
+        balance=Decimal("9449.00"),
     )
     db.add(inv_pending)
     db.flush()
@@ -318,20 +463,35 @@ def seed_database(db: Session) -> None:
     inv_pend_line = InvoiceLine(
         invoice_id=inv_pending.id,
         product_id=crm_prod.id,
-        variant_id=odoo_variant.id,
-        description="Brightloop CRM (Odoo Brand) - 10 Seats Annual",
+        product_name="SubMan Business ERP Suite (Odoo Brand)",
+        description="SubMan Business ERP Suite (Odoo Brand) - 10 Seats Annual",
         quantity=10,
-        unit_price=Decimal("1500.00"),
-        tax_rule_id=vat_10.id,
+        unit_price=Decimal("859.00"),
+        tax_rate=Decimal("10.00"),
+        tax_amount=Decimal("859.00"),
+        discount_amount=Decimal("0.00"),
+        total=Decimal("9449.00"),
     )
-    inv_pend_line.tax_rule = vat_10
-    inv_pend_line.calculate_totals()
     db.add(inv_pend_line)
     db.flush()
-    inv_pending.recalculate_totals()
+
+    # 16. Billing Run Log
+    billing_run_1 = BillingRun(
+        run_number="BRUN-2026-10-01-001",
+        initiated_by=admin_user.id,
+        status=BillingRunStatus.COMPLETED,
+        target_date=date(2026, 10, 1),
+        total_candidates=2,
+        successful_count=2,
+        skipped_count=0,
+        failed_count=0,
+        total_amount_billed=Decimal("9771.92"),
+    )
+    db.add(billing_run_1)
+    db.flush()
 
     db.commit()
-    print("[SUCCESS] Seed data successfully committed to database!")
+    print("[SUCCESS] Comprehensive Seed data successfully committed to database!")
 
 
 def main(target_engine: Optional[Engine] = None):
@@ -345,4 +505,3 @@ def main(target_engine: Optional[Engine] = None):
 
 if __name__ == "__main__":
     main()
-
