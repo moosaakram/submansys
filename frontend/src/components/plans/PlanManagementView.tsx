@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useSubscription } from '@/context/SubscriptionContext';
 import { Plan, BillingCycle } from '@/types/subscription';
+import PageHeader from '@/components/common/PageHeader';
 
 export default function PlanManagementView() {
   const { plans, addPlan, currentUser } = useSubscription();
@@ -61,33 +62,28 @@ export default function PlanManagementView() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
-            <Layers className="h-3 w-3" />
-            <span>Scene 2: Plan Lifecycle & Billing Cycles</span>
-          </div>
-          <h2 className="mt-1 font-[family-name:var(--font-cinzel)] text-2xl font-bold tracking-tight text-slate-900">
-            Recurring Plans & Closure Policies
-          </h2>
-          <div className="title-accent-rule" />
-          <p className="mt-0.5 text-xs text-slate-500">
-            Configure billing frequency (daily, weekly, monthly, yearly), minimum quantities, and auto-close / pause / renewal rules.
-          </p>
-        </div>
-
-        {isAdmin && (
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(true)}
-            className="btn-gold cursor-pointer"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Create New Plan</span>
-          </button>
-        )}
-      </div>
+      {/* Unified Global Page Header */}
+      <PageHeader
+        title="Recurring Plans & Closure Policies"
+        subtitle="Configure billing frequency (daily, weekly, monthly, yearly), minimum quantities, and auto-close / pause / renewal rules."
+        category="Catalog & Clients"
+        badge={{
+          icon: Layers,
+          text: 'Scene 2: Plan Lifecycle & Billing Cycles',
+        }}
+        actions={
+          isAdmin ? (
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              className="btn-gold cursor-pointer"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Create New Plan</span>
+            </button>
+          ) : undefined
+        }
+      />
 
       {/* Plans Grid */}
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
@@ -112,7 +108,7 @@ export default function PlanManagementView() {
               </p>
 
               <div className="mt-4 flex items-baseline gap-1">
-                <span className="font-[family-name:var(--font-serif)] text-2xl font-bold text-slate-900">${p.basePrice.toFixed(2)}</span>
+                <span className="font-[family-name:var(--font-serif)] text-2xl font-bold text-slate-900">₹{p.basePrice.toFixed(2)}</span>
                 <span className="text-xs text-slate-400">/{p.billingCycle}</span>
               </div>
 
@@ -236,7 +232,7 @@ export default function PlanManagementView() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Base Price ($)
+                    Base Price (₹)
                   </label>
                   <input
                     type="number"

@@ -255,7 +255,7 @@ export const SEED_DISCOUNT_RULES: DiscountRule[] = [
   {
     id: 'disc-fixed-100',
     code: 'STARTUP100',
-    name: 'New Business Credit ($100 Off)',
+    name: 'New Business Credit (₹100 Off)',
     type: 'fixed_amount',
     value: 100.0,
     minPurchaseAmount: 300.0,
@@ -333,7 +333,7 @@ export const SEED_SUBSCRIPTIONS: Subscription[] = [
         productId: 'prod-1',
         productName: 'SubMan Business ERP Suite',
         variantId: 'var-1-odoo',
-        variantName: 'Odoo Ecosystem Brand Integration (+$560)',
+        variantName: 'Odoo Ecosystem Brand Integration (+₹560)',
         quantity: 5,
         unitPrice: 859.0, // 299 + 560
         taxRate: 10.0,

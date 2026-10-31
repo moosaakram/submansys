@@ -705,7 +705,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       }).catch((err) => console.warn('Backend payment record error', err));
     }
 
-    setNotification(`Payment of $${data.amount.toFixed(2)} recorded for ${inv.invoiceNumber}.`);
+    setNotification(`Payment of ₹${data.amount.toFixed(2)} recorded for ${inv.invoiceNumber}.`);
     return { success: true, message: 'Payment successfully recorded!' };
   };
 

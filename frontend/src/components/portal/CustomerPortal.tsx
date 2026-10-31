@@ -281,7 +281,7 @@ export const CustomerPortal: React.FC = () => {
                     <div>
                       <span className="text-slate-400 block text-[10px] uppercase font-medium">Rate & Billing</span>
                       <span className="font-[family-name:var(--font-serif)] font-bold text-slate-900 text-sm">
-                        ${sub.unitPrice.toLocaleString()} / {sub.billingFrequency.toLowerCase()}
+                        ₹{sub.unitPrice.toLocaleString('en-IN')} / {sub.billingFrequency.toLowerCase()}
                       </span>
                     </div>
                     <div>
@@ -390,7 +390,7 @@ export const CustomerPortal: React.FC = () => {
                         {inv.dueDate}
                       </td>
                       <td className="py-3.5 px-4 font-[family-name:var(--font-serif)] font-bold text-slate-900 text-sm">
-                        ${inv.amount.toFixed(2)}
+                        ₹{inv.amount.toFixed(2)}
                       </td>
                       <td className="py-3.5 px-4">
                         <span className="badge-success">

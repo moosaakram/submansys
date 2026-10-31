@@ -15,6 +15,7 @@ import {
   Lock,
 } from 'lucide-react';
 import { useSubscription } from '@/context/SubscriptionContext';
+import PageHeader from '@/components/common/PageHeader';
 
 export default function SettingsView() {
   const {
@@ -77,20 +78,16 @@ export default function SettingsView() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
-          <Settings className="h-3 w-3" />
-          <span>Scene 1 & 4: Admin Controls & RBAC Governance</span>
-        </div>
-        <h2 className="mt-1 font-[family-name:var(--font-cinzel)] text-2xl font-bold tracking-tight text-slate-900">
-          System Administration & Settings
-        </h2>
-        <div className="title-accent-rule" />
-        <p className="mt-0.5 text-xs text-slate-500">
-          Staff member invitations, tax rule configurations, and role permission governance.
-        </p>
-      </div>
+      {/* Unified Global Page Header */}
+      <PageHeader
+        title="System Administration & Settings"
+        subtitle="Staff member invitations, tax rule configurations, and role permission governance."
+        category="Administration"
+        badge={{
+          icon: Settings,
+          text: 'Scene 1 & 4: Admin Controls & RBAC Governance',
+        }}
+      />
 
       {/* Staff Management Section (Scene 1 requirement: "Only the admin can add a new member of staff") */}
       <div className="card-surface p-6 space-y-4">
