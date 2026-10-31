@@ -66,7 +66,7 @@ Modern recurring revenue businesses encounter substantial operational friction a
   - Metric cards for MRR, active subscribers, churn rate, and LTV.
   - Interactive plan distribution and recent activity modules.
   - Recent transactions table and dynamic sidebar navigation.
-- [x] **Authentication UI Component (`src/components/auth/LoginForm.tsx` & `frontend/components/auth/LoginForm.tsx`):**
+- [x] **Authentication UI Component (`src/components/auth/LoginForm.tsx` & `/login` page):**
   - Modern, responsive SaaS login interface with Brightloop 360 blue/indigo branding.
   - Work email input with regular expression format validation.
   - Secure password field with interactive show/hide visibility toggle.
@@ -146,11 +146,6 @@ submansys/
 │   │       └── TopNavbar.tsx
 │   ├── data/                      # Mock data for demonstration
 │   └── types/                     # TypeScript type declarations
-├── frontend/                      # Modular frontend workspace
-│   ├── components/
-│   │   └── auth/
-│   │       └── LoginForm.tsx      # Authentication component (frontend module)
-│   └── README.md
 ├── backend/                       # FastAPI backend application
 │   ├── app/
 │   │   ├── routes/                # API routes (health, auth, subscriptions)

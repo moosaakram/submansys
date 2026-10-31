@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import {
   Search,
   Bell,
@@ -241,13 +242,14 @@ export default function TopNavbar({
               </div>
 
               <div className="pt-1 border-t border-slate-100">
-                <button
+                <Link
+                  href="/login"
                   onClick={() => setShowProfileMenu(false)}
                   className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50"
                 >
                   <LogOut className="h-4 w-4 text-rose-500" />
-                  <span>Sign Out</span>
-                </button>
+                  <span>Sign Out / Switch User</span>
+                </Link>
               </div>
             </div>
           )}
