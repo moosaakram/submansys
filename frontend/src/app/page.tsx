@@ -86,7 +86,7 @@ export default function DashboardPage() {
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.08em] text-white/70">
-                    <span className="text-[#c9ab70]">Brightloop 360</span>
+                    <span className="text-[#c9ab70]">SubMan</span>
                     <ChevronRight className="h-3 w-3 text-white/40" />
                     <span className="text-white/80 capitalize">{currentUser.role} Console</span>
                   </div>

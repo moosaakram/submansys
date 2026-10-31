@@ -89,11 +89,11 @@ export default function RevenueChart() {
       <div className="mt-5 grid grid-cols-2 gap-4 border-y border-slate-100 py-3 sm:grid-cols-4">
         <div>
           <span className="text-[11px] font-medium text-slate-400">Total ARR Run-rate</span>
-          <p className="font-[family-name:var(--font-serif)] text-lg font-bold text-slate-900">$1,541,400</p>
+          <p className="font-[family-name:var(--font-serif)] text-lg font-bold text-slate-900">₹1,541,400</p>
         </div>
         <div>
           <span className="text-[11px] font-medium text-slate-400">Avg. Revenue Per User</span>
-          <p className="font-[family-name:var(--font-serif)] text-lg font-bold text-slate-900">$64.20<span className="text-xs font-normal text-slate-400 font-sans">/mo</span></p>
+          <p className="font-[family-name:var(--font-serif)] text-lg font-bold text-slate-900">₹64.20<span className="text-xs font-normal text-slate-400 font-sans">/mo</span></p>
         </div>
         <div>
           <span className="text-[11px] font-medium text-slate-400">Net Revenue Retention</span>
@@ -121,7 +121,7 @@ export default function RevenueChart() {
         {activePoint && (
           <div className="flex items-center gap-3 bg-slate-50 px-3 py-1 rounded-lg border border-slate-200/60">
             <span className="font-semibold text-slate-800">{activePoint.month}:</span>
-            <span className="font-bold text-[#1c2530]">${activePoint.revenue.toLocaleString()}</span>
+            <span className="font-bold text-[#1c2530]">₹{activePoint.revenue.toLocaleString('en-IN')}</span>
             <span className="text-slate-400">•</span>
             <span className="text-slate-600 font-medium">{activePoint.newCustomers} new subs</span>
           </div>
@@ -133,23 +133,23 @@ export default function RevenueChart() {
         {/* Background Grid Lines */}
         <div className="absolute inset-0 flex flex-col justify-between pointer-events-none pb-8 text-[10px] text-slate-300">
           <div className="flex items-center w-full">
-            <span className="w-10 text-right pr-2 text-slate-400">$140k</span>
+            <span className="w-10 text-right pr-2 text-slate-400">₹140k</span>
             <div className="h-px w-full bg-slate-100" />
           </div>
           <div className="flex items-center w-full">
-            <span className="w-10 text-right pr-2 text-slate-400">$105k</span>
+            <span className="w-10 text-right pr-2 text-slate-400">₹105k</span>
             <div className="h-px w-full bg-slate-100" />
           </div>
           <div className="flex items-center w-full">
-            <span className="w-10 text-right pr-2 text-slate-400">$70k</span>
+            <span className="w-10 text-right pr-2 text-slate-400">₹70k</span>
             <div className="h-px w-full bg-slate-100" />
           </div>
           <div className="flex items-center w-full">
-            <span className="w-10 text-right pr-2 text-slate-400">$35k</span>
+            <span className="w-10 text-right pr-2 text-slate-400">₹35k</span>
             <div className="h-px w-full bg-slate-100" />
           </div>
           <div className="flex items-center w-full">
-            <span className="w-10 text-right pr-2 text-slate-400">$0</span>
+            <span className="w-10 text-right pr-2 text-slate-400">₹0</span>
             <div className="h-px w-full bg-slate-200" />
           </div>
         </div>

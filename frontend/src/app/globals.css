@@ -45,6 +45,40 @@
   --shadow-card: 0 2px 4px rgba(10, 16, 24, 0.04), 0 12px 24px -12px rgba(10, 16, 24, 0.08);
   --shadow-elevated: 0 8px 24px -4px rgba(10, 16, 24, 0.15), 0 4px 12px -4px rgba(10, 16, 24, 0.10);
   --shadow-modal: 0 20px 40px -8px rgba(0, 0, 0, 0.25);
+
+  /* LoomOne Luxury Easing & Animation Tokens */
+  --ease-ios-decel: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-ios-spring: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes breathingGlow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.94;
+    filter: drop-shadow(0 0 12px rgba(201, 171, 112, 0.3));
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+    filter: drop-shadow(0 0 24px rgba(201, 171, 112, 0.65));
+  }
+}
+
+@keyframes shimmerTrack {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(220%);
+  }
+}
+
+.animate-breathing-glow {
+  animation: breathingGlow 1.5s ease-in-out infinite;
+}
+
+.animate-shimmer-track {
+  animation: shimmerTrack 0.95s ease-in-out infinite;
 }
 
 body {
@@ -271,18 +305,29 @@ body {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  overflow-y: auto;
 }
 
 .modal-panel {
   background: #ffffff;
-  border-radius: 20px;
+  border-radius: 24px;
   border: 1px solid rgba(226, 232, 240, 0.90);
-  box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.25);
-  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 1.75rem;
+  width: 100%;
+  margin: auto;
+  position: relative;
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+  text-align: left;
 }
 
 /* Semantic Status Badges */
@@ -326,7 +371,8 @@ body {
   font-weight: 600;
 }
 
-.badge-draft {
+.badge-draft,
+.badge-neutral {
   background: rgba(100, 116, 139, 0.10);
   color: #475569;
   border: 1px solid #E2E8F0;

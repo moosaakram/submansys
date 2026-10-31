@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" fill="none">
+  <defs>
+    <pattern id="m-grid" width="36" height="36" patternUnits="userSpaceOnUse">
+      <path d="M 36 0 L 0 0 0 36" fill="none" stroke="rgba(255, 255, 255, 0.10)" stroke-width="0.75"/>
+      <circle cx="0" cy="0" r="1.2" fill="rgba(201, 171, 112, 0.25)"/>
+    </pattern>
+    <pattern id="m-major-grid" width="180" height="180" patternUnits="userSpaceOnUse">
+      <path d="M 180 0 L 0 0 0 180" fill="none" stroke="rgba(255, 255, 255, 0.18)" stroke-width="1.2"/>
+      <circle cx="0" cy="0" r="2" fill="rgba(201, 171, 112, 0.45)"/>
+    </pattern>
+  </defs>
+
+  <!-- Mobile Grid -->
+  <rect width="100%" height="100%" fill="url(#m-grid)" />
+  <rect width="100%" height="100%" fill="url(#m-major-grid)" />
+
+  <!-- Schematics and drafting lines for mobile -->
+  <g stroke="rgba(255, 255, 255, 0.32)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Top Hero Drafting Calipers -->
+    <circle cx="540" cy="280" r="180" stroke="rgba(201, 171, 112, 0.3)" stroke-dasharray="6 6"/>
+    <circle cx="540" cy="280" r="240" stroke="rgba(255, 255, 255, 0.15)" stroke-dasharray="4 10"/>
+    <line x1="260" y1="280" x2="820" y2="280" stroke="rgba(201, 171, 112, 0.4)" stroke-dasharray="4 4"/>
+    <line x1="540" y1="80" x2="540" y2="480" stroke="rgba(201, 171, 112, 0.4)" stroke-dasharray="4 4"/>
+    <circle cx="540" cy="280" r="4" fill="#c9ab70"/>
+
+    <!-- Mid & Bottom Architectural Module Outlines -->
+    <rect x="90" y="520" width="900" height="420" rx="6" fill="rgba(255, 255, 255, 0.015)" stroke="rgba(255, 255, 255, 0.35)"/>
+    <line x1="90" y1="580" x2="990" y2="580" stroke="rgba(255, 255, 255, 0.25)"/>
+    <line x1="540" y1="580" x2="540" y2="940" stroke="rgba(255, 255, 255, 0.2)" stroke-dasharray="6 6"/>
+
+    <!-- Isometric Shape -->
+    <path d="M 320 1250 L 540 1120 L 760 1250 L 540 1380 Z" stroke="rgba(201, 171, 112, 0.4)" stroke-width="1.5" fill="rgba(255, 255, 255, 0.02)"/>
+    <path d="M 320 1250 L 320 1450 L 540 1580 L 540 1380 Z" stroke="rgba(255, 255, 255, 0.35)"/>
+    <path d="M 540 1380 L 540 1580 L 760 1450 L 760 1250 Z" stroke="rgba(255, 255, 255, 0.25)"/>
+
+    <g fill="rgba(255, 255, 255, 0.4)" font-family="monospace" font-size="10" letter-spacing="2">
+      <text x="120" y="505">MODULE: SUBMAN_CORE_SYS</text>
+      <text x="120" y="970">SCALE: 1:1 MOBILE_VIEWPORT</text>
+      <text x="320" y="1100">ISO_PROJECTION // R1080</text>
+    </g>
+  </g>
+</svg>

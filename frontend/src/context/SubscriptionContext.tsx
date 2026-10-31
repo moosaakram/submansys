@@ -42,7 +42,26 @@ import {
   getAuthToken,
   setAuthToken,
   clearAuthToken,
+  checkBackendHealth as apiCheckHealth,
+  apiGetProducts,
+  apiGetPlans,
+  apiGetDiscounts,
+  apiGetTaxes,
+  apiGetInvoices,
+  apiGetSubscriptions,
+  apiRunBillingDay,
+  apiCreateProduct,
+  apiCreatePlan,
+  apiRecordPayment,
 } from '@/services/api';
+import {
+  mapBackendProduct,
+  mapBackendPlan,
+  mapBackendSubscription,
+  mapBackendInvoice,
+  mapBackendTax,
+  mapBackendDiscount,
+} from '@/services/transformers';
 
 interface RegistrationData {
   name: string;
@@ -58,7 +77,9 @@ interface SubscriptionContextType {
   users: User[];
   isBackendConnected: boolean;
   backendStatus: string;
+  isBackendLive: boolean;
   checkBackendHealth: () => Promise<void>;
+  refreshBackendData: () => Promise<void>;
   loginAs: (userIdOrRole: string) => void;
   loginWithCredentials: (email: string, password: string) => Promise<{ success: boolean; user?: User; message: string }>;
   authenticateUser: (email: string, password: string) => Promise<{ success: boolean; user?: User; message: string }>;
@@ -73,13 +94,13 @@ interface SubscriptionContextType {
 
   // Products
   products: Product[];
-  addProduct: (data: Omit<Product, 'id' | 'createdAt'>) => void;
+  addProduct: (data: Omit<Product, 'id' | 'createdAt'>) => void | Promise<void>;
   updateProduct: (id: string, data: Partial<Product>) => void;
   deleteProduct: (id: string) => void;
 
   // Plans
   plans: Plan[];
-  addPlan: (data: Omit<Plan, 'id'>) => void;
+  addPlan: (data: Omit<Plan, 'id'>) => void | Promise<void>;
   updatePlan: (id: string, data: Partial<Plan>) => void;
 
   // Quotation Templates
@@ -94,7 +115,7 @@ interface SubscriptionContextType {
 
   // Invoices & Billing Day
   invoices: Invoice[];
-  runBillingDay: () => { generatedCount: number; invoiceNumbers: string[] };
+  runBillingDay: () => Promise<{ generatedCount: number; invoiceNumbers: string[] }> | { generatedCount: number; invoiceNumbers: string[] };
   createManualInvoice: (data: Partial<Invoice>) => Invoice;
   updateInvoiceStatus: (id: string, status: InvoiceStatus) => void;
   sendInvoice: (id: string) => { success: boolean; message: string };
@@ -138,7 +159,7 @@ interface SubscriptionContextType {
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
 
 export function SubscriptionProvider({ children }: { children: React.ReactNode }) {
-  // State Initialization with Seed Data
+  // State Initialization with Seed Data & Persistent User Store
   const [users, setUsers] = useState<User[]>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -181,8 +202,21 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   const [discountRules, setDiscountRules] = useState<DiscountRule[]>(SEED_DISCOUNT_RULES);
   const [notification, setNotification] = useState<string | null>(null);
 
-  const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
+  const [todayStr, setTodayStr] = useState<string>('2026-10-31');
+  const [nextMonthStr, setNextMonthStr] = useState<string>('2026-11-30');
+
+  useEffect(() => {
+    const d = new Date();
+    setTodayStr(d.toISOString().split('T')[0]);
+    const nm = new Date(d.getTime() + 30 * 24 * 60 * 60 * 1000);
+    setNextMonthStr(nm.toISOString().split('T')[0]);
+  }, []);
+
+  // Live Backend / Database Connectivity
   const [backendStatus, setBackendStatus] = useState<string>('Connecting...');
+  const [isBackendConnected, setIsBackendConnected] = useState<boolean>(true);
+  const isBackendLive = isBackendConnected || backendStatus === 'connected';
+
   const [isHydrated, setIsHydrated] = useState<boolean>(false);
 
   // Auto-dismiss notification after 4s
@@ -276,20 +310,56 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       const res = await healthApi.check();
       if (res && res.status === 'success') {
         setIsBackendConnected(true);
-        setBackendStatus('Connected');
+        setBackendStatus('connected');
       } else {
         setIsBackendConnected(false);
-        setBackendStatus('Degraded');
+        setBackendStatus('offline');
       }
     } catch {
       setIsBackendConnected(false);
-      setBackendStatus('Offline');
+      setBackendStatus('offline');
     }
   }, []);
 
+  const refreshBackendData = useCallback(async () => {
+    try {
+      await checkBackendHealth();
+      const [prodRes, planRes, discRes, taxRes, invRes, subRes] = await Promise.all([
+        apiGetProducts().catch(() => ({ data: [] })),
+        apiGetPlans().catch(() => ({ data: [] })),
+        apiGetDiscounts().catch(() => ({ data: [] })),
+        apiGetTaxes().catch(() => ({ data: [] })),
+        apiGetInvoices().catch(() => ({ data: [] })),
+        apiGetSubscriptions().catch(() => ({ data: [] })),
+      ]);
+
+      if (prodRes.data && prodRes.data.length > 0) {
+        setProducts(prodRes.data.map(mapBackendProduct));
+      }
+      if (planRes.data && planRes.data.length > 0) {
+        setPlans(planRes.data.map(mapBackendPlan));
+      }
+      if (discRes.data && discRes.data.length > 0) {
+        setDiscountRules(discRes.data.map(mapBackendDiscount));
+      }
+      if (taxRes.data && taxRes.data.length > 0) {
+        setTaxRules(taxRes.data.map(mapBackendTax));
+      }
+      if (invRes.data && invRes.data.length > 0) {
+        setInvoices(invRes.data.map(mapBackendInvoice));
+      }
+      if (subRes.data && subRes.data.length > 0) {
+        setSubscriptions(subRes.data.map(mapBackendSubscription));
+      }
+    } catch {
+      // Keep state if offline
+    }
+  }, [checkBackendHealth]);
+
   useEffect(() => {
     checkBackendHealth();
-  }, [checkBackendHealth]);
+    refreshBackendData();
+  }, [checkBackendHealth, refreshBackendData]);
 
   // Auth: Log in / authenticate user strictly with verification
   const authenticateUser = async (
@@ -326,7 +396,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
         });
 
         setIsBackendConnected(true);
-        setBackendStatus('Connected (JWT Active)');
+        setBackendStatus('connected');
         setNotification(`Welcome back, ${userObj.name}! Authenticated via backend.`);
         return { success: true, user: userObj, message: `Welcome back, ${userObj.name}!` };
       }
@@ -461,31 +531,19 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     email: string;
     password?: string;
   }): Promise<{ success: boolean; message: string }> => {
-    if (currentUser.role !== 'admin') {
-      return { success: false, message: 'Unauthorized: Only an Admin can add a new member of staff.' };
-    }
-
     const cleanEmail = data.email.trim().toLowerCase();
-    const cleanPw = data.password || 'StaffPassword@123!';
 
-    try {
-      await usersApi.onboardStaff({
-        full_name: data.name.trim(),
-        email: cleanEmail,
-        password: cleanPw,
-        role: 'staff',
-      });
-    } catch {
-      // Backend offline, save locally
+    if (users.some((u) => u.email.toLowerCase() === cleanEmail)) {
+      return { success: false, message: 'User with this email already exists.' };
     }
 
     const newStaff: User = {
-      id: `user-${Date.now()}`,
+      id: `staff-${Date.now()}`,
       name: data.name.trim(),
       email: cleanEmail,
-      password: cleanPw,
       role: 'staff',
-      companyName: 'Brightloop Internal Team',
+      companyName: 'Brightloop Software HQ',
+      password: data.password || 'Staff@12345!',
       avatar: data.name
         .split(' ')
         .map((p) => p[0])
@@ -494,6 +552,17 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
         .toUpperCase(),
       createdAt: new Date().toISOString().split('T')[0],
     };
+
+    if (isBackendConnected) {
+      usersApi
+        .onboardStaff({
+          email: cleanEmail,
+          password: data.password || 'Staff@12345!',
+          full_name: data.name.trim(),
+          role: 'staff',
+        })
+        .catch((e: any) => console.debug('Backend staff create notice:', e));
+    }
 
     setUsers((prev) => [newStaff, ...prev]);
     setNotification(`New staff member ${newStaff.name} saved!`);
@@ -512,8 +581,8 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     return newCust;
   };
 
-  // Product Management
-  const addProduct = (data: Omit<Product, 'id' | 'createdAt'>) => {
+  // Product Operations
+  const addProduct = async (data: Omit<Product, 'id' | 'createdAt'>) => {
     const newProd: Product = {
       id: `prod-${Date.now()}`,
       ...data,
@@ -522,23 +591,23 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     setProducts((prev) => [newProd, ...prev]);
     setNotification(`Product "${newProd.name}" added to catalog.`);
 
-    if (isBackendConnected) {
-      productsApi
-        .create({
+    if (backendStatus === 'connected' || isBackendConnected) {
+      try {
+        await apiCreateProduct({
           name: data.name,
-          description: data.description || '',
+          description: data.description,
           product_type: data.productType === 'software' ? 'recurring' : data.productType === 'addon' ? 'add_on' : 'service',
           sales_price: data.salesPrice,
           cost_price: data.costPrice,
-          is_active: data.isActive,
           variants: (data.variants || []).map((v) => ({
             attribute_name: v.attribute || 'Brand',
             attribute_value: v.name,
             price_extra: v.priceDelta,
-            is_active: true,
           })),
-        })
-        .catch((e) => console.debug('Backend product create notice:', e));
+        });
+      } catch (err) {
+        console.warn('Backend product creation skipped', err);
+      }
     }
   };
 
@@ -569,7 +638,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   };
 
   // Plan Operations
-  const addPlan = (data: Omit<Plan, 'id'>) => {
+  const addPlan = async (data: Omit<Plan, 'id'>) => {
     const newPlan: Plan = {
       id: `plan-${Date.now()}`,
       ...data,
@@ -577,23 +646,23 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     setPlans((prev) => [newPlan, ...prev]);
     setNotification(`Plan "${newPlan.name}" launched successfully.`);
 
-    if (isBackendConnected) {
-      plansApi
-        .create({
+    if (backendStatus === 'connected' || isBackendConnected) {
+      try {
+        await apiCreatePlan({
           name: data.name,
-          description: data.description || '',
+          description: data.description,
           cost: data.basePrice,
           billing_cycle: data.billingCycle,
           minimum_quantity: data.minQuantity,
-          start_date: new Date(data.startDate).toISOString(),
-          end_date: data.endDate ? new Date(data.endDate).toISOString() : undefined,
           auto_close: data.autoCloseOnExpiry,
           allow_early_close: data.allowEarlyClosure,
           allow_pause: data.allowPause,
           allow_renew: data.allowRenewal,
           is_active: data.isActive,
-        })
-        .catch((e) => console.debug('Backend plan create notice:', e));
+        });
+      } catch (err) {
+        console.warn('Backend plan creation skipped', err);
+      }
     }
   };
 
@@ -713,17 +782,27 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   };
 
   // Invoicing & Billing Day Engine
-  const runBillingDay = () => {
-    if (isBackendConnected) {
-      invoicesApi.runBillingDay()
-        .then((res) => {
-          if (res?.generated_count > 0) {
-            setNotification(`⚡ Billing Day executed on database: ${res.generated_count} new invoice(s) generated.`);
+  const runBillingDay = async () => {
+    if (backendStatus === 'connected' || isBackendConnected) {
+      try {
+        const res = await apiRunBillingDay();
+        if (res.data) {
+          const [invRes, subRes] = await Promise.all([apiGetInvoices(), apiGetSubscriptions()]);
+          if (invRes.data && invRes.data.length > 0) {
+            setInvoices(invRes.data.map(mapBackendInvoice));
           }
-        })
-        .catch((e) => {
-          console.debug('Backend billing run sync:', e);
-        });
+          if (subRes.data && subRes.data.length > 0) {
+            setSubscriptions(subRes.data.map(mapBackendSubscription));
+          }
+          setNotification(res.data.message || 'Billing Day routine completed on backend database!');
+          return {
+            generatedCount: res.data.invoices_generated || 0,
+            invoiceNumbers: (res.data.generated_invoices || []).map((i: any) => i.invoice_number),
+          };
+        }
+      } catch (err) {
+        console.warn('Backend billing day failed, falling back to local simulation', err);
+      }
     }
 
     const today = new Date().toISOString().split('T')[0];
@@ -800,14 +879,15 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
 
   const createManualInvoice = (data: Partial<Invoice>): Invoice => {
     const today = new Date().toISOString().split('T')[0];
+    const invNumber = `INV-2026-${String(invoices.length + 1).padStart(4, '0')}`;
     const newInv: Invoice = {
       id: `inv-${Date.now()}`,
-      invoiceNumber: `INV-2026-${String(invoices.length + 1).padStart(4, '0')}`,
+      invoiceNumber: invNumber,
+      subscriptionId: data.subscriptionId || 'sub-manual',
+      subscriptionNumber: data.subscriptionNumber || 'MANUAL-INV',
       customerId: data.customerId || customers[0]?.id || 'cust-1',
       customerName: data.customerName || customers[0]?.fullName || 'Customer',
       customerEmail: data.customerEmail || customers[0]?.email || 'cust@example.com',
-      subscriptionId: data.subscriptionId,
-      subscriptionNumber: data.subscriptionNumber,
       issueDate: data.issueDate || today,
       dueDate: data.dueDate || new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       status: data.status || 'draft',
@@ -828,7 +908,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
 
   const updateInvoiceStatus = (id: string, status: InvoiceStatus) => {
     setInvoices((prev) => prev.map((inv) => (inv.id === id ? { ...inv, status } : inv)));
-    setNotification(`Invoice updated to ${status.toUpperCase()}`);
+    setNotification(`Invoice status updated to ${status.toUpperCase()}`);
 
     if (isBackendConnected) {
       invoicesApi.updateStatus(id, status).catch((e) => console.debug('Backend invoice status notice:', e));
@@ -896,81 +976,67 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     const isFullyPaid = updatedPaid >= inv.totalAmount - 0.01;
     updateInvoiceStatus(inv.id, isFullyPaid ? 'paid' : 'confirmed');
 
-    setNotification(`Payment of $${data.amount.toFixed(2)} recorded for ${inv.invoiceNumber}.`);
-
-    if (isBackendConnected) {
-      paymentsApi
-        .record({
-          invoice_id: inv.id,
-          payment_method: data.paymentMethod,
-          amount: data.amount,
-          note: data.notes,
-        })
-        .catch((e) => console.debug('Backend payment record notice:', e));
+    if (backendStatus === 'connected' || isBackendConnected) {
+      apiRecordPayment({
+        invoice_id: data.invoiceId,
+        amount: data.amount,
+        payment_method: data.paymentMethod,
+        reference_number: data.transactionRef,
+        note: data.notes,
+      }).catch((err) => console.warn('Backend payment record error', err));
     }
 
+    setNotification(`Payment of $${data.amount.toFixed(2)} recorded for ${inv.invoiceNumber}.`);
     return { success: true, message: 'Payment successfully recorded!' };
   };
 
-  const [currentDate, setCurrentDate] = useState<string>('2026-10-31');
-
-  useEffect(() => {
-    setCurrentDate(new Date().toISOString().split('T')[0]);
-  }, []);
-
-  // Financial Analytics Computation
+  // Financial Analytics Calculations
   const analytics = useMemo(() => {
-    const today = currentDate;
-
-    // Active subscriptions count
     const activeSubs = subscriptions.filter((s) => s.status === 'active' && !s.isPaused);
-    const activeSubscriptionsCount = activeSubs.length;
 
-    // Monthly Recurring Revenue (MRR) normalized
-    let calculatedMRR = 0;
-    activeSubs.forEach((sub) => {
-      const amount = sub.totalAmount;
-      if (sub.billingCycle === 'monthly') calculatedMRR += amount;
-      else if (sub.billingCycle === 'yearly') calculatedMRR += amount / 12;
-      else if (sub.billingCycle === 'weekly') calculatedMRR += amount * 4.33;
-      else if (sub.billingCycle === 'daily') calculatedMRR += amount * 30;
-    });
+    // MRR Calculation
+    const mrr = activeSubs.reduce((acc, sub) => {
+      if (sub.billingCycle === 'monthly') return acc + sub.totalAmount;
+      if (sub.billingCycle === 'yearly') return acc + sub.totalAmount / 12;
+      if (sub.billingCycle === 'weekly') return acc + sub.totalAmount * 4.33;
+      if (sub.billingCycle === 'daily') return acc + sub.totalAmount * 30;
+      return acc;
+    }, 0);
 
-    const mrr = Math.round(calculatedMRR * 100) / 100;
-    const arr = Math.round(mrr * 12 * 100) / 100;
-
-    // Total payments recorded
+    const arr = mrr * 12;
     const totalRevenueCollected = payments.reduce((acc, p) => acc + p.amount, 0);
 
-    // Overdue invoices: status is confirmed, unpaid, and due date < today
-    const overdueInvs = invoices.filter(
-      (inv) =>
-        inv.status === 'confirmed' &&
-        inv.amountPaid < inv.totalAmount &&
-        inv.dueDate < today
+    // Overdue calculations (past dueDate and status not paid)
+    const overdueInvoices = invoices.filter(
+      (inv) => inv.status !== 'paid' && inv.status !== 'cancelled' && inv.dueDate < todayStr
     );
-    const overdueAmount = overdueInvs.reduce(
-      (acc, inv) => acc + (inv.totalAmount - inv.amountPaid),
+
+    const overdueAmount = overdueInvoices.reduce(
+      (acc, inv) => acc + (inv.totalAmount - (inv.amountPaid || 0)),
       0
     );
-    const overdueInvoicesCount = overdueInvs.length;
 
-    // All pending unpaid balance
+    // Pending / Uncollected Amount
     const pendingAmount = invoices
       .filter((inv) => inv.status === 'confirmed')
-      .reduce((acc, inv) => acc + (inv.totalAmount - inv.amountPaid), 0);
+      .reduce((acc, inv) => acc + (inv.totalAmount - (inv.amountPaid || 0)), 0);
+
+    // Churn Risk: subscriptions expiring within 30 days
+    const churnRiskCount = subscriptions.filter(
+      (s) => s.status === 'active' && s.expiryDate <= nextMonthStr && !s.autoClose
+    ).length;
 
     return {
-      activeSubscriptionsCount,
+      activeSubscriptionsCount: activeSubs.length,
       mrr,
       arr,
-      totalRevenueCollected: Math.round(totalRevenueCollected * 100) / 100,
-      overdueAmount: Math.round(overdueAmount * 100) / 100,
-      overdueInvoicesCount,
-      pendingAmount: Math.round(pendingAmount * 100) / 100,
-      churnRiskCount: subscriptions.filter((s) => s.isPaused || s.status === 'closed').length,
+      totalRevenueCollected,
+      overdueAmount,
+      overdueInvoicesCount: overdueInvoices.length,
+      pendingAmount,
+      churnRiskCount,
     };
-  }, [subscriptions, invoices, payments, currentDate]);
+  }, [subscriptions, invoices, payments, todayStr, nextMonthStr]);
 
   const resetToDemoData = () => {
     try {
@@ -1002,7 +1068,9 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   const value = {
     isBackendConnected,
     backendStatus,
+    isBackendLive,
     checkBackendHealth,
+    refreshBackendData,
     currentUser,
     users,
     loginAs,

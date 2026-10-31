@@ -11,10 +11,11 @@ import {
   Calendar,
   X,
   Repeat,
-  DollarSign,
+  IndianRupee,
   ArrowRight,
 } from 'lucide-react';
 import { useSubscription } from '@/context/SubscriptionContext';
+import PageHeader from '@/components/common/PageHeader';
 
 export default function CustomersView({ onSelectCustomerForQuote }: { onSelectCustomerForQuote?: (customerId: string) => void }) {
   const { customers, addCustomer, subscriptions, invoices } = useSubscription();
@@ -56,45 +57,40 @@ export default function CustomersView({ onSelectCustomerForQuote }: { onSelectCu
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
-            <Users className="h-3 w-3" />
-            <span>Customer Accounts Directory</span>
-          </div>
-          <h2 className="mt-1 font-[family-name:var(--font-cinzel)] text-2xl font-bold tracking-tight text-slate-900">
-            Client Accounts & Organizations
-          </h2>
-          <div className="title-accent-rule" />
-          <p className="mt-0.5 text-xs text-slate-500">
-            Manage subscribed organizations, contacts, and historical contract values.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setIsModalOpen(true)}
-          className="btn-gold cursor-pointer"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Add Customer Account</span>
-        </button>
-      </div>
+      {/* Unified Global Page Header */}
+      <PageHeader
+        title="Client Accounts & Organizations"
+        subtitle="Manage subscribed organizations, contacts, and historical contract values."
+        category="Catalog & Clients"
+        badge={{
+          icon: Users,
+          text: 'Customer Accounts Directory',
+        }}
+        actions={
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(true)}
+            className="btn-gold cursor-pointer"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Add Customer Account</span>
+          </button>
+        }
+      />
 
       {/* Search Toolbar */}
-      <div className="flex items-center justify-between">
-        <div className="relative w-80">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative w-full sm:w-80">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
           <input
             type="text"
             placeholder="Search customer, organization, email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-slate-200 pl-9 pr-3 py-1.5 text-xs bg-white text-slate-900 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
+            className="h-9 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-xs text-slate-900 placeholder:text-slate-400 focus:border-[#c9ab70] focus:ring-2 focus:ring-[#c9ab70]/20 focus:outline-none transition-all shadow-2xs"
           />
         </div>
-        <span className="text-xs text-slate-400">{filteredCustomers.length} registered accounts</span>
+        <span className="text-xs font-medium text-slate-400">{filteredCustomers.length} registered accounts</span>
       </div>
 
       {/* Customers Cards Grid */}
@@ -155,7 +151,7 @@ export default function CustomersView({ onSelectCustomerForQuote }: { onSelectCu
                   <div>
                     <span className="text-[10px] text-slate-400 block">Total Lifetime Value</span>
                     <span className="font-[family-name:var(--font-serif)] font-bold text-slate-900 text-sm">
-                      ${totalPaid.toFixed(2)}
+                      ₹{totalPaid.toFixed(2)}
                     </span>
                   </div>
                   {onSelectCustomerForQuote && (

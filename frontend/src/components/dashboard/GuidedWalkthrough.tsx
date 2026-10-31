@@ -42,7 +42,7 @@ export default function GuidedWalkthrough({
               </span>
             </h3>
             <p className="text-[11px] text-slate-400">
-              Directly verify Brightloop subscription workflows with pre-configured parameters:
+              Directly verify SubMan subscription workflows with pre-configured parameters:
             </p>
           </div>
         </div>
@@ -99,7 +99,7 @@ export default function GuidedWalkthrough({
               <span>3. Odoo Variant</span>
             </div>
             <span className="text-[10px] text-slate-400 mt-1 line-clamp-1">
-              Inspect +$560 surcharge
+              Inspect +₹560 surcharge
             </span>
           </button>
 

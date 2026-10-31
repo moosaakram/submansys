@@ -175,7 +175,7 @@ export interface DiscountRule {
   code: string;
   name: string;
   type: DiscountType;
-  value: number; // e.g. 15 for 15% or 50 for $50
+  value: number; // e.g. 15 for 15% or 50 for ₹50
   minPurchaseAmount?: number;
   minQuantity?: number;
   startDate: string;

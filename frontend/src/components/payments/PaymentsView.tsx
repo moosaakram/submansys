@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import {
   CreditCard,
   Search,
-  DollarSign,
+  IndianRupee,
   AlertTriangle,
   CheckCircle2,
   Calendar,
@@ -12,8 +12,12 @@ import {
   Mail,
   ArrowUpRight,
   Send,
+  Clock,
+  TrendingUp,
 } from 'lucide-react';
 import { useSubscription } from '@/context/SubscriptionContext';
+import PageHeader from '@/components/common/PageHeader';
+import KPICard from '@/components/common/KPICard';
 
 export default function PaymentsView() {
   const { payments, invoices, sendInvoice, currentUser, analytics } = useSubscription();
@@ -62,60 +66,48 @@ export default function PaymentsView() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
-          <CreditCard className="h-3 w-3" />
-          <span>Scene 6: The Money Comes In & Dunning Chaser</span>
-        </div>
-        <h2 className="mt-1 font-[family-name:var(--font-cinzel)] text-2xl font-bold tracking-tight text-slate-900">
-          {currentUser.role === 'customer' ? 'My Payment History' : 'Payment Reconciliation Ledger'}
-        </h2>
-        <div className="title-accent-rule" />
-        <p className="mt-0.5 text-xs text-slate-500">
-          Match incoming payments against invoices, track unsettled balances, and chase overdue revenue.
-        </p>
-      </div>
+      {/* Unified Global Page Header */}
+      <PageHeader
+        title={currentUser.role === 'customer' ? 'My Payment History' : 'Payment Reconciliation Ledger'}
+        subtitle="Match incoming payments against invoices, track unsettled balances, and chase overdue revenue."
+        category="Core Billing"
+        badge={{
+          icon: CreditCard,
+          text: 'Scene 6: The Money Comes In & Dunning Chaser',
+        }}
+      />
 
       {/* Revenue & Outstanding KPI Summary Banner */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="card-surface p-4">
-          <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-            Total Revenue Collected
-          </span>
-          <div className="mt-1 flex items-baseline gap-2">
-            <span className="font-[family-name:var(--font-serif)] text-2xl font-bold text-emerald-700">
-              ${analytics.totalRevenueCollected.toFixed(2)}
-            </span>
-            <span className="text-xs text-slate-400">settled in bank</span>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+        <KPICard
+          title="Total Revenue Collected"
+          value={`₹${analytics.totalRevenueCollected.toFixed(2)}`}
+          change="+14.2%"
+          isPositive={true}
+          comparisonText="settled in bank"
+          icon={TrendingUp}
+          valueClassName="text-emerald-700"
+        />
 
-        <div className="card-surface p-4">
-          <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-            Pending Collections
-          </span>
-          <div className="mt-1 flex items-baseline gap-2">
-            <span className="font-[family-name:var(--font-serif)] text-2xl font-bold text-slate-900">
-              ${analytics.pendingAmount.toFixed(2)}
-            </span>
-            <span className="text-xs text-slate-400">across open invoices</span>
-          </div>
-        </div>
+        <KPICard
+          title="Pending Collections"
+          value={`₹${analytics.pendingAmount.toFixed(2)}`}
+          change={`${invoices.filter((i) => i.status === 'confirmed').length} open`}
+          isPositive={true}
+          comparisonText="across open invoices"
+          icon={Clock}
+          valueClassName="text-slate-900"
+        />
 
-        <div className="card-surface p-4 border-rose-200/90 bg-rose-50/20">
-          <span className="text-[11px] font-bold text-rose-800 uppercase tracking-wider flex items-center gap-1">
-            <AlertTriangle className="h-3.5 w-3.5" /> Overdue at Risk
-          </span>
-          <div className="mt-1 flex items-baseline gap-2">
-            <span className="font-[family-name:var(--font-serif)] text-2xl font-bold text-rose-700">
-              ${analytics.overdueAmount.toFixed(2)}
-            </span>
-            <span className="text-xs text-rose-600 font-medium">
-              ({analytics.overdueInvoicesCount} overdue)
-            </span>
-          </div>
-        </div>
+        <KPICard
+          title="Overdue at Risk"
+          value={`₹${analytics.overdueAmount.toFixed(2)}`}
+          change={overdueInvoices.length > 0 ? `-${overdueInvoices.length} overdue` : '0 overdue'}
+          isPositive={overdueInvoices.length === 0}
+          comparisonText={overdueInvoices.length > 0 ? `${overdueInvoices.length} awaiting settlement` : 'All accounts in good standing'}
+          icon={AlertTriangle}
+          valueClassName={overdueInvoices.length > 0 ? 'text-rose-600' : 'text-slate-900'}
+        />
       </div>
 
       {/* Overdue Invoices Alert Section (Scene 6 requirement: "chased before they turn into lost revenue") */}
@@ -150,7 +142,7 @@ export default function PaymentsView() {
                 <div className="flex items-center gap-3">
                   <div className="text-right">
                     <span className="font-[family-name:var(--font-serif)] font-bold text-rose-700 block text-sm">
-                      ${(inv.totalAmount - inv.amountPaid).toFixed(2)}
+                      ₹{(inv.totalAmount - inv.amountPaid).toFixed(2)}
                     </span>
                     <span className="text-[10px] text-slate-400">Balance due</span>
                   </div>
@@ -169,16 +161,21 @@ export default function PaymentsView() {
       )}
 
       {/* Search & Filter */}
-      <div className="flex justify-between items-center">
-        <h3 className="text-sm font-bold text-slate-900">Recorded Payment Ledger</h3>
-        <div className="relative w-72">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h3 className="text-base font-semibold text-slate-900">Recorded Payment Ledger</h3>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Real-time settled receipts, payment transaction references, and reconciled invoice mappings
+          </p>
+        </div>
+        <div className="relative w-full sm:w-72">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
           <input
             type="text"
             placeholder="Search reference, customer, invoice..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-slate-200 pl-9 pr-3 py-1.5 text-xs bg-white text-slate-900 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
+            className="h-9 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-xs text-slate-900 placeholder:text-slate-400 focus:border-[#c9ab70] focus:ring-2 focus:ring-[#c9ab70]/20 focus:outline-none transition-all shadow-2xs"
           />
         </div>
       </div>
@@ -215,7 +212,7 @@ export default function PaymentsView() {
                     <td className="px-5 py-3.5 font-semibold text-slate-900">{p.customerName}</td>
                     <td className="px-5 py-3.5">{getMethodBadge(p.paymentMethod)}</td>
                     <td className="px-5 py-3.5 text-right font-[family-name:var(--font-serif)] font-bold text-emerald-700 text-sm">
-                      +${p.amount.toFixed(2)}
+                      +₹{p.amount.toFixed(2)}
                     </td>
                   </tr>
                 ))

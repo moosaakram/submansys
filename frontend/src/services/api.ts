@@ -346,3 +346,89 @@ export const analyticsApi = {
   },
 };
 
+// ---------------------------------------------------------------------------
+// Backward-Compatibility Helpers for Context & Components
+// ---------------------------------------------------------------------------
+export const checkBackendHealth = async () => {
+  try {
+    const res = await healthApi.check();
+    return { online: true, project: 'Brightloop 360', version: '1.0.0', database: 'Connected', url: API_BASE_URL };
+  } catch {
+    return { online: false, project: 'Brightloop 360', version: '1.0.0', database: 'Offline', url: API_BASE_URL };
+  }
+};
+
+export const apiGetProducts = async () => {
+  try {
+    const data = await productsApi.getAll();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err?.message };
+  }
+};
+
+export const apiGetPlans = async () => {
+  try {
+    const data = await plansApi.getAll();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err?.message };
+  }
+};
+
+export const apiGetDiscounts = async () => {
+  try {
+    const data = await discountsApi.getAll();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err?.message };
+  }
+};
+
+export const apiGetTaxes = async () => {
+  try {
+    const data = await taxesApi.getAll();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err?.message };
+  }
+};
+
+export const apiGetInvoices = async () => {
+  try {
+    const data = await invoicesApi.getAll();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err?.message };
+  }
+};
+
+export const apiGetSubscriptions = async () => {
+  try {
+    const data = await subscriptionsApi.getAll();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err?.message };
+  }
+};
+
+export const apiRunBillingDay = async () => {
+  try {
+    const data = await invoicesApi.runBillingDay();
+    return { data: { ...data, invoices_generated: data.generated_count, generated_invoices: [] }, error: null };
+  } catch (err: any) {
+    return { data: null, error: err?.message };
+  }
+};
+
+export const apiCreateProduct = async (payload: any) => {
+  return request<any>('/api/v1/products/', { method: 'POST', body: JSON.stringify(payload) });
+};
+
+export const apiCreatePlan = async (payload: any) => {
+  return request<any>('/api/v1/plans/', { method: 'POST', body: JSON.stringify(payload) });
+};
+
+export const apiRecordPayment = async (payload: any) => {
+  return paymentsApi.record(payload);
+};

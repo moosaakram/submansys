@@ -5,7 +5,7 @@ import {
   Tag,
   Plus,
   Percent,
-  DollarSign,
+  IndianRupee,
   Calendar,
   CheckCircle2,
   XCircle,
@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useSubscription } from '@/context/SubscriptionContext';
 import { DiscountRule, DiscountType, DiscountScope } from '@/types/subscription';
+import PageHeader from '@/components/common/PageHeader';
 
 export default function DiscountRulesView() {
   const { discountRules, addDiscountRule, currentUser, products } = useSubscription();
@@ -58,38 +59,33 @@ export default function DiscountRulesView() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
-            <Tag className="h-3 w-3" />
-            <span>Scene 5: Admin Discount Rules Engine</span>
-          </div>
-          <h2 className="mt-1 font-[family-name:var(--font-cinzel)] text-2xl font-bold tracking-tight text-slate-900">
-            Discount Rules & Volume Incentives
-          </h2>
-          <div className="title-accent-rule" />
-          <p className="mt-0.5 text-xs text-slate-500">
-            Admin-only rule builder for fixed amounts, percentages, seat thresholds, and redemption caps.
-          </p>
-        </div>
-
-        {isAdmin ? (
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(true)}
-            className="btn-gold cursor-pointer"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Create Discount Rule</span>
-          </button>
-        ) : (
-          <div className="flex items-center gap-1.5 rounded-lg bg-slate-100 border border-slate-200 px-3 py-1.5 text-xs text-slate-500">
-            <ShieldAlert className="h-4 w-4 text-slate-400" />
-            <span>Admin-only privilege (Scene 5)</span>
-          </div>
-        )}
-      </div>
+      {/* Unified Global Page Header */}
+      <PageHeader
+        title="Discount Rules & Volume Incentives"
+        subtitle="Admin-only rule builder for fixed amounts, percentages, seat thresholds, and redemption caps."
+        category="Administration"
+        badge={{
+          icon: Tag,
+          text: 'Scene 5: Admin Discount Rules Engine',
+        }}
+        actions={
+          isAdmin ? (
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              className="btn-gold cursor-pointer"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Create Discount Rule</span>
+            </button>
+          ) : (
+            <div className="flex items-center gap-1.5 rounded-lg bg-slate-100 border border-slate-200 px-3 py-1.5 text-xs text-slate-500">
+              <ShieldAlert className="h-4 w-4 text-slate-400" />
+              <span>Admin-only privilege (Scene 5)</span>
+            </div>
+          )
+        }
+      />
 
       {/* Discount Rules Grid */}
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -118,7 +114,7 @@ export default function DiscountRulesView() {
 
                 <div className="mt-3 flex items-baseline gap-1">
                   <span className="font-[family-name:var(--font-serif)] text-2xl font-bold text-slate-900">
-                    {rule.type === 'percentage' ? `${rule.value}%` : `$${rule.value.toFixed(2)}`}
+                    {rule.type === 'percentage' ? `${rule.value}%` : `₹${rule.value.toFixed(2)}`}
                   </span>
                   <span className="text-xs text-slate-500">
                     off ({rule.scope === 'entire_subscription' ? 'Entire Subscription' : 'Specific Product'})
@@ -134,7 +130,7 @@ export default function DiscountRulesView() {
                   {rule.minPurchaseAmount ? (
                     <div className="flex justify-between">
                       <span className="text-slate-400">Min Purchase:</span>
-                      <span className="font-semibold text-slate-800">${rule.minPurchaseAmount.toFixed(2)}</span>
+                      <span className="font-semibold text-slate-800">₹{rule.minPurchaseAmount.toFixed(2)}</span>
                     </div>
                   ) : null}
                   <div className="flex justify-between">
@@ -228,7 +224,7 @@ export default function DiscountRulesView() {
                     className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                   >
                     <option value="percentage">Percentage (%)</option>
-                    <option value="fixed_amount">Fixed Amount ($)</option>
+                    <option value="fixed_amount">Fixed Amount (₹)</option>
                   </select>
                 </div>
                 <div>

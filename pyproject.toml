@@ -1,0 +1,19 @@
+[project]
+name = "submansys"
+version = "0.1.0"
+description = "Brightloop 360 - Subscription Management System"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "pydantic>=2.7.0",
+    "sqlalchemy>=2.0.25",
+    "psycopg[binary]>=3.1.0",
+    "pyjwt>=2.8.0",
+    "bcrypt>=4.0.0",
+    "python-dotenv>=1.0.1",
+    "email-validator>=2.0.0",
+]
+
+[tool.vercel]
+entrypoint = "backend.app.main:app"
