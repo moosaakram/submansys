@@ -1,0 +1,36 @@
+services:
+  # =========================================================================
+  # 1. FastAPI Backend Service (Python / Uvicorn)
+  # =========================================================================
+  - type: web
+    name: submansys-backend
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: "pip install -r backend/requirements.txt"
+    startCommand: "uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHONPATH
+        value: "."
+      - key: DEBUG
+        value: "false"
+      - key: HOST
+        value: "0.0.0.0"
+      - key: ALLOWED_ORIGINS
+        value: "*"
+
+  # =========================================================================
+  # 2. Next.js Frontend Service (Node / Turbopack)
+  # =========================================================================
+  - type: web
+    name: submansys-frontend
+    runtime: node
+    region: oregon
+    plan: free
+    rootDir: frontend
+    buildCommand: "npm install && npm run build"
+    startCommand: "npm start"
+    envVars:
+      - key: NODE_ENV
+        value: "production"
