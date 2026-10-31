@@ -166,6 +166,36 @@ export const productsApi = {
   getAll: async () => {
     return request<any[]>('/api/v1/products/');
   },
+  create: async (data: {
+    name: string;
+    description?: string;
+    product_type?: string;
+    sales_price: number;
+    cost_price?: number;
+    is_active?: boolean;
+    variants?: Array<{
+      attribute_name: string;
+      attribute_value: string;
+      price_extra: number;
+      is_active?: boolean;
+    }>;
+  }) => {
+    return request<any>('/api/v1/products/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+  update: async (id: string, data: any) => {
+    return request<any>(`/api/v1/products/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+  delete: async (id: string) => {
+    return request<any>(`/api/v1/products/${id}`, {
+      method: 'DELETE',
+    });
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -174,6 +204,18 @@ export const productsApi = {
 export const plansApi = {
   getAll: async () => {
     return request<any[]>('/api/v1/plans/');
+  },
+  create: async (data: any) => {
+    return request<any>('/api/v1/plans/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+  update: async (id: string, data: any) => {
+    return request<any>(`/api/v1/plans/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
   },
 };
 
@@ -184,11 +226,28 @@ export const subscriptionsApi = {
   getAll: async () => {
     return request<any[]>('/api/v1/subscriptions/');
   },
+  create: async (data: any) => {
+    return request<any>('/api/v1/subscriptions/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
   pause: async (id: string) => {
-    return request<any>(`/api/v1/subscriptions/${id}/pause`, { method: 'PUT' });
+    return request<any>(`/api/v1/subscriptions/${id}/pause`, { method: 'POST' });
+  },
+  resume: async (id: string) => {
+    return request<any>(`/api/v1/subscriptions/${id}/resume`, { method: 'POST' });
   },
   renew: async (id: string, extensionMonths: number = 1) => {
     return request<any>(`/api/v1/subscriptions/${id}/renew?extension_months=${extensionMonths}`, {
+      method: 'POST',
+    });
+  },
+  close: async (id: string) => {
+    return request<any>(`/api/v1/subscriptions/${id}/close`, { method: 'POST' });
+  },
+  updateStatus: async (id: string, status: string) => {
+    return request<any>(`/api/v1/subscriptions/${id}/status?new_status=${status}`, {
       method: 'PUT',
     });
   },
@@ -201,6 +260,12 @@ export const invoicesApi = {
   getAll: async () => {
     return request<any[]>('/api/v1/invoices/');
   },
+  create: async (data: any) => {
+    return request<any>('/api/v1/invoices/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
   runBillingDay: async () => {
     return request<{
       status: string;
@@ -211,12 +276,20 @@ export const invoicesApi = {
       method: 'POST',
     });
   },
+  updateStatus: async (id: string, status: string) => {
+    return request<any>(`/api/v1/invoices/${id}/status?new_status=${status}`, {
+      method: 'PUT',
+    });
+  },
 };
 
 // ---------------------------------------------------------------------------
 // Payments API
 // ---------------------------------------------------------------------------
 export const paymentsApi = {
+  getAll: async () => {
+    return request<any[]>('/api/v1/payments/');
+  },
   record: async (data: {
     invoice_id: string;
     payment_method: string;
@@ -237,11 +310,23 @@ export const discountsApi = {
   getAll: async () => {
     return request<any[]>('/api/v1/discounts/');
   },
+  create: async (data: any) => {
+    return request<any>('/api/v1/discounts/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
 };
 
 export const taxesApi = {
   getAll: async () => {
     return request<any[]>('/api/v1/taxes/');
+  },
+  create: async (data: any) => {
+    return request<any>('/api/v1/taxes/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   },
 };
 
@@ -260,3 +345,4 @@ export const analyticsApi = {
     }>('/api/v1/analytics/dashboard');
   },
 };
+

@@ -371,3 +371,24 @@ Thank you for your business with Brightloop 360!
         lines=lines_summary,
         printable_text=printable,
     )
+
+
+@router.put(
+    "/{invoice_id}/status",
+    response_model=InvoiceResponse,
+    summary="Update Invoice Status",
+)
+def update_invoice_status(
+    invoice_id: uuid.UUID,
+    new_status: InvoiceStatus = Query(...),
+    db: Session = Depends(get_db),
+    user: User = Depends(require_staff_or_admin),
+):
+    inv = db.query(Invoice).filter(Invoice.id == invoice_id).first()
+    if not inv:
+        raise HTTPException(status_code=404, detail="Invoice not found.")
+    inv.status = new_status
+    db.commit()
+    db.refresh(inv)
+    return inv
+

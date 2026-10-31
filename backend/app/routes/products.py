@@ -155,3 +155,25 @@ def add_product_variant(
     db.commit()
     db.refresh(variant)
     return variant
+
+
+@router.delete(
+    "/{product_id}",
+    summary="Delete Product (Admin Only)",
+    description="Deletes a product from the catalog",
+)
+def delete_product(
+    product_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    admin=Depends(require_admin),
+):
+    product = db.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found.",
+        )
+    db.delete(product)
+    db.commit()
+    return {"status": "success", "message": f"Product '{product.name}' deleted successfully."}
+

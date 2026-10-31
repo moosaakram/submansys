@@ -17,6 +17,7 @@ import {
   Sliders,
   ExternalLink,
   UserCheck,
+  RotateCcw,
 } from 'lucide-react';
 import { NOTIFICATIONS_DATA } from '@/data/mockData';
 import { useSubscription } from '@/context/SubscriptionContext';
@@ -32,7 +33,7 @@ export default function TopNavbar({
   searchQuery,
   onSearchChange,
 }: TopNavbarProps) {
-  const { currentUser, loginAs, users, notification, isBackendConnected, backendStatus, checkBackendHealth } = useSubscription();
+  const { currentUser, loginAs, users, notification, isBackendConnected, backendStatus, checkBackendHealth, resetToDemoData } = useSubscription();
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -289,7 +290,20 @@ export default function TopNavbar({
                 </p>
               </div>
 
-              <div className="pt-1 border-t border-white/[0.08]">
+              <div className="pt-1 border-t border-white/[0.08] space-y-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowProfileMenu(false);
+                    if (confirm('Reset all demo data back to initial factory state? Any newly added items will be refreshed.')) {
+                      resetToDemoData();
+                    }
+                  }}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-amber-300 hover:bg-amber-500/10 transition-colors cursor-pointer"
+                >
+                  <RotateCcw className="h-4 w-4 text-amber-300" />
+                  <span>Reset Demo Data</span>
+                </button>
                 <Link
                   href="/login"
                   onClick={() => setShowProfileMenu(false)}

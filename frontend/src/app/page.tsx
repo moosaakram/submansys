@@ -37,6 +37,23 @@ export default function DashboardPage() {
 
   const { currentUser, runBillingDay } = useSubscription();
 
+  // Restore active tab across browser refreshes
+  React.useEffect(() => {
+    try {
+      const savedTab = localStorage.getItem('brightloop_active_tab');
+      if (savedTab) {
+        setCurrentTab(savedTab);
+      }
+    } catch {}
+  }, []);
+
+  const handleTabChange = (tabId: string) => {
+    setCurrentTab(tabId);
+    try {
+      localStorage.setItem('brightloop_active_tab', tabId);
+    } catch {}
+  };
+
   const activeNav = ALL_NAV_ITEMS.find((item) => item.id === currentTab);
 
   return (
@@ -44,7 +61,7 @@ export default function DashboardPage() {
       {/* Sidebar: Deep Obsidian with Radial Depth Gradient */}
       <Sidebar
         currentTab={currentTab}
-        onTabChange={(tabId) => setCurrentTab(tabId)}
+        onTabChange={handleTabChange}
         isMobileOpen={isMobileOpen}
         onCloseMobile={() => setIsMobileOpen(false)}
       />

@@ -130,6 +130,9 @@ interface SubscriptionContextType {
   // Toast / System Notification
   notification: string | null;
   setNotification: (msg: string | null) => void;
+
+  // Persistence & Reset
+  resetToDemoData: () => void;
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
@@ -172,6 +175,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   // Connection & Diagnostics State
   const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
   const [backendStatus, setBackendStatus] = useState<string>('Connecting...');
+  const [isHydrated, setIsHydrated] = useState<boolean>(false);
 
   // Auto-dismiss notification after 4s
   useEffect(() => {
@@ -180,6 +184,86 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       return () => clearTimeout(timer);
     }
   }, [notification]);
+
+  // Restore persistent state from localStorage after mount (prevents SSR hydration mismatch)
+  useEffect(() => {
+    try {
+      const savedUser = localStorage.getItem('brightloop_current_user');
+      if (savedUser) setCurrentUser(JSON.parse(savedUser));
+
+      const savedUsers = localStorage.getItem('brightloop_users');
+      if (savedUsers) setUsers(JSON.parse(savedUsers));
+
+      const savedProducts = localStorage.getItem('brightloop_products');
+      if (savedProducts) setProducts(JSON.parse(savedProducts));
+
+      const savedPlans = localStorage.getItem('brightloop_plans');
+      if (savedPlans) setPlans(JSON.parse(savedPlans));
+
+      const savedCustomers = localStorage.getItem('brightloop_customers');
+      if (savedCustomers) setCustomers(JSON.parse(savedCustomers));
+
+      const savedSubs = localStorage.getItem('brightloop_subscriptions');
+      if (savedSubs) setSubscriptions(JSON.parse(savedSubs));
+
+      const savedInvs = localStorage.getItem('brightloop_invoices');
+      if (savedInvs) setInvoices(JSON.parse(savedInvs));
+
+      const savedPayments = localStorage.getItem('brightloop_payments');
+      if (savedPayments) setPayments(JSON.parse(savedPayments));
+
+      const savedTax = localStorage.getItem('brightloop_tax_rules');
+      if (savedTax) setTaxRules(JSON.parse(savedTax));
+
+      const savedDisc = localStorage.getItem('brightloop_discount_rules');
+      if (savedDisc) setDiscountRules(JSON.parse(savedDisc));
+    } catch (e) {
+      console.warn('LocalStorage restore note:', e);
+    } finally {
+      setIsHydrated(true);
+    }
+  }, []);
+
+  // Save to localStorage whenever state updates (only after hydration)
+  useEffect(() => {
+    if (isHydrated) localStorage.setItem('brightloop_products', JSON.stringify(products));
+  }, [products, isHydrated]);
+
+  useEffect(() => {
+    if (isHydrated) localStorage.setItem('brightloop_plans', JSON.stringify(plans));
+  }, [plans, isHydrated]);
+
+  useEffect(() => {
+    if (isHydrated) localStorage.setItem('brightloop_customers', JSON.stringify(customers));
+  }, [customers, isHydrated]);
+
+  useEffect(() => {
+    if (isHydrated) localStorage.setItem('brightloop_subscriptions', JSON.stringify(subscriptions));
+  }, [subscriptions, isHydrated]);
+
+  useEffect(() => {
+    if (isHydrated) localStorage.setItem('brightloop_invoices', JSON.stringify(invoices));
+  }, [invoices, isHydrated]);
+
+  useEffect(() => {
+    if (isHydrated) localStorage.setItem('brightloop_payments', JSON.stringify(payments));
+  }, [payments, isHydrated]);
+
+  useEffect(() => {
+    if (isHydrated) localStorage.setItem('brightloop_tax_rules', JSON.stringify(taxRules));
+  }, [taxRules, isHydrated]);
+
+  useEffect(() => {
+    if (isHydrated) localStorage.setItem('brightloop_discount_rules', JSON.stringify(discountRules));
+  }, [discountRules, isHydrated]);
+
+  useEffect(() => {
+    if (isHydrated) localStorage.setItem('brightloop_users', JSON.stringify(users));
+  }, [users, isHydrated]);
+
+  useEffect(() => {
+    if (isHydrated) localStorage.setItem('brightloop_current_user', JSON.stringify(currentUser));
+  }, [currentUser, isHydrated]);
 
   // Check Backend and Database connectivity
   const checkBackendHealth = useCallback(async () => {
@@ -206,10 +290,10 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
         plansApi.getAll(),
       ]);
       if (prodRes.status === 'fulfilled' && Array.isArray(prodRes.value) && prodRes.value.length > 0) {
-        // Successfully connected to backend catalog
+        // Backend products available
       }
       if (planRes.status === 'fulfilled' && Array.isArray(planRes.value) && planRes.value.length > 0) {
-        // Successfully connected to backend plans
+        // Backend plans available
       }
     } catch (e) {
       console.debug('Catalog sync notice:', e);
@@ -487,16 +571,52 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     };
     setProducts((prev) => [...prev, newProd]);
     setNotification(`Product "${newProd.name}" added to catalog.`);
+
+    // If backend is active, also sync to database
+    if (isBackendConnected) {
+      productsApi
+        .create({
+          name: data.name,
+          description: data.description || '',
+          product_type: data.productType === 'software' ? 'recurring' : data.productType === 'addon' ? 'add_on' : 'service',
+          sales_price: data.salesPrice,
+          cost_price: data.costPrice,
+          is_active: data.isActive,
+          variants: (data.variants || []).map((v) => ({
+            attribute_name: v.attribute || 'Brand',
+            attribute_value: v.name,
+            price_extra: v.priceDelta,
+            is_active: true,
+          })),
+        })
+        .catch((e) => console.debug('Backend product create notice:', e));
+    }
   };
 
   const updateProduct = (id: string, data: Partial<Product>) => {
     setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, ...data } : p)));
     setNotification('Product updated successfully.');
+
+    if (isBackendConnected) {
+      productsApi
+        .update(id, {
+          name: data.name,
+          description: data.description,
+          sales_price: data.salesPrice,
+          cost_price: data.costPrice,
+          is_active: data.isActive,
+        })
+        .catch((e) => console.debug('Backend product update notice:', e));
+    }
   };
 
   const deleteProduct = (id: string) => {
     setProducts((prev) => prev.filter((p) => p.id !== id));
     setNotification('Product removed from catalog.');
+
+    if (isBackendConnected) {
+      productsApi.delete(id).catch((e) => console.debug('Backend product delete notice:', e));
+    }
   };
 
   // Plan Management
@@ -507,11 +627,47 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     };
     setPlans((prev) => [...prev, newPlan]);
     setNotification(`Plan "${newPlan.name}" configured successfully.`);
+
+    if (isBackendConnected) {
+      plansApi
+        .create({
+          name: data.name,
+          description: data.description || '',
+          cost: data.basePrice,
+          billing_cycle: data.billingCycle,
+          minimum_quantity: data.minQuantity,
+          start_date: new Date(data.startDate).toISOString(),
+          end_date: data.endDate ? new Date(data.endDate).toISOString() : undefined,
+          auto_close: data.autoCloseOnExpiry,
+          allow_early_close: data.allowEarlyClosure,
+          allow_pause: data.allowPause,
+          allow_renew: data.allowRenewal,
+          is_active: data.isActive,
+        })
+        .catch((e) => console.debug('Backend plan create notice:', e));
+    }
   };
 
   const updatePlan = (id: string, data: Partial<Plan>) => {
     setPlans((prev) => prev.map((p) => (p.id === id ? { ...p, ...data } : p)));
     setNotification('Plan updated.');
+
+    if (isBackendConnected) {
+      plansApi
+        .update(id, {
+          name: data.name,
+          description: data.description,
+          cost: data.basePrice,
+          billing_cycle: data.billingCycle,
+          minimum_quantity: data.minQuantity,
+          auto_close: data.autoCloseOnExpiry,
+          allow_early_close: data.allowEarlyClosure,
+          allow_pause: data.allowPause,
+          allow_renew: data.allowRenewal,
+          is_active: data.isActive,
+        })
+        .catch((e) => console.debug('Backend plan update notice:', e));
+    }
   };
 
   // Subscriptions Lifecycle
@@ -829,6 +985,33 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     };
   }, [subscriptions, invoices, payments, currentDate]);
 
+  const resetToDemoData = () => {
+    try {
+      localStorage.removeItem('brightloop_products');
+      localStorage.removeItem('brightloop_plans');
+      localStorage.removeItem('brightloop_customers');
+      localStorage.removeItem('brightloop_subscriptions');
+      localStorage.removeItem('brightloop_invoices');
+      localStorage.removeItem('brightloop_payments');
+      localStorage.removeItem('brightloop_tax_rules');
+      localStorage.removeItem('brightloop_discount_rules');
+      localStorage.removeItem('brightloop_users');
+      localStorage.removeItem('brightloop_current_user');
+      localStorage.removeItem('brightloop_active_tab');
+    } catch {}
+    setProducts(SEED_PRODUCTS);
+    setPlans(SEED_PLANS);
+    setCustomers(SEED_CUSTOMERS);
+    setSubscriptions(SEED_SUBSCRIPTIONS);
+    setInvoices(SEED_INVOICES);
+    setPayments(SEED_PAYMENTS);
+    setTaxRules(SEED_TAX_RULES);
+    setDiscountRules(SEED_DISCOUNT_RULES);
+    setUsers(SEED_USERS);
+    setCurrentUser(SEED_USERS[0]);
+    setNotification('Demo data reset to factory defaults.');
+  };
+
   const value = {
     isBackendConnected,
     backendStatus,
@@ -870,6 +1053,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     analytics,
     notification,
     setNotification,
+    resetToDemoData,
   };
 
   return <SubscriptionContext.Provider value={value}>{children}</SubscriptionContext.Provider>;

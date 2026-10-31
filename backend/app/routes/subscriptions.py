@@ -264,6 +264,11 @@ def activate_subscription(
     summary="Pause Subscription",
     description="Pauses active subscription if permitted by plan policy",
 )
+@router.put(
+    "/{sub_id}/pause",
+    response_model=SubscriptionActionResponse,
+    include_in_schema=False,
+)
 def pause_subscription(
     sub_id: uuid.UUID,
     db: Session = Depends(get_db),
@@ -296,6 +301,11 @@ def pause_subscription(
     response_model=SubscriptionActionResponse,
     summary="Resume Paused Subscription",
 )
+@router.put(
+    "/{sub_id}/resume",
+    response_model=SubscriptionActionResponse,
+    include_in_schema=False,
+)
 def resume_subscription(
     sub_id: uuid.UUID,
     db: Session = Depends(get_db),
@@ -322,6 +332,11 @@ def resume_subscription(
     response_model=SubscriptionActionResponse,
     summary="Renew Subscription",
     description="Renews subscription for another term if permitted by plan policy",
+)
+@router.put(
+    "/{sub_id}/renew",
+    response_model=SubscriptionActionResponse,
+    include_in_schema=False,
 )
 def renew_subscription(
     sub_id: uuid.UUID,
@@ -365,6 +380,11 @@ def renew_subscription(
     summary="Close / Terminate Subscription",
     description="Terminates subscription early if permitted, or closes completed subscription",
 )
+@router.put(
+    "/{sub_id}/close",
+    response_model=SubscriptionActionResponse,
+    include_in_schema=False,
+)
 def close_subscription(
     sub_id: uuid.UUID,
     db: Session = Depends(get_db),
@@ -391,3 +411,27 @@ def close_subscription(
         message=f"Subscription {sub.subscription_number} is now Closed.",
         subscription=sub,
     )
+
+
+@router.put(
+    "/{sub_id}/status",
+    response_model=SubscriptionActionResponse,
+    summary="Update Subscription Status",
+)
+def update_subscription_status(
+    sub_id: uuid.UUID,
+    new_status: SubscriptionStatus = Query(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_staff_or_admin),
+):
+    sub = db.query(Subscription).filter(Subscription.id == sub_id).first()
+    if not sub:
+        raise HTTPException(status_code=404, detail="Subscription not found.")
+    sub.status = new_status
+    db.commit()
+    db.refresh(sub)
+    return SubscriptionActionResponse(
+        message=f"Subscription {sub.subscription_number} status updated to {new_status}.",
+        subscription=sub,
+    )
+
