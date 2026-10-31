@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Logo from '@/components/common/Logo';
 import {
   Search,
   Bell,
@@ -32,7 +33,7 @@ export default function TopNavbar({
   searchQuery,
   onSearchChange,
 }: TopNavbarProps) {
-  const { currentUser, loginAs, users, notification, isBackendConnected, backendStatus, checkBackendHealth } = useSubscription();
+  const { currentUser, loginAs, users, notification, isBackendConnected, backendStatus, checkBackendHealth, refreshBackendData } = useSubscription();
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -112,14 +113,7 @@ export default function TopNavbar({
         </button>
 
         {/* Mobile-only logo */}
-        <div className="flex items-center gap-2 lg:hidden">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-[#c9ab70] to-[#dcc28a] text-[#171f28]">
-            <Sparkles className="h-3.5 w-3.5" />
-          </div>
-          <span className="font-[family-name:var(--font-cinzel)] font-bold text-white text-sm">
-            Brightloop
-          </span>
-        </div>
+        <Logo size="sm" theme="light" subtext="" className="lg:hidden" />
 
         {/* Search Field: UI_DESIGN_SYSTEM.md Sec 5.2 */}
         <div className="relative hidden w-72 md:block lg:w-80">
@@ -139,23 +133,35 @@ export default function TopNavbar({
 
       {/* Right Controls */}
       <div className="flex items-center gap-2.5 sm:gap-3.5">
-        {/* Real-time Backend & Database Connection Status Badge */}
+        {/* Backend & Database Connection Status Pill (Dark Theme Reference) */}
         <button
           type="button"
-          onClick={() => checkBackendHealth()}
-          title="Click to re-verify Backend & Database connectivity"
-          className={`hidden sm:inline-flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
-            isBackendConnected
-              ? 'border-emerald-200 bg-emerald-50/80 text-emerald-800 hover:bg-emerald-100'
-              : 'border-amber-200 bg-amber-50/80 text-amber-800 hover:bg-amber-100'
-          }`}
+          onClick={() => (refreshBackendData ? refreshBackendData() : checkBackendHealth())}
+          title={`Backend & Database: ${
+            backendStatus === 'connected' || isBackendConnected
+              ? 'Connected (FastAPI + Database)'
+              : backendStatus === 'checking'
+              ? 'Checking connection...'
+              : 'Offline (Local simulation)'
+          } - Click to refresh`}
+          className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.06] px-2.5 py-1.5 text-xs transition-all hover:bg-white/[0.10] hover:border-white/20 cursor-pointer"
         >
           <span
             className={`h-2 w-2 rounded-full ${
-              isBackendConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
+              backendStatus === 'connected' || isBackendConnected
+                ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]'
+                : backendStatus === 'checking'
+                ? 'bg-amber-400 animate-pulse'
+                : 'bg-rose-400/80'
             }`}
           />
-          <span>{isBackendConnected ? 'DB & API: Connected' : 'DB & API: Offline'}</span>
+          <span className="hidden md:inline text-[11px] font-medium text-white/80">
+            {backendStatus === 'connected' || isBackendConnected
+              ? 'DB & API Live'
+              : backendStatus === 'checking'
+              ? 'Connecting...'
+              : 'API Offline'}
+          </span>
         </button>
 
         {/* Persona Switcher Dropdown (Scene 1 Role Requirement) */}
@@ -285,19 +291,22 @@ export default function TopNavbar({
                 <p className="text-xs font-semibold text-white">{currentUser.name}</p>
                 <p className="text-[11px] text-white/50 truncate">{currentUser.email}</p>
                 <p className="text-[10px] text-[#c9ab70] font-medium mt-0.5">
-                  {currentUser.companyName || 'Brightloop 360'}
+                  {currentUser.companyName || 'SubMan Technologies'}
                 </p>
               </div>
 
               <div className="pt-1 border-t border-white/[0.08]">
-                <Link
-                  href="/login"
-                  onClick={() => setShowProfileMenu(false)}
-                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition-colors"
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowProfileMenu(false);
+                    window.location.href = '/login';
+                  }}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
                 >
                   <LogOut className="h-4 w-4 text-rose-400" />
-                  <span>Switch Account / Sign In</span>
-                </Link>
+                  <span>Sign Out / Switch Account</span>
+                </button>
               </div>
             </div>
           )}

@@ -7,7 +7,7 @@ import {
   Search,
   Sparkles,
   Tag,
-  DollarSign,
+  IndianRupee,
   Layers,
   CheckCircle2,
   X,
@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useSubscription } from '@/context/SubscriptionContext';
 import { Product, ProductType, ProductVariant } from '@/types/subscription';
+import PageHeader from '@/components/common/PageHeader';
 
 export default function ProductCatalogView() {
   const { products, addProduct, currentUser } = useSubscription();
@@ -98,36 +99,31 @@ export default function ProductCatalogView() {
 
   return (
     <div className="space-y-6">
-      {/* Header Bar */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
-            <Package className="h-3 w-3" />
-            <span>Scene 2: Product & Variant Management</span>
-          </div>
-          <h2 className="mt-1 font-[family-name:var(--font-cinzel)] text-2xl font-bold tracking-tight text-slate-900">
-            Products & Variants
-          </h2>
-          <div className="title-accent-rule" />
-          <p className="mt-0.5 text-xs text-slate-500">
-            Manage software catalog items, cost prices, and add-on brand variants (e.g., Odoo Brand +$560).
-          </p>
-        </div>
-
-        {isAdmin && (
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(true)}
-            className="btn-gold cursor-pointer"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Add New Product</span>
-          </button>
-        )}
-      </div>
+      {/* Unified Global Page Header */}
+      <PageHeader
+        title="Products & Variants"
+        subtitle="Manage software catalog items, cost prices, and add-on brand variants (e.g., Odoo Brand +₹560)."
+        category="Catalog & Clients"
+        badge={{
+          icon: Package,
+          text: 'Scene 2: Product & Variant Management',
+        }}
+        actions={
+          isAdmin ? (
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              className="btn-gold cursor-pointer"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Add New Product</span>
+            </button>
+          ) : undefined
+        }
+      />
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between card-surface p-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between card-surface p-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
           <input
@@ -135,16 +131,16 @@ export default function ProductCatalogView() {
             placeholder="Search products, descriptions, variants..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 py-1.5 text-xs text-slate-900 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
+            className="h-9 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-xs text-slate-900 placeholder:text-slate-400 focus:border-[#c9ab70] focus:ring-2 focus:ring-[#c9ab70]/20 focus:outline-none transition-all shadow-2xs"
           />
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-500 font-medium">Type:</span>
+          <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Type:</span>
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-700 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
+            className="h-9 rounded-xl border border-slate-200 bg-white px-3 text-xs text-slate-700 font-medium focus:border-[#c9ab70] focus:ring-2 focus:ring-[#c9ab70]/20 focus:outline-none transition-all cursor-pointer shadow-2xs"
           >
             <option value="all">All Types</option>
             <option value="software">Software Platforms</option>
@@ -192,11 +188,11 @@ export default function ProductCatalogView() {
                 <div className="mt-4 grid grid-cols-2 gap-2 rounded-lg bg-slate-50 border border-slate-100 p-3 text-xs">
                   <div>
                     <span className="text-[10px] text-slate-400 block font-medium">Sales Price</span>
-                    <span className="font-[family-name:var(--font-serif)] text-base font-bold text-slate-900">${p.salesPrice.toFixed(2)}</span>
+                    <span className="font-[family-name:var(--font-serif)] text-base font-bold text-slate-900">₹{p.salesPrice.toFixed(2)}</span>
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-400 block font-medium">Cost Price</span>
-                    <span className="font-[family-name:var(--font-serif)] text-sm font-semibold text-slate-600">${p.costPrice.toFixed(2)}</span>
+                    <span className="font-[family-name:var(--font-serif)] text-sm font-semibold text-slate-600">₹{p.costPrice.toFixed(2)}</span>
                   </div>
                 </div>
 
@@ -236,7 +232,7 @@ export default function ProductCatalogView() {
                               )}
                             </span>
                             <span className="font-bold text-[#1c2530] shrink-0">
-                              {v.priceDelta > 0 ? `+$${v.priceDelta.toFixed(2)}` : 'Standard'}
+                              {v.priceDelta > 0 ? `+₹${v.priceDelta.toFixed(2)}` : 'Standard'}
                             </span>
                           </div>
                         );
@@ -307,7 +303,7 @@ export default function ProductCatalogView() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Sales Price ($)
+                    Sales Price (₹)
                   </label>
                   <input
                     type="number"
@@ -320,7 +316,7 @@ export default function ProductCatalogView() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Cost Price ($)
+                    Cost Price (₹)
                   </label>
                   <input
                     type="number"
@@ -365,7 +361,7 @@ export default function ProductCatalogView() {
                       Product Variants & Surcharges
                     </span>
                     <span className="text-[10px] text-slate-500">
-                      e.g., Odoo Brand adds $560 to price
+                      e.g., Odoo Brand adds ₹560 to price
                     </span>
                   </div>
                   <button
@@ -396,7 +392,7 @@ export default function ProductCatalogView() {
                         className="w-24 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs focus:border-[#c9ab70] focus:outline-hidden"
                       />
                       <div className="flex items-center gap-1 w-28">
-                        <span className="text-xs text-slate-400">+$</span>
+                        <span className="text-xs text-slate-400">+₹</span>
                         <input
                           type="number"
                           placeholder="560"

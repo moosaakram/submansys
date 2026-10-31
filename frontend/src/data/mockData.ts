@@ -22,16 +22,16 @@ export const METRICS_DATA: MetricItem[] = [
   {
     id: 'monthly_recurring_revenue',
     title: 'Monthly Recurring Revenue',
-    value: '$128,450',
+    value: '₹128,450',
     change: '+18.5%',
     isPositive: true,
-    comparisonText: '+$20,120 from last month',
+    comparisonText: '+₹20,120 from last month',
     iconName: 'TrendingUp',
   },
   {
     id: 'pending_payments',
     title: 'Pending Payments',
-    value: '$4,280',
+    value: '₹4,280',
     change: '-3.2%',
     isPositive: false,
     comparisonText: '18 invoices awaiting settlement',
@@ -155,7 +155,7 @@ export const ACTIVITY_DATA: ActivityItem[] = [
     title: 'New Enterprise Plan Subscribed',
     description: 'AcmeTech Corp onboarded 45 seats under Enterprise Tier.',
     timestamp: '12 minutes ago',
-    amount: '+$1,499/mo',
+    amount: '+₹1,499/mo',
     user: { name: 'Sarah Jenkins', initials: 'SJ' },
   },
   {
@@ -164,7 +164,7 @@ export const ACTIVITY_DATA: ActivityItem[] = [
     title: 'Plan Upgraded to Pro',
     description: 'OrbitFlow upgraded from Starter to Growth Pro Annual.',
     timestamp: '48 minutes ago',
-    amount: '+$589.00',
+    amount: '+₹589.00',
     user: { name: 'David Alvarez', initials: 'DA' },
   },
   {
@@ -173,7 +173,7 @@ export const ACTIVITY_DATA: ActivityItem[] = [
     title: 'Subscription Payment Retried',
     description: 'Card charge failed for NovaCrest AI (Insufficient funds). Auto-retry in 24h.',
     timestamp: '2 hours ago',
-    amount: '$2,450.00',
+    amount: '₹2,450.00',
     user: { name: 'Elena Rostova', initials: 'ER' },
   },
   {
@@ -182,7 +182,7 @@ export const ACTIVITY_DATA: ActivityItem[] = [
     title: 'Automated Invoice Settled',
     description: 'Invoice #INV-2026-0085 marked as paid via Stripe webhook.',
     timestamp: '3 hours ago',
-    amount: '+$890.00',
+    amount: '+₹890.00',
     user: { name: 'Sophia Lindqvist', initials: 'SL' },
   },
   {
@@ -200,28 +200,28 @@ export const PLAN_DISTRIBUTION_DATA: PlanDistribution[] = [
     name: 'Enterprise Cloud',
     subscriptionsCount: 1420,
     percentage: 42,
-    monthlyValue: '$68,200',
+    monthlyValue: '₹68,200',
     color: '#4f46e5', // indigo-600
   },
   {
     name: 'Growth Pro',
     subscriptionsCount: 3890,
     percentage: 36,
-    monthlyValue: '$42,500',
+    monthlyValue: '₹42,500',
     color: '#0ea5e9', // sky-500
   },
   {
     name: 'Scale Plus',
     subscriptionsCount: 2214,
     percentage: 15,
-    monthlyValue: '$14,850',
+    monthlyValue: '₹14,850',
     color: '#6366f1', // indigo-500
   },
   {
     name: 'Starter Basic',
     subscriptionsCount: 1400,
     percentage: 7,
-    monthlyValue: '$2,900',
+    monthlyValue: '₹2,900',
     color: '#94a3b8', // slate-400
   },
 ];
@@ -230,7 +230,7 @@ export const NOTIFICATIONS_DATA = [
   {
     id: 'notif-1',
     title: 'High MRR Milestone Reached',
-    description: 'Monthly Recurring Revenue surpassed $125k this week!',
+    description: 'Monthly Recurring Revenue surpassed ₹125k this week!',
     time: '10m ago',
     unread: true,
   },

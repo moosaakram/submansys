@@ -153,7 +153,7 @@ export const AddStaffModal: React.FC<AddStaffModalProps> = ({
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="m.vance@brightloop.io"
+                placeholder="m.vance@subman.io"
                 className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-200 text-sm bg-white text-slate-900 placeholder:text-slate-400 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] outline-none"
               />
             </div>

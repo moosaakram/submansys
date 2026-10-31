@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Logo from '@/components/common/Logo';
 import {
   FileText,
   Zap,
@@ -11,15 +12,18 @@ import {
   CreditCard,
   Search,
   Filter,
-  DollarSign,
+  IndianRupee,
   AlertTriangle,
   X,
   FileCheck,
   Building,
   Check,
+  Clock,
 } from 'lucide-react';
 import { useSubscription } from '@/context/SubscriptionContext';
 import { Invoice, InvoiceStatus, PaymentMethod } from '@/types/subscription';
+import PageHeader from '@/components/common/PageHeader';
+import KPICard from '@/components/common/KPICard';
 
 export default function InvoiceListView() {
   const {
@@ -133,52 +137,70 @@ export default function InvoiceListView() {
 
   return (
     <div className="space-y-6">
-      {/* Header Bar with 1-Click Billing Day Run */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
-            <FileText className="h-3 w-3" />
-            <span>Scene 4: Billing Day & Automated Recurring Invoicing</span>
-          </div>
-          <h2 className="mt-1 font-[family-name:var(--font-cinzel)] text-2xl font-bold tracking-tight text-slate-900">
-            {currentUser.role === 'customer' ? 'My Invoices & Receipts' : 'Invoices & Recurring Billing'}
-          </h2>
-          <div className="title-accent-rule" />
-          <p className="mt-0.5 text-xs text-slate-500">
-            Automated recurring invoice generation, automatic tax calculation, and payment reconciliation.
-          </p>
-        </div>
+      {/* Unified Global Page Header */}
+      <PageHeader
+        title={currentUser.role === 'customer' ? 'My Invoices & Receipts' : 'Invoices & Recurring Billing'}
+        subtitle="Automated recurring invoice generation, automatic tax calculation, and payment reconciliation."
+        category="Core Billing"
+        badge={{
+          icon: FileText,
+          text: 'Scene 4: Billing Day & Automated Recurring Invoicing',
+        }}
+        actions={
+          currentUser.role !== 'customer' ? (
+            <button
+              type="button"
+              onClick={() => runBillingDay()}
+              className="btn-gold cursor-pointer"
+            >
+              <Zap className="h-4 w-4" />
+              <span>⚡ Run Billing Day (Auto-Bill)</span>
+            </button>
+          ) : undefined
+        }
+      />
 
-        {currentUser.role !== 'customer' && (
-          <button
-            type="button"
-            onClick={() => runBillingDay()}
-            className="btn-gold cursor-pointer"
-          >
-            <Zap className="h-4 w-4" />
-            <span>⚡ Run Billing Day (Auto-Bill)</span>
-          </button>
-        )}
-      </div>
+      {/* Standardized Summary KPI Cards */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <KPICard
+          title="Total Invoiced"
+          value={`₹${totalInvoicedSum.toFixed(2)}`}
+          change={`${invoices.length} total`}
+          isPositive={true}
+          comparisonText="gross invoiced sum"
+          icon={FileText}
+          valueClassName="text-slate-900"
+        />
 
-      {/* Simplified Summary KPI Cards */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="card-surface p-4">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Invoiced</span>
-          <div className="font-[family-name:var(--font-serif)] text-2xl font-bold text-slate-900 mt-1">${totalInvoicedSum.toFixed(2)}</div>
-        </div>
-        <div className="card-surface p-4">
-          <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Paid & Settled</span>
-          <div className="font-[family-name:var(--font-serif)] text-2xl font-bold text-emerald-700 mt-1">${totalPaidSum.toFixed(2)}</div>
-        </div>
-        <div className="card-surface p-4">
-          <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Awaiting Settlement</span>
-          <div className="font-[family-name:var(--font-serif)] text-2xl font-bold text-slate-900 mt-1">${totalOpenSum.toFixed(2)}</div>
-        </div>
-        <div className="card-surface p-4 border-rose-200/90 bg-rose-50/20">
-          <span className="text-[10px] font-bold text-rose-700 uppercase tracking-wider">Overdue Count</span>
-          <div className="font-[family-name:var(--font-serif)] text-2xl font-bold text-rose-700 mt-1">{analytics.overdueInvoicesCount} invoices</div>
-        </div>
+        <KPICard
+          title="Paid & Settled"
+          value={`₹${totalPaidSum.toFixed(2)}`}
+          change="+14.2%"
+          isPositive={true}
+          comparisonText="settled in full"
+          icon={CheckCircle2}
+          valueClassName="text-emerald-700"
+        />
+
+        <KPICard
+          title="Awaiting Settlement"
+          value={`₹${totalOpenSum.toFixed(2)}`}
+          change={`${invoices.filter((i) => i.status === 'confirmed').length} pending`}
+          isPositive={true}
+          comparisonText="open receivables"
+          icon={Clock}
+          valueClassName="text-slate-900"
+        />
+
+        <KPICard
+          title="Overdue Receivables"
+          value={`${analytics.overdueInvoicesCount} invoices`}
+          change={analytics.overdueInvoicesCount > 0 ? `-${analytics.overdueInvoicesCount} overdue` : '0 overdue'}
+          isPositive={analytics.overdueInvoicesCount === 0}
+          comparisonText={analytics.overdueInvoicesCount > 0 ? 'Requires dunning notice' : 'All accounts current'}
+          icon={AlertTriangle}
+          valueClassName={analytics.overdueInvoicesCount > 0 ? 'text-rose-600' : 'text-slate-900'}
+        />
       </div>
 
       {/* Filter and Status Controls */}
@@ -191,7 +213,7 @@ export default function InvoiceListView() {
               className={`rounded-lg px-3 py-1.5 text-xs font-semibold capitalize transition-all cursor-pointer ${
                 selectedStatus === st
                   ? 'bg-[#1c2530] text-[#c9ab70] border border-[#c9ab70]/30 shadow-xs'
-                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70 hover:text-slate-900 border border-slate-200/50'
               }`}
             >
               {st === 'confirmed' ? 'Unpaid' : st}
@@ -206,7 +228,7 @@ export default function InvoiceListView() {
             placeholder="Search invoice #, customer..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-slate-200 pl-9 pr-3 py-1.5 text-xs bg-white text-slate-900 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
+            className="h-9 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-xs text-slate-900 placeholder:text-slate-400 focus:border-[#c9ab70] focus:ring-2 focus:ring-[#c9ab70]/20 focus:outline-none transition-all shadow-2xs"
           />
         </div>
       </div>
@@ -253,10 +275,10 @@ export default function InvoiceListView() {
                     </td>
                     <td className="px-5 py-3.5">{getStatusBadge(inv)}</td>
                     <td className="px-5 py-3.5">
-                      <div className="font-[family-name:var(--font-serif)] font-bold text-slate-900 text-sm">${inv.totalAmount.toFixed(2)}</div>
+                      <div className="font-[family-name:var(--font-serif)] font-bold text-slate-900 text-sm">₹{inv.totalAmount.toFixed(2)}</div>
                       {inv.amountPaid > 0 && (
                         <div className="text-[10px] text-emerald-700 font-medium">
-                          Paid: ${inv.amountPaid.toFixed(2)}
+                          Paid: ₹{inv.amountPaid.toFixed(2)}
                         </div>
                       )}
                     </td>
@@ -349,15 +371,7 @@ export default function InvoiceListView() {
             {/* Print Header */}
             <div className="flex items-start justify-between border-b border-slate-100 pb-6">
               <div>
-                <div className="flex items-center gap-2.5">
-                  <div className="h-9 w-9 rounded-lg bg-[#1c2530] border border-[#c9ab70]/40 flex items-center justify-center text-[#c9ab70] font-bold text-xs tracking-wider">
-                    BL
-                  </div>
-                  <div>
-                    <span className="font-[family-name:var(--font-cinzel)] text-lg font-bold text-slate-900 block leading-tight">Brightloop</span>
-                    <span className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Subscription Management</span>
-                  </div>
-                </div>
+                <Logo size="md" theme="dark" subtext="Subscription Management" />
                 <p className="text-xs text-slate-500 mt-2">
                   100 Innovation Way, Suite 400<br />San Francisco, CA 94105
                 </p>
@@ -417,12 +431,12 @@ export default function InvoiceListView() {
                   <tr key={l.id}>
                     <td className="py-2.5 px-3 font-medium text-slate-800">{l.description}</td>
                     <td className="py-2.5 px-3 text-center text-slate-600">{l.quantity}</td>
-                    <td className="py-2.5 px-3 text-right text-slate-600">${l.unitPrice.toFixed(2)}</td>
+                    <td className="py-2.5 px-3 text-right text-slate-600">₹{l.unitPrice.toFixed(2)}</td>
                     <td className="py-2.5 px-3 text-right text-slate-600">
-                      {l.taxRate}% (${l.taxAmount.toFixed(2)})
+                      {l.taxRate}% (₹{l.taxAmount.toFixed(2)})
                     </td>
                     <td className="py-2.5 px-3 text-right font-bold text-slate-900">
-                      ${l.lineTotal.toFixed(2)}
+                      ₹{l.lineTotal.toFixed(2)}
                     </td>
                   </tr>
                 ))}
@@ -435,25 +449,25 @@ export default function InvoiceListView() {
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
                   <span className="font-semibold text-slate-900">
-                    ${selectedInvoiceForPrint.subtotal.toFixed(2)}
+                    ₹{selectedInvoiceForPrint.subtotal.toFixed(2)}
                   </span>
                 </div>
                 {selectedInvoiceForPrint.discountAmount > 0 && (
                   <div className="flex justify-between text-emerald-600">
                     <span>Discount Applied:</span>
-                    <span>-${selectedInvoiceForPrint.discountAmount.toFixed(2)}</span>
+                    <span>-₹{selectedInvoiceForPrint.discountAmount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
                   <span>Calculated Tax (10%):</span>
                   <span className="font-semibold text-slate-900">
-                    ${selectedInvoiceForPrint.taxAmount.toFixed(2)}
+                    ₹{selectedInvoiceForPrint.taxAmount.toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between border-t border-slate-200 pt-2 text-base font-bold text-slate-900">
                   <span>Total Due:</span>
                   <span className="font-[family-name:var(--font-serif)] font-bold text-lg text-[#1c2530]">
-                    ${selectedInvoiceForPrint.totalAmount.toFixed(2)}
+                    ₹{selectedInvoiceForPrint.totalAmount.toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -506,7 +520,7 @@ export default function InvoiceListView() {
             <form onSubmit={handlePaymentSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Payment Amount ($)
+                  Payment Amount (₹)
                 </label>
                 <input
                   type="number"

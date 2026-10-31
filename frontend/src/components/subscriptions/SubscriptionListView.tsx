@@ -15,13 +15,14 @@ import {
   RotateCcw,
   XCircle,
   FileText,
-  DollarSign,
+  IndianRupee,
   X,
   FilePlus,
   Sparkles,
   Layers,
 } from 'lucide-react';
 import { useSubscription } from '@/context/SubscriptionContext';
+import PageHeader from '@/components/common/PageHeader';
 import {
   Subscription,
   SubscriptionStatus,
@@ -272,56 +273,51 @@ export default function SubscriptionListView() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
-            <Repeat className="h-3 w-3" />
-            <span>Scene 3: Quotation to Subscription Lifecycle</span>
-          </div>
-          <h2 className="mt-1 font-[family-name:var(--font-cinzel)] text-2xl font-bold tracking-tight text-slate-900">
-            {currentUser.role === 'customer' ? 'My Active Subscriptions' : 'Subscriptions & Quotes'}
-          </h2>
-          <div className="title-accent-rule" />
-          <p className="mt-0.5 text-xs text-slate-500">
-            Track full progression: Draft &rarr; Quotation &rarr; Confirmed &rarr; Active &rarr; Closed.
-          </p>
-        </div>
-
-        {currentUser.role !== 'customer' && (
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedTemplateId('');
-              setIsBuilderOpen(true);
-            }}
-            className="btn-gold cursor-pointer"
-          >
-            <Plus className="h-4 w-4" />
-            <span>New Quote / Subscription</span>
-          </button>
-        )}
-      </div>
+      {/* Unified Global Page Header */}
+      <PageHeader
+        title={currentUser.role === 'customer' ? 'My Active Subscriptions' : 'Subscriptions & Quotes'}
+        subtitle="Track full progression: Draft → Quotation → Confirmed → Active → Closed."
+        category="Core Billing"
+        badge={{
+          icon: Repeat,
+          text: 'Scene 3: Quotation to Subscription Lifecycle',
+        }}
+        actions={
+          currentUser.role !== 'customer' ? (
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedTemplateId('');
+                setIsBuilderOpen(true);
+              }}
+              className="btn-gold cursor-pointer"
+            >
+              <Plus className="h-4 w-4" />
+              <span>New Quote / Subscription</span>
+            </button>
+          ) : undefined
+        }
+      />
 
       {/* Lifecycle Stage Visual Bar */}
-      <div className="card-surface p-4">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2.5">
+      <div className="card-surface p-5">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 block mb-3">
           Lifecycle State Progression (Scene 3)
         </span>
-        <div className="grid grid-cols-5 gap-2 text-center text-xs">
-          <div className="rounded-lg bg-slate-100 p-2 text-slate-700 font-semibold border border-slate-200">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-center text-xs">
+          <div className="rounded-xl bg-slate-50 p-2.5 text-slate-700 font-semibold border border-slate-200 shadow-2xs">
             1. Draft
           </div>
-          <div className="rounded-lg bg-sky-50 p-2 text-sky-800 font-semibold border border-sky-200">
+          <div className="rounded-xl bg-sky-50/70 p-2.5 text-sky-800 font-semibold border border-sky-200 shadow-2xs">
             2. Quotation
           </div>
-          <div className="rounded-lg bg-amber-50 p-2 text-amber-800 font-semibold border border-amber-200">
+          <div className="rounded-xl bg-amber-50/70 p-2.5 text-amber-800 font-semibold border border-amber-200 shadow-2xs">
             3. Confirmed
           </div>
-          <div className="rounded-lg bg-emerald-50 p-2 text-emerald-800 font-semibold border border-emerald-200">
+          <div className="rounded-xl bg-emerald-50/70 p-2.5 text-emerald-800 font-semibold border border-emerald-200 shadow-2xs">
             4. Active
           </div>
-          <div className="rounded-lg bg-rose-50 p-2 text-rose-800 font-semibold border border-rose-200">
+          <div className="rounded-xl bg-rose-50/70 p-2.5 text-rose-800 font-semibold border border-rose-200 shadow-2xs">
             5. Closed
           </div>
         </div>
@@ -337,7 +333,7 @@ export default function SubscriptionListView() {
               className={`rounded-lg px-3 py-1.5 text-xs font-semibold capitalize transition-all cursor-pointer ${
                 selectedStatus === st
                   ? 'bg-[#1c2530] text-[#c9ab70] border border-[#c9ab70]/30 shadow-xs'
-                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70 hover:text-slate-900 border border-slate-200/50'
               }`}
             >
               {st}
@@ -352,7 +348,7 @@ export default function SubscriptionListView() {
             placeholder="Search number, customer..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-slate-200 pl-9 pr-3 py-1.5 text-xs bg-white text-slate-900 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
+            className="h-9 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-xs text-slate-900 placeholder:text-slate-400 focus:border-[#c9ab70] focus:ring-2 focus:ring-[#c9ab70]/20 focus:outline-none transition-all shadow-2xs"
           />
         </div>
       </div>
@@ -400,7 +396,7 @@ export default function SubscriptionListView() {
                     </td>
                     <td className="px-5 py-3.5">{getStatusBadge(sub.status, sub.isPaused)}</td>
                     <td className="px-5 py-3.5 font-[family-name:var(--font-serif)] font-bold text-slate-900 text-sm">
-                      ${sub.totalAmount.toFixed(2)}
+                      ₹{sub.totalAmount.toFixed(2)}
                     </td>
                     <td className="px-5 py-3.5 text-slate-600">{sub.expiryDate}</td>
                     <td className="px-5 py-3.5 text-right">
@@ -559,7 +555,7 @@ export default function SubscriptionListView() {
                   >
                     {plans.map((p) => (
                       <option key={p.id} value={p.id}>
-                        {p.name} (${p.basePrice}/{p.billingCycle})
+                        {p.name} (₹{p.basePrice}/{p.billingCycle})
                       </option>
                     ))}
                   </select>
@@ -649,7 +645,7 @@ export default function SubscriptionListView() {
                         >
                           {products.map((p) => (
                             <option key={p.id} value={p.id}>
-                              {p.name} (${p.salesPrice})
+                              {p.name} (₹{p.salesPrice})
                             </option>
                           ))}
                         </select>
@@ -664,7 +660,7 @@ export default function SubscriptionListView() {
                             <option value="">No Variant / Base</option>
                             {currentProd.variants.map((v) => (
                               <option key={v.id} value={v.id}>
-                                {v.name} (+${v.priceDelta})
+                                {v.name} (+₹{v.priceDelta})
                               </option>
                             ))}
                           </select>
@@ -686,7 +682,7 @@ export default function SubscriptionListView() {
                         <div className="text-right w-20">
                           <span className="text-[10px] text-slate-400 block">Unit</span>
                           <span className="font-semibold text-slate-800">
-                            ${line.unitPrice.toFixed(2)}
+                            ₹{line.unitPrice.toFixed(2)}
                           </span>
                         </div>
 
@@ -694,7 +690,7 @@ export default function SubscriptionListView() {
                         <div className="text-right w-24">
                           <span className="text-[10px] text-slate-400 block">Total</span>
                           <span className="font-bold text-slate-900">
-                            ${line.lineTotal.toFixed(2)}
+                            ₹{line.lineTotal.toFixed(2)}
                           </span>
                         </div>
 
@@ -718,24 +714,24 @@ export default function SubscriptionListView() {
                     <div className="flex justify-between">
                       <span>Subtotal:</span>
                       <span className="font-semibold text-slate-900">
-                        ${calculatedSubtotal.toFixed(2)}
+                        ₹{calculatedSubtotal.toFixed(2)}
                       </span>
                     </div>
                     {calculatedDiscount > 0 && (
                       <div className="flex justify-between text-emerald-600">
                         <span>Discount:</span>
-                        <span>-${calculatedDiscount.toFixed(2)}</span>
+                        <span>-₹{calculatedDiscount.toFixed(2)}</span>
                       </div>
                     )}
                     <div className="flex justify-between">
                       <span>Tax (10%):</span>
                       <span className="font-semibold text-slate-900">
-                        ${calculatedTax.toFixed(2)}
+                        ₹{calculatedTax.toFixed(2)}
                       </span>
                     </div>
                     <div className="flex justify-between border-t border-slate-200 pt-1 text-sm font-bold text-slate-900">
                       <span>Total Amount:</span>
-                      <span className="font-[family-name:var(--font-serif)] font-bold text-[#1c2530] text-base">${calculatedTotal.toFixed(2)}</span>
+                      <span className="font-[family-name:var(--font-serif)] font-bold text-[#1c2530] text-base">₹{calculatedTotal.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -828,13 +824,13 @@ export default function SubscriptionListView() {
                     <span>
                       {l.productName} {l.variantName ? `(${l.variantName})` : ''} x {l.quantity}
                     </span>
-                    <span className="font-semibold">${l.lineTotal.toFixed(2)}</span>
+                    <span className="font-semibold">₹{l.lineTotal.toFixed(2)}</span>
                   </div>
                 ))}
               </div>
               <div className="mt-3 flex justify-between border-t border-slate-200 pt-2 font-bold text-sm text-slate-900">
                 <span>Total Amount:</span>
-                <span className="font-[family-name:var(--font-serif)] font-bold text-base text-[#1c2530]">${selectedSubDetail.totalAmount.toFixed(2)}</span>
+                <span className="font-[family-name:var(--font-serif)] font-bold text-base text-[#1c2530]">₹{selectedSubDetail.totalAmount.toFixed(2)}</span>
               </div>
             </div>
 

@@ -132,7 +132,7 @@ export default function RecentTransactionsTable({ externalFilter }: RecentTransa
                       {inv.subscriptionNumber || 'On-demand invoice'}
                     </td>
                     <td className="px-3 py-3.5 font-bold text-slate-900">
-                      ${inv.totalAmount.toFixed(2)}
+                      ₹{inv.totalAmount.toFixed(2)}
                     </td>
                     <td className="px-3 py-3.5">
                       <span

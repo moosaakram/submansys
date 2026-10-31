@@ -8,7 +8,7 @@ import {
   AlertCircle,
   ArrowUpRight,
   ArrowDownRight,
-  DollarSign,
+  IndianRupee,
 } from 'lucide-react';
 import { useSubscription } from '@/context/SubscriptionContext';
 
@@ -19,7 +19,7 @@ export default function MetricCards() {
     {
       id: 'active_subscriptions',
       title: 'Active Subscriptions',
-      value: analytics.activeSubscriptionsCount.toLocaleString(),
+      value: analytics.activeSubscriptionsCount.toLocaleString('en-IN'),
       change: '+100%',
       isPositive: true,
       comparisonText: `${subscriptions.length} total across all lifecycles`,
@@ -28,25 +28,25 @@ export default function MetricCards() {
     {
       id: 'mrr',
       title: 'Monthly Recurring Rev (MRR)',
-      value: `$${analytics.mrr.toLocaleString()}`,
+      value: `₹${analytics.mrr.toLocaleString('en-IN')}`,
       change: '+18.5%',
       isPositive: true,
-      comparisonText: `ARR Run-rate: $${analytics.arr.toLocaleString()}`,
+      comparisonText: `ARR Run-rate: ₹${analytics.arr.toLocaleString('en-IN')}`,
       icon: TrendingUp,
     },
     {
       id: 'total_collected',
       title: 'Revenue Collected',
-      value: `$${analytics.totalRevenueCollected.toLocaleString()}`,
+      value: `₹${analytics.totalRevenueCollected.toLocaleString('en-IN')}`,
       change: '+14.2%',
       isPositive: true,
       comparisonText: 'Settled bank receipts',
-      icon: DollarSign,
+      icon: IndianRupee,
     },
     {
       id: 'pending_payments',
       title: 'Pending / Overdue Invoices',
-      value: `$${(analytics.pendingAmount + analytics.overdueAmount).toLocaleString()}`,
+      value: `₹${(analytics.pendingAmount + analytics.overdueAmount).toLocaleString('en-IN')}`,
       change: analytics.overdueInvoicesCount > 0 ? `-${analytics.overdueInvoicesCount} overdue` : '0 overdue',
       isPositive: analytics.overdueInvoicesCount === 0,
       comparisonText: `${analytics.overdueInvoicesCount} awaiting immediate settlement`,

@@ -10,6 +10,7 @@
     "build": "npm run build --prefix frontend",
     "start": "npm run start --prefix frontend",
     "lint": "npm run lint --prefix frontend",
+    "backend": "npm run backend:dev",
     "backend:dev": "powershell -Command \"$env:PYTHONPATH='backend;.'; .venv\\Scripts\\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload\"",
     "backend:test": "powershell -Command \".venv\\Scripts\\python.exe backend\\test_api_suite.py\"",
     "db:init": "powershell -Command \".venv\\Scripts\\python.exe database\\init_db.py\"",
