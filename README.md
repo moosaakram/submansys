@@ -121,31 +121,25 @@ Modern recurring revenue businesses encounter substantial operational friction a
 ```text
 submansys/
 ├── README.md                      # Comprehensive project documentation
-├── package.json                   # Root frontend dependencies and scripts
-├── tsconfig.json                  # Root TypeScript configuration
-├── next.config.ts                 # Next.js framework configuration
-├── eslint.config.mjs              # Linting rules
 ├── requirements.txt               # Root Python dependencies
 ├── test_database.py               # Database verification test suite
-├── src/                           # Application source code
-│   ├── app/                       # App Router pages and layouts
-│   │   ├── favicon.ico            # Favicon
-│   │   ├── globals.css            # Global Tailwind CSS definitions
-│   │   ├── layout.tsx             # Root dashboard layout
-│   │   └── page.tsx               # Main dashboard view
-│   ├── components/                # Reusable UI components
-│   │   ├── auth/                  # Authentication UI
-│   │   │   └── LoginForm.tsx      # Reusable Brightloop 360 login component
-│   │   └── dashboard/             # Executive dashboard components
-│   │       ├── MetricCards.tsx
-│   │       ├── PlanDistributionCard.tsx
-│   │       ├── RecentActivity.tsx
-│   │       ├── RecentTransactionsTable.tsx
-│   │       ├── RevenueChart.tsx
-│   │       ├── Sidebar.tsx
-│   │       └── TopNavbar.tsx
-│   ├── data/                      # Mock data for demonstration
-│   └── types/                     # TypeScript type declarations
+├── frontend/                      # Next.js frontend application
+│   ├── src/                       # Application source code
+│   │   ├── app/                   # App Router pages and layouts
+│   │   │   ├── favicon.ico        # Favicon
+│   │   │   ├── globals.css        # Global Tailwind CSS definitions
+│   │   │   ├── layout.tsx         # Root dashboard layout
+│   │   │   ├── page.tsx           # Main dashboard view
+│   │   │   └── login/page.tsx     # Authentication page
+│   │   ├── components/            # Reusable UI components
+│   │   │   ├── auth/              # Authentication UI (LoginForm)
+│   │   │   └── dashboard/         # Executive dashboard components
+│   │   ├── data/                  # Structured mock data for demonstration
+│   │   └── types/                 # TypeScript type declarations
+│   ├── package.json               # Frontend dependencies & scripts
+│   ├── tsconfig.json              # TypeScript configuration
+│   ├── next.config.ts             # Next.js configuration
+│   └── eslint.config.mjs          # Linting rules
 ├── backend/                       # FastAPI backend application
 │   ├── app/
 │   │   ├── routes/                # API routes (health, auth, subscriptions)
