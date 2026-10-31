@@ -101,14 +101,15 @@ export default function ProductCatalogView() {
       {/* Header Bar */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
-            <Package className="h-3.5 w-3.5" />
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
+            <Package className="h-3 w-3" />
             <span>Scene 2: Product & Variant Management</span>
           </div>
-          <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+          <h2 className="mt-1 font-[family-name:var(--font-cinzel)] text-2xl font-bold tracking-tight text-slate-900">
             Products & Variants
           </h2>
-          <p className="text-xs text-slate-500">
+          <div className="title-accent-rule" />
+          <p className="mt-0.5 text-xs text-slate-500">
             Manage software catalog items, cost prices, and add-on brand variants (e.g., Odoo Brand +$560).
           </p>
         </div>
@@ -117,7 +118,7 @@ export default function ProductCatalogView() {
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-indigo-700 transition-colors cursor-pointer"
+            className="btn-gold cursor-pointer"
           >
             <Plus className="h-4 w-4" />
             <span>Add New Product</span>
@@ -126,7 +127,7 @@ export default function ProductCatalogView() {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-slate-200/80 bg-white p-3 shadow-2xs">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between card-surface p-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
           <input
@@ -134,7 +135,7 @@ export default function ProductCatalogView() {
             placeholder="Search products, descriptions, variants..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-1.5 text-xs focus:border-indigo-600 focus:outline-hidden"
+            className="w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 py-1.5 text-xs text-slate-900 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
           />
         </div>
 
@@ -143,7 +144,7 @@ export default function ProductCatalogView() {
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs text-slate-700 focus:border-indigo-600 focus:outline-hidden"
+            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-700 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
           >
             <option value="all">All Types</option>
             <option value="software">Software Platforms</option>
@@ -162,22 +163,22 @@ export default function ProductCatalogView() {
           return (
             <div
               key={p.id}
-              className="flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:shadow-md transition-shadow"
+              className="card-surface p-5 flex flex-col justify-between hover:border-[#c9ab70]/40 hover:shadow-md transition-all"
             >
               <div>
                 <div className="flex items-start justify-between gap-2">
                   <span
-                    className={`rounded-lg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                    className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
                       p.productType === 'software'
-                        ? 'bg-blue-100 text-blue-700'
+                        ? 'bg-slate-100 text-[#1c2530] border border-slate-200'
                         : p.productType === 'addon'
-                        ? 'bg-purple-100 text-purple-700'
-                        : 'bg-emerald-100 text-emerald-700'
+                        ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                        : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                     }`}
                   >
                     {p.productType}
                   </span>
-                  <span className="text-[11px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                  <span className="badge-success">
                     {marginPercent}% Margin
                   </span>
                 </div>
@@ -188,14 +189,14 @@ export default function ProductCatalogView() {
                 </p>
 
                 {/* Pricing summary */}
-                <div className="mt-4 grid grid-cols-2 gap-2 rounded-xl bg-slate-50 p-3 text-xs">
+                <div className="mt-4 grid grid-cols-2 gap-2 rounded-lg bg-slate-50 border border-slate-100 p-3 text-xs">
                   <div>
                     <span className="text-[10px] text-slate-400 block font-medium">Sales Price</span>
-                    <span className="text-sm font-bold text-slate-900">${p.salesPrice.toFixed(2)}</span>
+                    <span className="font-[family-name:var(--font-serif)] text-base font-bold text-slate-900">${p.salesPrice.toFixed(2)}</span>
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-400 block font-medium">Cost Price</span>
-                    <span className="text-xs font-semibold text-slate-600">${p.costPrice.toFixed(2)}</span>
+                    <span className="font-[family-name:var(--font-serif)] text-sm font-semibold text-slate-600">${p.costPrice.toFixed(2)}</span>
                   </div>
                 </div>
 
@@ -203,7 +204,7 @@ export default function ProductCatalogView() {
                 <div className="mt-4 border-t border-slate-100 pt-3">
                   <div className="flex items-center justify-between text-xs font-semibold text-slate-700 mb-2">
                     <span className="flex items-center gap-1.5">
-                      <Layers className="h-3.5 w-3.5 text-indigo-600" />
+                      <Layers className="h-3.5 w-3.5 text-[#c9ab70]" />
                       <span>Available Variants:</span>
                     </span>
                     <span className="text-[10px] text-slate-400 font-normal">
@@ -220,21 +221,21 @@ export default function ProductCatalogView() {
                         return (
                           <div
                             key={v.id}
-                            className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs ${
+                            className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs transition-colors ${
                               isOdoo
-                                ? 'bg-indigo-100/80 border border-indigo-200 text-indigo-950 font-semibold'
-                                : 'bg-indigo-50/50 text-indigo-950'
+                                ? 'bg-[#c9ab70]/10 border border-[#c9ab70]/40 text-slate-900 font-semibold'
+                                : 'bg-slate-50 border border-slate-100 text-slate-700'
                             }`}
                           >
                             <span className="font-medium truncate flex items-center gap-1.5">
                               {v.name}
                               {isOdoo && (
-                                <span className="rounded bg-indigo-600 text-white px-1 py-0.2 text-[9px] font-bold">
+                                <span className="rounded bg-[#1c2530] text-[#c9ab70] border border-[#c9ab70]/40 px-1 py-0.2 text-[9px] font-bold">
                                   Scene 2
                                 </span>
                               )}
                             </span>
-                            <span className="font-bold text-indigo-700 shrink-0">
+                            <span className="font-bold text-[#1c2530] shrink-0">
                               {v.priceDelta > 0 ? `+$${v.priceDelta.toFixed(2)}` : 'Standard'}
                             </span>
                           </div>
@@ -255,20 +256,20 @@ export default function ProductCatalogView() {
 
       {/* Modal: Create Product with Variants */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 overflow-y-auto">
-          <div className="relative w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-slate-200 my-8">
+        <div className="modal-backdrop">
+          <div className="modal-panel max-w-xl my-8">
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 rounded-lg p-1 cursor-pointer"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 rounded-lg p-1 cursor-pointer transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
 
             <div className="mb-4">
-              <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+              <span className="rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
                 Scene 2: Admin Product Setup
               </span>
-              <h3 className="mt-2 text-xl font-bold text-slate-900">Launch New Product</h3>
+              <h3 className="mt-2 font-[family-name:var(--font-cinzel)] text-xl font-bold text-slate-900">Launch New Product</h3>
               <p className="text-xs text-slate-500">
                 Define the sales price, internal cost, description, and variant price deltas.
               </p>
@@ -285,7 +286,7 @@ export default function ProductCatalogView() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Cloud ERP Suite"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:border-indigo-600 focus:outline-hidden"
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                 />
               </div>
 
@@ -297,7 +298,7 @@ export default function ProductCatalogView() {
                   <select
                     value={productType}
                     onChange={(e) => setProductType(e.target.value as ProductType)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:border-indigo-600 focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                   >
                     <option value="software">Software</option>
                     <option value="addon">Add-on</option>
@@ -314,7 +315,7 @@ export default function ProductCatalogView() {
                     required
                     value={salesPrice}
                     onChange={(e) => setSalesPrice(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:border-indigo-600 focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                   />
                 </div>
                 <div>
@@ -327,7 +328,7 @@ export default function ProductCatalogView() {
                     required
                     value={costPrice}
                     onChange={(e) => setCostPrice(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:border-indigo-600 focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                   />
                 </div>
               </div>
@@ -341,7 +342,7 @@ export default function ProductCatalogView() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Detailed product features..."
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:border-indigo-600 focus:outline-hidden"
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                 />
               </div>
 
@@ -352,7 +353,7 @@ export default function ProductCatalogView() {
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Internal ops notes..."
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:border-indigo-600 focus:outline-hidden"
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                 />
               </div>
 
@@ -370,7 +371,7 @@ export default function ProductCatalogView() {
                   <button
                     type="button"
                     onClick={handleAddVariantRow}
-                    className="inline-flex items-center gap-1 rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 cursor-pointer"
+                    className="inline-flex items-center gap-1 rounded-lg bg-[#1c2530] px-2.5 py-1 text-xs font-semibold text-[#c9ab70] hover:bg-[#212c37] cursor-pointer transition-colors"
                   >
                     <Plus className="h-3 w-3" />
                     <span>Add Variant</span>
@@ -385,14 +386,14 @@ export default function ProductCatalogView() {
                         placeholder="Variant Name (e.g. Odoo Brand)"
                         value={v.name}
                         onChange={(e) => handleUpdateVariant(idx, 'name', e.target.value)}
-                        className="flex-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs focus:outline-hidden"
+                        className="flex-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs focus:border-[#c9ab70] focus:outline-hidden"
                       />
                       <input
                         type="text"
                         placeholder="Attribute (e.g. Brand)"
                         value={v.attribute}
                         onChange={(e) => handleUpdateVariant(idx, 'attribute', e.target.value)}
-                        className="w-24 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs focus:outline-hidden"
+                        className="w-24 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs focus:border-[#c9ab70] focus:outline-hidden"
                       />
                       <div className="flex items-center gap-1 w-28">
                         <span className="text-xs text-slate-400">+$</span>
@@ -403,7 +404,7 @@ export default function ProductCatalogView() {
                           onChange={(e) =>
                             handleUpdateVariant(idx, 'priceDelta', parseFloat(e.target.value) || 0)
                           }
-                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs focus:outline-hidden"
+                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs focus:border-[#c9ab70] focus:outline-hidden"
                         />
                       </div>
                       {variants.length > 1 && (
@@ -424,13 +425,13 @@ export default function ProductCatalogView() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                  className="btn-light-secondary cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 shadow-xs cursor-pointer"
+                  className="btn-gold cursor-pointer"
                 >
                   Create Product
                 </button>

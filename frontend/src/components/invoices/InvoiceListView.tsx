@@ -109,7 +109,7 @@ export default function InvoiceListView() {
 
     if (isOverdue) {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-[11px] font-bold text-rose-700">
+        <span className="badge-danger font-bold">
           <AlertTriangle className="h-3 w-3" /> Overdue
         </span>
       );
@@ -117,13 +117,13 @@ export default function InvoiceListView() {
 
     switch (inv.status) {
       case 'draft':
-        return <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700">Draft</span>;
+        return <span className="badge-neutral">Draft</span>;
       case 'confirmed':
-        return <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800">Unpaid</span>;
+        return <span className="badge-warning">Unpaid</span>;
       case 'paid':
-        return <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">Paid in Full</span>;
+        return <span className="badge-success">Paid in Full</span>;
       case 'cancelled':
-        return <span className="rounded-full bg-slate-200 px-2.5 py-0.5 text-[11px] font-semibold text-slate-500">Cancelled</span>;
+        return <span className="badge-neutral">Cancelled</span>;
     }
   };
 
@@ -136,14 +136,15 @@ export default function InvoiceListView() {
       {/* Header Bar with 1-Click Billing Day Run */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
-            <FileText className="h-3.5 w-3.5" />
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
+            <FileText className="h-3 w-3" />
             <span>Scene 4: Billing Day & Automated Recurring Invoicing</span>
           </div>
-          <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+          <h2 className="mt-1 font-[family-name:var(--font-cinzel)] text-2xl font-bold tracking-tight text-slate-900">
             {currentUser.role === 'customer' ? 'My Invoices & Receipts' : 'Invoices & Recurring Billing'}
           </h2>
-          <p className="text-xs text-slate-500">
+          <div className="title-accent-rule" />
+          <p className="mt-0.5 text-xs text-slate-500">
             Automated recurring invoice generation, automatic tax calculation, and payment reconciliation.
           </p>
         </div>
@@ -152,9 +153,9 @@ export default function InvoiceListView() {
           <button
             type="button"
             onClick={() => runBillingDay()}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:from-indigo-700 hover:to-blue-700 transition-all cursor-pointer"
+            className="btn-gold cursor-pointer"
           >
-            <Zap className="h-4 w-4 text-amber-300" />
+            <Zap className="h-4 w-4" />
             <span>⚡ Run Billing Day (Auto-Bill)</span>
           </button>
         )}
@@ -162,21 +163,21 @@ export default function InvoiceListView() {
 
       {/* Simplified Summary KPI Cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="rounded-xl border border-slate-200/80 bg-white p-3 shadow-2xs">
-          <span className="text-[10px] font-bold text-slate-400 uppercase">Total Invoiced</span>
-          <div className="text-xl font-bold text-slate-900 mt-1">${totalInvoicedSum.toFixed(2)}</div>
+        <div className="card-surface p-4">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Invoiced</span>
+          <div className="font-[family-name:var(--font-serif)] text-2xl font-bold text-slate-900 mt-1">${totalInvoicedSum.toFixed(2)}</div>
         </div>
-        <div className="rounded-xl border border-slate-200/80 bg-white p-3 shadow-2xs">
-          <span className="text-[10px] font-bold text-emerald-600 uppercase">Paid & Settled</span>
-          <div className="text-xl font-bold text-emerald-600 mt-1">${totalPaidSum.toFixed(2)}</div>
+        <div className="card-surface p-4">
+          <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Paid & Settled</span>
+          <div className="font-[family-name:var(--font-serif)] text-2xl font-bold text-emerald-700 mt-1">${totalPaidSum.toFixed(2)}</div>
         </div>
-        <div className="rounded-xl border border-slate-200/80 bg-white p-3 shadow-2xs">
-          <span className="text-[10px] font-bold text-amber-600 uppercase">Awaiting Settlement</span>
-          <div className="text-xl font-bold text-slate-900 mt-1">${totalOpenSum.toFixed(2)}</div>
+        <div className="card-surface p-4">
+          <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Awaiting Settlement</span>
+          <div className="font-[family-name:var(--font-serif)] text-2xl font-bold text-slate-900 mt-1">${totalOpenSum.toFixed(2)}</div>
         </div>
-        <div className="rounded-xl border border-rose-200 bg-rose-50/60 p-3 shadow-2xs">
-          <span className="text-[10px] font-bold text-rose-700 uppercase">Overdue Count</span>
-          <div className="text-xl font-bold text-rose-700 mt-1">{analytics.overdueInvoicesCount} invoices</div>
+        <div className="card-surface p-4 border-rose-200/90 bg-rose-50/20">
+          <span className="text-[10px] font-bold text-rose-700 uppercase tracking-wider">Overdue Count</span>
+          <div className="font-[family-name:var(--font-serif)] text-2xl font-bold text-rose-700 mt-1">{analytics.overdueInvoicesCount} invoices</div>
         </div>
       </div>
 
@@ -187,9 +188,9 @@ export default function InvoiceListView() {
             <button
               key={st}
               onClick={() => setSelectedStatus(st)}
-              className={`rounded-xl px-3 py-1.5 text-xs font-semibold capitalize transition-colors cursor-pointer ${
+              className={`rounded-lg px-3 py-1.5 text-xs font-semibold capitalize transition-all cursor-pointer ${
                 selectedStatus === st
-                  ? 'bg-indigo-600 text-white shadow-xs'
+                  ? 'bg-[#1c2530] text-[#c9ab70] border border-[#c9ab70]/30 shadow-xs'
                   : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
               }`}
             >
@@ -205,17 +206,17 @@ export default function InvoiceListView() {
             placeholder="Search invoice #, customer..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-1.5 text-xs bg-white focus:outline-hidden"
+            className="w-full rounded-lg border border-slate-200 pl-9 pr-3 py-1.5 text-xs bg-white text-slate-900 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
           />
         </div>
       </div>
 
       {/* Invoices Table */}
-      <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-2xs">
+      <div className="table-container">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="border-b border-slate-100 bg-slate-50/75 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-              <tr>
+            <thead>
+              <tr className="table-header">
                 <th className="px-5 py-3.5">Invoice #</th>
                 <th className="px-5 py-3.5">Customer</th>
                 <th className="px-5 py-3.5">Issue / Due Date</th>
@@ -233,11 +234,11 @@ export default function InvoiceListView() {
                 </tr>
               ) : (
                 filteredInvoices.map((inv) => (
-                  <tr key={inv.id} className="hover:bg-slate-50/60 transition-colors">
+                  <tr key={inv.id} className="table-row">
                     <td className="px-5 py-3.5">
-                      <div className="font-bold text-slate-900">{inv.invoiceNumber}</div>
+                      <div className="font-mono text-xs font-semibold text-[#1c2530]">{inv.invoiceNumber}</div>
                       {inv.subscriptionNumber && (
-                        <span className="text-[10px] text-indigo-600 font-medium">
+                        <span className="text-[10px] text-[#c9ab70] font-medium">
                           {inv.subscriptionNumber}
                         </span>
                       )}
@@ -252,9 +253,9 @@ export default function InvoiceListView() {
                     </td>
                     <td className="px-5 py-3.5">{getStatusBadge(inv)}</td>
                     <td className="px-5 py-3.5">
-                      <div className="font-bold text-slate-900">${inv.totalAmount.toFixed(2)}</div>
+                      <div className="font-[family-name:var(--font-serif)] font-bold text-slate-900 text-sm">${inv.totalAmount.toFixed(2)}</div>
                       {inv.amountPaid > 0 && (
-                        <div className="text-[10px] text-emerald-600 font-medium">
+                        <div className="text-[10px] text-emerald-700 font-medium">
                           Paid: ${inv.amountPaid.toFixed(2)}
                         </div>
                       )}
@@ -265,7 +266,7 @@ export default function InvoiceListView() {
                         {inv.status === 'confirmed' && (
                           <button
                             onClick={() => handleQuickSettle(inv)}
-                            className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-bold text-white hover:bg-emerald-700 shadow-2xs transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1 rounded-lg bg-emerald-700 px-2.5 py-1 text-xs font-bold text-white hover:bg-emerald-800 shadow-2xs transition-colors cursor-pointer"
                             title="Instant 1-Click Payment Settlement"
                           >
                             <Check className="h-3 w-3" />
@@ -276,7 +277,7 @@ export default function InvoiceListView() {
                         {/* Print / View Preview */}
                         <button
                           onClick={() => setSelectedInvoiceForPrint(inv)}
-                          className="rounded-lg border border-slate-200 p-1.5 text-slate-600 hover:bg-slate-100 cursor-pointer"
+                          className="rounded-lg border border-slate-200 p-1.5 text-slate-600 hover:bg-slate-100 cursor-pointer transition-colors"
                           title="Print or View Invoice"
                         >
                           <Printer className="h-3.5 w-3.5" />
@@ -286,7 +287,7 @@ export default function InvoiceListView() {
                         {inv.status !== 'cancelled' && (
                           <button
                             onClick={() => sendInvoice(inv.id)}
-                            className="rounded-lg border border-slate-200 p-1.5 text-slate-600 hover:bg-slate-100 cursor-pointer"
+                            className="rounded-lg border border-slate-200 p-1.5 text-slate-600 hover:bg-slate-100 cursor-pointer transition-colors"
                             title="Send Invoice to Customer Email"
                           >
                             <Mail className="h-3.5 w-3.5" />
@@ -297,7 +298,7 @@ export default function InvoiceListView() {
                         {inv.status === 'draft' && (
                           <button
                             onClick={() => updateInvoiceStatus(inv.id, 'confirmed')}
-                            className="rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 cursor-pointer"
+                            className="rounded-lg bg-slate-100 border border-slate-200 px-2.5 py-1 text-xs font-semibold text-[#1c2530] hover:bg-slate-200 cursor-pointer transition-colors"
                           >
                             Confirm
                           </button>
@@ -307,7 +308,7 @@ export default function InvoiceListView() {
                         {inv.status === 'confirmed' && (
                           <button
                             onClick={() => handleOpenPayment(inv)}
-                            className="rounded-lg border border-slate-200 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 cursor-pointer"
+                            className="rounded-lg border border-slate-200 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 cursor-pointer transition-colors"
                             title="Record Custom Payment with Reference"
                           >
                             Details
@@ -318,7 +319,7 @@ export default function InvoiceListView() {
                         {inv.status !== 'paid' && inv.status !== 'cancelled' && (
                           <button
                             onClick={() => updateInvoiceStatus(inv.id, 'cancelled')}
-                            className="rounded-lg text-slate-400 hover:text-rose-600 p-1 cursor-pointer"
+                            className="rounded-lg text-slate-400 hover:text-rose-600 p-1 cursor-pointer transition-colors"
                             title="Cancel / Void Invoice"
                           >
                             <X className="h-3.5 w-3.5" />
@@ -336,11 +337,11 @@ export default function InvoiceListView() {
 
       {/* Modal: Printable / Branded Invoice View */}
       {selectedInvoiceForPrint && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 overflow-y-auto">
-          <div className="relative w-full max-w-2xl rounded-2xl bg-white p-8 shadow-2xl ring-1 ring-slate-200 my-8">
+        <div className="modal-backdrop">
+          <div className="modal-panel max-w-2xl my-8">
             <button
               onClick={() => setSelectedInvoiceForPrint(null)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 rounded-lg p-1 cursor-pointer"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 rounded-lg p-1 cursor-pointer transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
@@ -348,20 +349,23 @@ export default function InvoiceListView() {
             {/* Print Header */}
             <div className="flex items-start justify-between border-b border-slate-100 pb-6">
               <div>
-                <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-xs">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-9 w-9 rounded-lg bg-[#1c2530] border border-[#c9ab70]/40 flex items-center justify-center text-[#c9ab70] font-bold text-xs tracking-wider">
                     BL
                   </div>
-                  <span className="text-lg font-bold text-slate-900">Brightloop Software</span>
+                  <div>
+                    <span className="font-[family-name:var(--font-cinzel)] text-lg font-bold text-slate-900 block leading-tight">Brightloop</span>
+                    <span className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Subscription Management</span>
+                  </div>
                 </div>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-slate-500 mt-2">
                   100 Innovation Way, Suite 400<br />San Francisco, CA 94105
                 </p>
               </div>
 
               <div className="text-right">
-                <span className="text-xl font-extrabold text-slate-900 block">INVOICE</span>
-                <span className="text-xs font-bold text-indigo-600">{selectedInvoiceForPrint.invoiceNumber}</span>
+                <span className="font-[family-name:var(--font-cinzel)] text-xl font-bold text-slate-900 block">INVOICE</span>
+                <span className="font-mono text-xs font-semibold text-[#1c2530]">{selectedInvoiceForPrint.invoiceNumber}</span>
                 <p className="text-[11px] text-slate-400 mt-1">
                   Issue Date: {selectedInvoiceForPrint.issueDate}<br />
                   Due Date: {selectedInvoiceForPrint.dueDate}
@@ -378,7 +382,7 @@ export default function InvoiceListView() {
                 <div className="font-bold text-slate-900">{selectedInvoiceForPrint.customerName}</div>
                 <div className="text-slate-500">{selectedInvoiceForPrint.customerEmail}</div>
                 {selectedInvoiceForPrint.subscriptionNumber && (
-                  <div className="text-indigo-600 font-medium mt-1">
+                  <div className="text-[#c9ab70] font-medium mt-1">
                     Ref: {selectedInvoiceForPrint.subscriptionNumber}
                   </div>
                 )}
@@ -446,9 +450,9 @@ export default function InvoiceListView() {
                     ${selectedInvoiceForPrint.taxAmount.toFixed(2)}
                   </span>
                 </div>
-                <div className="flex justify-between border-t border-slate-200 pt-2 text-base font-extrabold text-slate-900">
+                <div className="flex justify-between border-t border-slate-200 pt-2 text-base font-bold text-slate-900">
                   <span>Total Due:</span>
-                  <span className="text-indigo-600">
+                  <span className="font-[family-name:var(--font-serif)] font-bold text-lg text-[#1c2530]">
                     ${selectedInvoiceForPrint.totalAmount.toFixed(2)}
                   </span>
                 </div>
@@ -460,14 +464,14 @@ export default function InvoiceListView() {
               <button
                 type="button"
                 onClick={() => setSelectedInvoiceForPrint(null)}
-                className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                className="btn-light-secondary cursor-pointer"
               >
                 Close
               </button>
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 shadow-xs cursor-pointer"
+                className="btn-gold cursor-pointer"
               >
                 <Printer className="h-4 w-4" />
                 <span>Print / Download PDF</span>
@@ -479,20 +483,20 @@ export default function InvoiceListView() {
 
       {/* Modal: Record Payment */}
       {selectedInvoiceForPayment && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-          <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-slate-200">
+        <div className="modal-backdrop">
+          <div className="modal-panel max-w-md">
             <button
               onClick={() => setSelectedInvoiceForPayment(null)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 rounded-lg p-1 cursor-pointer"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 rounded-lg p-1 cursor-pointer transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
 
             <div className="mb-4">
-              <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+              <span className="rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
                 Scene 6: The Money Comes In
               </span>
-              <h3 className="mt-2 text-xl font-bold text-slate-900">Record Payment</h3>
+              <h3 className="mt-2 font-[family-name:var(--font-cinzel)] text-xl font-bold text-slate-900">Record Payment</h3>
               <p className="text-xs text-slate-500">
                 Invoice: <strong>{selectedInvoiceForPayment.invoiceNumber}</strong> (
                 {selectedInvoiceForPayment.customerName})
@@ -510,7 +514,7 @@ export default function InvoiceListView() {
                   required
                   value={payAmount}
                   onChange={(e) => setPayAmount(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:border-indigo-600 focus:outline-hidden font-bold"
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden font-bold"
                 />
               </div>
 
@@ -521,7 +525,7 @@ export default function InvoiceListView() {
                 <select
                   value={payMethod}
                   onChange={(e) => setPayMethod(e.target.value as PaymentMethod)}
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:outline-hidden"
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:outline-hidden"
                 >
                   <option value="credit_card">Credit Card (Visa / Mastercard)</option>
                   <option value="bank_transfer">Bank Wire Transfer (ACH)</option>
@@ -540,7 +544,7 @@ export default function InvoiceListView() {
                   value={payRef}
                   onChange={(e) => setPayRef(e.target.value)}
                   placeholder="e.g. WIRE-892102"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:outline-hidden"
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:outline-hidden"
                 />
               </div>
 
@@ -551,7 +555,7 @@ export default function InvoiceListView() {
                   value={payNotes}
                   onChange={(e) => setPayNotes(e.target.value)}
                   placeholder="Settlement notes..."
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:outline-hidden"
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:outline-hidden"
                 />
               </div>
 
@@ -559,13 +563,13 @@ export default function InvoiceListView() {
                 <button
                   type="button"
                   onClick={() => setSelectedInvoiceForPayment(null)}
-                  className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                  className="btn-light-secondary cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700 shadow-xs cursor-pointer"
+                  className="btn-gold cursor-pointer"
                 >
                   Confirm Payment
                 </button>

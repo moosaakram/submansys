@@ -64,14 +64,15 @@ export default function PlanManagementView() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
-            <Layers className="h-3.5 w-3.5" />
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
+            <Layers className="h-3 w-3" />
             <span>Scene 2: Plan Lifecycle & Billing Cycles</span>
           </div>
-          <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+          <h2 className="mt-1 font-[family-name:var(--font-cinzel)] text-2xl font-bold tracking-tight text-slate-900">
             Recurring Plans & Closure Policies
           </h2>
-          <p className="text-xs text-slate-500">
+          <div className="title-accent-rule" />
+          <p className="mt-0.5 text-xs text-slate-500">
             Configure billing frequency (daily, weekly, monthly, yearly), minimum quantities, and auto-close / pause / renewal rules.
           </p>
         </div>
@@ -80,7 +81,7 @@ export default function PlanManagementView() {
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-indigo-700 transition-colors cursor-pointer"
+            className="btn-gold cursor-pointer"
           >
             <Plus className="h-4 w-4" />
             <span>Create New Plan</span>
@@ -93,11 +94,11 @@ export default function PlanManagementView() {
         {plans.map((p) => (
           <div
             key={p.id}
-            className="flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:shadow-md transition-all"
+            className="card-surface p-5 flex flex-col justify-between hover:border-[#c9ab70]/40 hover:shadow-md transition-all"
           >
             <div>
               <div className="flex items-center justify-between">
-                <span className="rounded-lg bg-indigo-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-indigo-700">
+                <span className="rounded-md bg-slate-100 border border-slate-200 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#1c2530]">
                   {p.billingCycle}
                 </span>
                 <span className="text-[11px] font-semibold text-slate-500">
@@ -111,14 +112,14 @@ export default function PlanManagementView() {
               </p>
 
               <div className="mt-4 flex items-baseline gap-1">
-                <span className="text-2xl font-extrabold text-slate-900">${p.basePrice.toFixed(2)}</span>
+                <span className="font-[family-name:var(--font-serif)] text-2xl font-bold text-slate-900">${p.basePrice.toFixed(2)}</span>
                 <span className="text-xs text-slate-400">/{p.billingCycle}</span>
               </div>
 
               {/* Validity Dates */}
-              <div className="mt-4 rounded-xl bg-slate-50 p-2.5 text-[11px] text-slate-600 space-y-1">
+              <div className="mt-4 rounded-lg bg-slate-50 border border-slate-100 p-2.5 text-[11px] text-slate-600 space-y-1">
                 <div className="flex items-center gap-1.5">
-                  <Calendar className="h-3 w-3 text-slate-400" />
+                  <Calendar className="h-3 w-3 text-[#c9ab70]" />
                   <span>Available from: <strong>{p.startDate}</strong></span>
                 </div>
                 {p.endDate && (
@@ -151,7 +152,7 @@ export default function PlanManagementView() {
                   <div className="flex items-center justify-between">
                     <span className="text-slate-600">Early closure</span>
                     {p.allowEarlyClosure ? (
-                      <span className="text-[11px] font-semibold text-emerald-600">Allowed</span>
+                      <span className="badge-success">Allowed</span>
                     ) : (
                       <span className="text-[11px] text-slate-400">Locked</span>
                     )}
@@ -160,7 +161,7 @@ export default function PlanManagementView() {
                   <div className="flex items-center justify-between">
                     <span className="text-slate-600">Pause billing</span>
                     {p.allowPause ? (
-                      <span className="text-[11px] font-semibold text-emerald-600">Supported</span>
+                      <span className="badge-success">Supported</span>
                     ) : (
                       <span className="text-[11px] text-slate-400">No</span>
                     )}
@@ -169,7 +170,7 @@ export default function PlanManagementView() {
                   <div className="flex items-center justify-between">
                     <span className="text-slate-600">Auto-renewal</span>
                     {p.allowRenewal ? (
-                      <span className="text-[11px] font-semibold text-emerald-600">Enabled</span>
+                      <span className="badge-success">Enabled</span>
                     ) : (
                       <span className="text-[11px] text-slate-400">Disabled</span>
                     )}
@@ -183,20 +184,20 @@ export default function PlanManagementView() {
 
       {/* Modal: Create Plan */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 overflow-y-auto">
-          <div className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-slate-200 my-8">
+        <div className="modal-backdrop">
+          <div className="modal-panel max-w-lg my-8">
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 rounded-lg p-1 cursor-pointer"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 rounded-lg p-1 cursor-pointer transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
 
             <div className="mb-4">
-              <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+              <span className="rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
                 Scene 2: Admin Plan Config
               </span>
-              <h3 className="mt-2 text-xl font-bold text-slate-900">Create Subscription Plan</h3>
+              <h3 className="mt-2 font-[family-name:var(--font-cinzel)] text-xl font-bold text-slate-900">Create Subscription Plan</h3>
               <p className="text-xs text-slate-500">
                 Set billing interval, seat constraints, and lifecycle termination rules.
               </p>
@@ -213,7 +214,7 @@ export default function PlanManagementView() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Enterprise Cloud Annual"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:border-indigo-600 focus:outline-hidden"
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                 />
               </div>
 
@@ -225,7 +226,7 @@ export default function PlanManagementView() {
                   <select
                     value={billingCycle}
                     onChange={(e) => setBillingCycle(e.target.value as BillingCycle)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:border-indigo-600 focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                   >
                     <option value="daily">Daily</option>
                     <option value="weekly">Weekly</option>
@@ -243,7 +244,7 @@ export default function PlanManagementView() {
                     required
                     value={basePrice}
                     onChange={(e) => setBasePrice(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:border-indigo-600 focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                   />
                 </div>
                 <div>
@@ -256,7 +257,7 @@ export default function PlanManagementView() {
                     required
                     value={minQuantity}
                     onChange={(e) => setMinQuantity(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:border-indigo-600 focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                   />
                 </div>
               </div>
@@ -271,7 +272,7 @@ export default function PlanManagementView() {
                     required
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:border-indigo-600 focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                   />
                 </div>
                 <div>
@@ -282,7 +283,7 @@ export default function PlanManagementView() {
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:border-indigo-600 focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                   />
                 </div>
               </div>
@@ -296,7 +297,7 @@ export default function PlanManagementView() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Target audience and plan benefits..."
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:border-indigo-600 focus:outline-hidden"
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                 />
               </div>
 
@@ -310,7 +311,7 @@ export default function PlanManagementView() {
                     type="checkbox"
                     checked={autoCloseOnExpiry}
                     onChange={(e) => setAutoCloseOnExpiry(e.target.checked)}
-                    className="rounded border-slate-300 text-indigo-600"
+                    className="rounded border-slate-300 text-[#1c2530] focus:ring-[#c9ab70]"
                   />
                   <span><strong>Auto-close:</strong> Plan closes automatically when end date is reached</span>
                 </label>
@@ -320,7 +321,7 @@ export default function PlanManagementView() {
                     type="checkbox"
                     checked={allowEarlyClosure}
                     onChange={(e) => setAllowEarlyClosure(e.target.checked)}
-                    className="rounded border-slate-300 text-indigo-600"
+                    className="rounded border-slate-300 text-[#1c2530] focus:ring-[#c9ab70]"
                   />
                   <span><strong>Early closure:</strong> Customer or staff can terminate before term</span>
                 </label>
@@ -330,7 +331,7 @@ export default function PlanManagementView() {
                     type="checkbox"
                     checked={allowPause}
                     onChange={(e) => setAllowPause(e.target.checked)}
-                    className="rounded border-slate-300 text-indigo-600"
+                    className="rounded border-slate-300 text-[#1c2530] focus:ring-[#c9ab70]"
                   />
                   <span><strong>Pause billing:</strong> Allow temporarily pausing subscription intervals</span>
                 </label>
@@ -340,7 +341,7 @@ export default function PlanManagementView() {
                     type="checkbox"
                     checked={allowRenewal}
                     onChange={(e) => setAllowRenewal(e.target.checked)}
-                    className="rounded border-slate-300 text-indigo-600"
+                    className="rounded border-slate-300 text-[#1c2530] focus:ring-[#c9ab70]"
                   />
                   <span><strong>Renewal:</strong> Can be extended / renewed at end of period</span>
                 </label>
@@ -350,13 +351,13 @@ export default function PlanManagementView() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                  className="btn-light-secondary cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 shadow-xs cursor-pointer"
+                  className="btn-gold cursor-pointer"
                 >
                   Launch Plan
                 </button>

@@ -24,13 +24,13 @@ export default function RevenueChart() {
   const activePoint = hoveredIndex !== null ? displayData[hoveredIndex] : displayData[displayData.length - 1];
 
   return (
-    <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs">
+    <div className="card-surface p-6">
       {/* Header section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
             <h3 className="text-base font-semibold text-slate-900">Revenue Overview</h3>
-            <span className="flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-semibold text-indigo-700">
+            <span className="flex items-center gap-1 rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
               <Sparkles className="h-3 w-3" />
               MRR Acceleration
             </span>
@@ -43,12 +43,12 @@ export default function RevenueChart() {
         {/* Action controls */}
         <div className="flex items-center gap-2">
           {/* Timeframe selector */}
-          <div className="flex items-center rounded-xl bg-slate-100 p-1 text-xs font-medium text-slate-600">
+          <div className="flex items-center rounded-lg bg-slate-100 p-1 text-xs font-medium text-slate-600 border border-slate-200/60">
             <button
               onClick={() => setSelectedTimeframe('12m')}
-              className={`rounded-lg px-2.5 py-1 transition-all ${
+              className={`rounded-md px-2.5 py-1 transition-all ${
                 selectedTimeframe === '12m'
-                  ? 'bg-white font-semibold text-indigo-600 shadow-xs'
+                  ? 'bg-[#1c2530] font-semibold text-[#c9ab70] shadow-xs'
                   : 'hover:text-slate-900'
               }`}
             >
@@ -56,9 +56,9 @@ export default function RevenueChart() {
             </button>
             <button
               onClick={() => setSelectedTimeframe('6m')}
-              className={`rounded-lg px-2.5 py-1 transition-all ${
+              className={`rounded-md px-2.5 py-1 transition-all ${
                 selectedTimeframe === '6m'
-                  ? 'bg-white font-semibold text-indigo-600 shadow-xs'
+                  ? 'bg-[#1c2530] font-semibold text-[#c9ab70] shadow-xs'
                   : 'hover:text-slate-900'
               }`}
             >
@@ -66,9 +66,9 @@ export default function RevenueChart() {
             </button>
             <button
               onClick={() => setSelectedTimeframe('30d')}
-              className={`rounded-lg px-2.5 py-1 transition-all ${
+              className={`rounded-md px-2.5 py-1 transition-all ${
                 selectedTimeframe === '30d'
-                  ? 'bg-white font-semibold text-indigo-600 shadow-xs'
+                  ? 'bg-[#1c2530] font-semibold text-[#c9ab70] shadow-xs'
                   : 'hover:text-slate-900'
               }`}
             >
@@ -78,7 +78,7 @@ export default function RevenueChart() {
 
           <button
             title="Download CSV"
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors"
           >
             <Download className="h-3.5 w-3.5" />
           </button>
@@ -89,19 +89,19 @@ export default function RevenueChart() {
       <div className="mt-5 grid grid-cols-2 gap-4 border-y border-slate-100 py-3 sm:grid-cols-4">
         <div>
           <span className="text-[11px] font-medium text-slate-400">Total ARR Run-rate</span>
-          <p className="text-lg font-bold text-slate-900">$1,541,400</p>
+          <p className="font-[family-name:var(--font-serif)] text-lg font-bold text-slate-900">$1,541,400</p>
         </div>
         <div>
           <span className="text-[11px] font-medium text-slate-400">Avg. Revenue Per User</span>
-          <p className="text-lg font-bold text-slate-900">$64.20<span className="text-xs font-normal text-slate-400">/mo</span></p>
+          <p className="font-[family-name:var(--font-serif)] text-lg font-bold text-slate-900">$64.20<span className="text-xs font-normal text-slate-400 font-sans">/mo</span></p>
         </div>
         <div>
           <span className="text-[11px] font-medium text-slate-400">Net Revenue Retention</span>
-          <p className="text-lg font-bold text-emerald-600">114.2%</p>
+          <p className="font-[family-name:var(--font-serif)] text-lg font-bold text-emerald-600">114.2%</p>
         </div>
         <div>
           <span className="text-[11px] font-medium text-slate-400">Gross Logo Churn</span>
-          <p className="text-lg font-bold text-slate-700">1.38%</p>
+          <p className="font-[family-name:var(--font-serif)] text-lg font-bold text-slate-700">1.38%</p>
         </div>
       </div>
 
@@ -109,19 +109,19 @@ export default function RevenueChart() {
       <div className="mt-4 flex items-center justify-between text-xs">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-sm bg-indigo-600" />
-            <span className="text-slate-600 font-medium">Billed Revenue</span>
+            <span className="h-2.5 w-2.5 rounded-sm bg-[#1c2530]" />
+            <span className="text-slate-600 font-medium text-[11px]">Billed Revenue</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-sm bg-blue-300" />
-            <span className="text-slate-600 font-medium">Monthly MRR Base</span>
+            <span className="h-2.5 w-2.5 rounded-sm bg-[#c9ab70]" />
+            <span className="text-slate-600 font-medium text-[11px]">Monthly MRR Base</span>
           </div>
         </div>
 
         {activePoint && (
           <div className="flex items-center gap-3 bg-slate-50 px-3 py-1 rounded-lg border border-slate-200/60">
             <span className="font-semibold text-slate-800">{activePoint.month}:</span>
-            <span className="font-bold text-indigo-600">${activePoint.revenue.toLocaleString()}</span>
+            <span className="font-bold text-[#1c2530]">${activePoint.revenue.toLocaleString()}</span>
             <span className="text-slate-400">•</span>
             <span className="text-slate-600 font-medium">{activePoint.newCustomers} new subs</span>
           </div>
@@ -173,16 +173,16 @@ export default function RevenueChart() {
                   {/* Outer Billed Revenue Bar */}
                   <div
                     style={{ height: `${heightPercent}%` }}
-                    className={`w-full rounded-t-lg transition-all duration-300 ${
+                    className={`w-full rounded-t-md transition-all duration-300 ${
                       isHovered
-                        ? 'bg-indigo-600 shadow-md shadow-indigo-200 ring-2 ring-indigo-400/50'
-                        : 'bg-indigo-500/90 hover:bg-indigo-600'
+                        ? 'bg-[#1c2530] shadow-md shadow-[#1c2530]/20 ring-2 ring-[#c9ab70]'
+                        : 'bg-[#1c2530]/85 hover:bg-[#1c2530]'
                     }`}
                   >
                     {/* Inner MRR indicator line/fill */}
                     <div
                       style={{ height: `${(mrrHeightPercent / heightPercent) * 100}%` }}
-                      className="w-full rounded-t-lg bg-indigo-700/30 border-t border-white/40"
+                      className="w-full rounded-t-md bg-[#c9ab70]/80 border-t border-white/40"
                     />
                   </div>
                 </div>
@@ -190,7 +190,7 @@ export default function RevenueChart() {
                 {/* X-Axis Month Label */}
                 <span
                   className={`absolute -bottom-6 text-xs font-medium transition-colors ${
-                    isHovered ? 'font-bold text-indigo-600' : 'text-slate-500'
+                    isHovered ? 'font-bold text-[#1c2530]' : 'text-slate-500'
                   }`}
                 >
                   {d.month}

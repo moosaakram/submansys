@@ -4,7 +4,7 @@ import { PLAN_DISTRIBUTION_DATA } from '@/data/mockData';
 
 export default function PlanDistributionCard() {
   return (
-    <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs flex flex-col justify-between">
+    <div className="card-surface p-6 flex flex-col justify-between">
       <div>
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
@@ -14,14 +14,14 @@ export default function PlanDistributionCard() {
               Customer distribution across active tiers
             </p>
           </div>
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-[#1c2530] border border-slate-200/80">
             <Layers className="h-4 w-4" />
           </div>
         </div>
 
         {/* Multi-segment Progress Bar */}
         <div className="mt-5">
-          <div className="flex h-3 w-full overflow-hidden rounded-full bg-slate-100">
+          <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-slate-100 border border-slate-200/60">
             {PLAN_DISTRIBUTION_DATA.map((plan) => (
               <div
                 key={plan.name}
@@ -63,7 +63,7 @@ export default function PlanDistributionCard() {
 
       {/* Footer */}
       <div className="mt-5 pt-3 border-t border-slate-100">
-        <button className="flex items-center justify-center gap-1.5 w-full py-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
+        <button className="flex items-center justify-center gap-1.5 w-full py-1 text-xs font-semibold text-[#1c2530] hover:text-[#c9ab70] transition-colors cursor-pointer">
           <span>Manage subscription tiers</span>
           <ArrowRight className="h-3.5 w-3.5" />
         </button>

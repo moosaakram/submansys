@@ -61,14 +61,15 @@ export default function DiscountRulesView() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
-            <Tag className="h-3.5 w-3.5" />
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
+            <Tag className="h-3 w-3" />
             <span>Scene 5: Admin Discount Rules Engine</span>
           </div>
-          <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+          <h2 className="mt-1 font-[family-name:var(--font-cinzel)] text-2xl font-bold tracking-tight text-slate-900">
             Discount Rules & Volume Incentives
           </h2>
-          <p className="text-xs text-slate-500">
+          <div className="title-accent-rule" />
+          <p className="mt-0.5 text-xs text-slate-500">
             Admin-only rule builder for fixed amounts, percentages, seat thresholds, and redemption caps.
           </p>
         </div>
@@ -77,13 +78,13 @@ export default function DiscountRulesView() {
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-indigo-700 transition-colors cursor-pointer"
+            className="btn-gold cursor-pointer"
           >
             <Plus className="h-4 w-4" />
             <span>Create Discount Rule</span>
           </button>
         ) : (
-          <div className="flex items-center gap-1.5 rounded-xl bg-slate-100 px-3 py-1.5 text-xs text-slate-500">
+          <div className="flex items-center gap-1.5 rounded-lg bg-slate-100 border border-slate-200 px-3 py-1.5 text-xs text-slate-500">
             <ShieldAlert className="h-4 w-4 text-slate-400" />
             <span>Admin-only privilege (Scene 5)</span>
           </div>
@@ -99,19 +100,15 @@ export default function DiscountRulesView() {
           return (
             <div
               key={rule.id}
-              className="flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:shadow-md transition-all"
+              className="card-surface p-5 flex flex-col justify-between hover:border-[#c9ab70]/40 hover:shadow-md transition-all"
             >
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="rounded-lg bg-indigo-100 font-mono font-bold text-xs text-indigo-800 px-2.5 py-1">
+                  <span className="rounded-md bg-[#1c2530] border border-[#c9ab70]/30 font-mono font-bold text-xs text-[#c9ab70] px-2.5 py-1">
                     {rule.code}
                   </span>
                   <span
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                      isExhausted
-                        ? 'bg-rose-100 text-rose-700'
-                        : 'bg-emerald-100 text-emerald-700'
-                    }`}
+                    className={isExhausted ? 'badge-danger' : 'badge-success'}
                   >
                     {isExhausted ? 'Exhausted / Inactive' : 'Active'}
                   </span>
@@ -120,7 +117,7 @@ export default function DiscountRulesView() {
                 <h3 className="mt-3 font-bold text-slate-900 text-base">{rule.name}</h3>
 
                 <div className="mt-3 flex items-baseline gap-1">
-                  <span className="text-2xl font-extrabold text-slate-900">
+                  <span className="font-[family-name:var(--font-serif)] text-2xl font-bold text-slate-900">
                     {rule.type === 'percentage' ? `${rule.value}%` : `$${rule.value.toFixed(2)}`}
                   </span>
                   <span className="text-xs text-slate-500">
@@ -129,7 +126,7 @@ export default function DiscountRulesView() {
                 </div>
 
                 {/* Constraints */}
-                <div className="mt-4 rounded-xl bg-slate-50 p-3 text-xs text-slate-600 space-y-1.5">
+                <div className="mt-4 rounded-lg bg-slate-50 border border-slate-100 p-3 text-xs text-slate-600 space-y-1.5">
                   <div className="flex justify-between">
                     <span className="text-slate-400">Min Seats / Qty:</span>
                     <span className="font-semibold text-slate-800">{rule.minQuantity || 1} units</span>
@@ -159,7 +156,7 @@ export default function DiscountRulesView() {
                   <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all ${
-                        isExhausted ? 'bg-rose-500' : 'bg-indigo-600'
+                        isExhausted ? 'bg-rose-500' : 'bg-[#c9ab70]'
                       }`}
                       style={{ width: `${usagePercent}%` }}
                     />
@@ -173,20 +170,20 @@ export default function DiscountRulesView() {
 
       {/* Modal: Create Discount Rule */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 overflow-y-auto">
-          <div className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-slate-200 my-8">
+        <div className="modal-backdrop">
+          <div className="modal-panel max-w-lg my-8">
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 rounded-lg p-1 cursor-pointer"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 rounded-lg p-1 cursor-pointer transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
 
             <div className="mb-4">
-              <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+              <span className="rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
                 Scene 5: Admin Rule Setup
               </span>
-              <h3 className="mt-2 text-xl font-bold text-slate-900">Add Discount Rule</h3>
+              <h3 className="mt-2 font-[family-name:var(--font-cinzel)] text-xl font-bold text-slate-900">Add Discount Rule</h3>
               <p className="text-xs text-slate-500">
                 Set minimum purchase requirements, validity dates, and auto-expiration limits.
               </p>
@@ -204,7 +201,7 @@ export default function DiscountRulesView() {
                     value={code}
                     onChange={(e) => setCode(e.target.value.toUpperCase())}
                     placeholder="e.g. SEATS20"
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-mono font-bold focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-mono font-bold focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                   />
                 </div>
                 <div>
@@ -217,7 +214,7 @@ export default function DiscountRulesView() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. Seat Volume Discount"
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                   />
                 </div>
               </div>
@@ -228,7 +225,7 @@ export default function DiscountRulesView() {
                   <select
                     value={type}
                     onChange={(e) => setType(e.target.value as DiscountType)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                   >
                     <option value="percentage">Percentage (%)</option>
                     <option value="fixed_amount">Fixed Amount ($)</option>
@@ -242,7 +239,7 @@ export default function DiscountRulesView() {
                     required
                     value={value}
                     onChange={(e) => setValue(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:outline-hidden font-bold"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden font-bold"
                   />
                 </div>
                 <div>
@@ -250,7 +247,7 @@ export default function DiscountRulesView() {
                   <select
                     value={scope}
                     onChange={(e) => setScope(e.target.value as DiscountScope)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                   >
                     <option value="entire_subscription">Whole Subscription</option>
                     <option value="specific_product">Specific Products</option>
@@ -269,7 +266,7 @@ export default function DiscountRulesView() {
                     required
                     value={minQuantity}
                     onChange={(e) => setMinQuantity(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-1.5 text-xs focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs focus:border-[#c9ab70] focus:outline-hidden"
                   />
                 </div>
                 <div>
@@ -282,7 +279,7 @@ export default function DiscountRulesView() {
                     required
                     value={maxUsageCount}
                     onChange={(e) => setMaxUsageCount(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-1.5 text-xs focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs focus:border-[#c9ab70] focus:outline-hidden"
                   />
                 </div>
               </div>
@@ -295,7 +292,7 @@ export default function DiscountRulesView() {
                     required
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-1.5 text-xs focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs focus:border-[#c9ab70] focus:outline-hidden"
                   />
                 </div>
                 <div>
@@ -304,7 +301,7 @@ export default function DiscountRulesView() {
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-1.5 text-xs focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs focus:border-[#c9ab70] focus:outline-hidden"
                   />
                 </div>
               </div>
@@ -313,13 +310,13 @@ export default function DiscountRulesView() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                  className="btn-light-secondary cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 shadow-xs cursor-pointer"
+                  className="btn-gold cursor-pointer"
                 >
                   Save Discount Rule
                 </button>

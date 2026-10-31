@@ -121,43 +121,44 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   };
 
   return (
-    <div className={`w-full ${className}`}>
+    <div className={`w-full card-surface p-8 shadow-xl ${className}`}>
       {/* Brand Header */}
       <div className="mb-6 text-center">
-        <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-200">
+        <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[#1c2530] text-[#c9ab70] border border-[#c9ab70]/30 shadow-md">
           <ShieldCheck className="h-6 w-6" />
         </div>
-        <h2 className="mt-3 text-xl font-bold tracking-tight text-slate-900">
+        <h2 className="mt-3 font-[family-name:var(--font-cinzel)] text-2xl font-bold tracking-tight text-slate-900">
           Sign In to Brightloop 360
         </h2>
+        <div className="title-accent-rule mx-auto" />
         <p className="mt-1 text-xs text-slate-500">
           Enterprise Subscription & Lifecycle Management Hub
         </p>
       </div>
 
       {/* Demo Persona Quick-Switch Panel for Evaluators/Judges */}
-      <div className="mb-6 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-3.5 text-xs text-indigo-900">
+      <div className="mb-6 rounded-xl border border-slate-200 bg-slate-50/80 p-3.5 text-xs text-slate-700">
         <div className="flex items-center justify-between mb-2">
-          <span className="font-bold flex items-center gap-1.5 text-indigo-950">
-            <UserCheck className="h-3.5 w-3.5 text-indigo-600" />
+          <span className="font-bold flex items-center gap-1.5 text-slate-900">
+            <UserCheck className="h-3.5 w-3.5 text-[#c9ab70]" />
             <span>Hackathon Quick-Login:</span>
           </span>
-          <span className="text-[10px] bg-indigo-200/60 text-indigo-800 px-1.5 py-0.5 rounded font-medium">
+          <span className="text-[10px] bg-[#1c2530] text-[#c9ab70] px-1.5 py-0.5 rounded font-medium border border-[#c9ab70]/30">
             Scene 1 Personas
           </span>
         </div>
-        <p className="text-[11px] text-indigo-700 mb-2.5">
+        <p className="text-[11px] text-slate-500 mb-2.5">
           Select any persona to immediately experience their role-based view and permissions:
         </p>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           <button
             type="button"
             onClick={() => handleDemoLogin('user-admin-1')}
-            className="flex flex-col items-start rounded-xl border border-indigo-200 bg-white p-2.5 text-left shadow-2xs hover:border-indigo-400 hover:bg-indigo-50/50 transition-all cursor-pointer"
+            className="flex flex-col items-start rounded-lg border border-slate-200 bg-white p-2.5 text-left shadow-2xs hover:border-[#c9ab70]/60 hover:bg-[#c9ab70]/5 transition-all cursor-pointer"
           >
             <div className="flex items-center gap-1.5">
               <span className="font-semibold text-slate-900 text-xs">Alex Mercer</span>
-              <span className="rounded bg-rose-100 px-1 py-0.2 text-[9px] font-bold text-rose-700">
+              <span className="badge-danger text-[9px] px-1 py-0.2">
                 Admin
               </span>
             </div>
@@ -167,11 +168,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           <button
             type="button"
             onClick={() => handleDemoLogin('user-staff-1')}
-            className="flex flex-col items-start rounded-xl border border-indigo-200 bg-white p-2.5 text-left shadow-2xs hover:border-indigo-400 hover:bg-indigo-50/50 transition-all cursor-pointer"
+            className="flex flex-col items-start rounded-lg border border-slate-200 bg-white p-2.5 text-left shadow-2xs hover:border-[#c9ab70]/60 hover:bg-[#c9ab70]/5 transition-all cursor-pointer"
           >
             <div className="flex items-center gap-1.5">
               <span className="font-semibold text-slate-900 text-xs">Marcus Vance</span>
-              <span className="rounded bg-amber-100 px-1 py-0.2 text-[9px] font-bold text-amber-700">
+              <span className="badge-warning text-[9px] px-1 py-0.2">
                 Staff
               </span>
             </div>
@@ -181,11 +182,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           <button
             type="button"
             onClick={() => handleDemoLogin('user-cust-1')}
-            className="flex flex-col items-start rounded-xl border border-indigo-200 bg-white p-2.5 text-left shadow-2xs hover:border-indigo-400 hover:bg-indigo-50/50 transition-all cursor-pointer"
+            className="flex flex-col items-start rounded-lg border border-slate-200 bg-white p-2.5 text-left shadow-2xs hover:border-[#c9ab70]/60 hover:bg-[#c9ab70]/5 transition-all cursor-pointer"
           >
             <div className="flex items-center gap-1.5">
               <span className="font-semibold text-slate-900 text-xs">Sarah Jenkins</span>
-              <span className="rounded bg-emerald-100 px-1 py-0.2 text-[9px] font-bold text-emerald-700">
+              <span className="badge-success text-[9px] px-1 py-0.2">
                 Customer
               </span>
             </div>
@@ -196,10 +197,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
       {statusMessage.type !== 'idle' && (
         <div
-          className={`mb-4 flex items-center gap-2 rounded-xl p-3 text-xs border ${
+          className={`mb-4 flex items-center gap-2 rounded-lg p-3 text-xs border ${
             statusMessage.type === 'error'
-              ? 'bg-rose-50 text-rose-700 border-rose-200'
-              : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+              ? 'badge-danger'
+              : 'badge-success'
           }`}
         >
           {statusMessage.type === 'error' ? (
@@ -225,7 +226,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               value={formData.email}
               onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
               placeholder="alex.mercer@brightloop.io"
-              className="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-2 text-xs focus:border-indigo-600 focus:outline-hidden"
+              className="w-full rounded-lg border border-slate-200 pl-9 pr-3 py-2 text-xs text-slate-900 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
             />
           </div>
           {fieldErrors.email && (
@@ -242,7 +243,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 if (onForgotPasswordClick) onForgotPasswordClick();
                 else setIsForgotOpen(true);
               }}
-              className="text-xs font-medium text-indigo-600 hover:text-indigo-800 cursor-pointer"
+              className="text-xs font-medium text-[#1c2530] hover:text-[#c9ab70] cursor-pointer transition-colors"
             >
               Forgot password?
             </button>
@@ -255,7 +256,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               value={formData.password}
               onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
               placeholder="••••••••••••"
-              className="w-full rounded-xl border border-slate-200 pl-9 pr-10 py-2 text-xs focus:border-indigo-600 focus:outline-hidden"
+              className="w-full rounded-lg border border-slate-200 pl-9 pr-10 py-2 text-xs text-slate-900 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
             />
             <button
               type="button"
@@ -278,7 +279,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, rememberMe: e.target.checked }))
               }
-              className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+              className="rounded border-slate-300 text-[#1c2530] focus:ring-[#c9ab70]"
             />
             <span>Remember for 30 days</span>
           </label>
@@ -287,7 +288,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         <button
           type="submit"
           disabled={isLoading}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-indigo-700 transition-colors disabled:opacity-50 cursor-pointer"
+          className="btn-gold w-full cursor-pointer"
         >
           {isLoading ? (
             <>
@@ -312,7 +313,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             if (onSignUpClick) onSignUpClick();
             else setIsSignupOpen(true);
           }}
-          className="font-semibold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
+          className="font-semibold text-[#1c2530] hover:text-[#c9ab70] underline cursor-pointer transition-colors"
         >
           Create an account with password rules
         </button>
