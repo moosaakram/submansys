@@ -59,14 +59,15 @@ export default function CustomersView({ onSelectCustomerForQuote }: { onSelectCu
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
-            <Users className="h-3.5 w-3.5" />
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
+            <Users className="h-3 w-3" />
             <span>Customer Accounts Directory</span>
           </div>
-          <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+          <h2 className="mt-1 font-[family-name:var(--font-cinzel)] text-2xl font-bold tracking-tight text-slate-900">
             Client Accounts & Organizations
           </h2>
-          <p className="text-xs text-slate-500">
+          <div className="title-accent-rule" />
+          <p className="mt-0.5 text-xs text-slate-500">
             Manage subscribed organizations, contacts, and historical contract values.
           </p>
         </div>
@@ -74,7 +75,7 @@ export default function CustomersView({ onSelectCustomerForQuote }: { onSelectCu
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-indigo-700 transition-colors cursor-pointer"
+          className="btn-gold cursor-pointer"
         >
           <Plus className="h-4 w-4" />
           <span>Add Customer Account</span>
@@ -90,7 +91,7 @@ export default function CustomersView({ onSelectCustomerForQuote }: { onSelectCu
             placeholder="Search customer, organization, email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-1.5 text-xs bg-white focus:outline-hidden"
+            className="w-full rounded-lg border border-slate-200 pl-9 pr-3 py-1.5 text-xs bg-white text-slate-900 focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
           />
         </div>
         <span className="text-xs text-slate-400">{filteredCustomers.length} registered accounts</span>
@@ -107,12 +108,12 @@ export default function CustomersView({ onSelectCustomerForQuote }: { onSelectCu
           return (
             <div
               key={cust.id}
-              className="flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:shadow-md transition-all"
+              className="card-surface p-5 flex flex-col justify-between hover:border-[#c9ab70]/40 hover:shadow-md transition-all"
             >
               <div>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-700 to-indigo-500 text-white font-bold flex items-center justify-center text-xs shadow-xs">
+                    <div className="h-10 w-10 rounded-lg bg-[#1c2530] border border-[#c9ab70]/30 text-[#c9ab70] font-bold flex items-center justify-center text-xs shadow-xs">
                       {cust.fullName
                         .split(' ')
                         .map((p) => p[0])
@@ -128,7 +129,7 @@ export default function CustomersView({ onSelectCustomerForQuote }: { onSelectCu
                       </div>
                     </div>
                   </div>
-                  <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-bold text-indigo-700">
+                  <span className="rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2 py-0.5 text-[10px] font-semibold text-[#c9ab70]">
                     {activeCount} Active Sub{activeCount !== 1 ? 's' : ''}
                   </span>
                 </div>
@@ -153,14 +154,14 @@ export default function CustomersView({ onSelectCustomerForQuote }: { onSelectCu
                 <div className="mt-4 border-t border-slate-100 pt-3 flex items-center justify-between text-xs">
                   <div>
                     <span className="text-[10px] text-slate-400 block">Total Lifetime Value</span>
-                    <span className="font-extrabold text-slate-900 text-sm">
+                    <span className="font-[family-name:var(--font-serif)] font-bold text-slate-900 text-sm">
                       ${totalPaid.toFixed(2)}
                     </span>
                   </div>
                   {onSelectCustomerForQuote && (
                     <button
                       onClick={() => onSelectCustomerForQuote(cust.id)}
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 cursor-pointer"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#1c2530] hover:text-[#c9ab70] cursor-pointer transition-colors"
                     >
                       <span>New Quote</span>
                       <ArrowRight className="h-3 w-3" />
@@ -175,20 +176,20 @@ export default function CustomersView({ onSelectCustomerForQuote }: { onSelectCu
 
       {/* Modal: Add Customer */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-          <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-slate-200">
+        <div className="modal-backdrop">
+          <div className="modal-panel max-w-md">
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 rounded-lg p-1 cursor-pointer"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 rounded-lg p-1 cursor-pointer transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
 
             <div className="mb-4">
-              <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+              <span className="rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
                 New Client Account
               </span>
-              <h3 className="mt-2 text-xl font-bold text-slate-900">Add Customer Organization</h3>
+              <h3 className="mt-2 font-[family-name:var(--font-cinzel)] text-xl font-bold text-slate-900">Add Customer Organization</h3>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -202,7 +203,7 @@ export default function CustomersView({ onSelectCustomerForQuote }: { onSelectCu
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="e.g. Thomas Wayne"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:outline-hidden"
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                 />
               </div>
 
@@ -216,7 +217,7 @@ export default function CustomersView({ onSelectCustomerForQuote }: { onSelectCu
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="thomas@wayne-enterprises.com"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:outline-hidden"
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                 />
               </div>
 
@@ -229,7 +230,7 @@ export default function CustomersView({ onSelectCustomerForQuote }: { onSelectCu
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
                   placeholder="Wayne Enterprises"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:outline-hidden"
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                 />
               </div>
 
@@ -241,7 +242,7 @@ export default function CustomersView({ onSelectCustomerForQuote }: { onSelectCu
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+1 555-0192"
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                   />
                 </div>
                 <div>
@@ -251,7 +252,7 @@ export default function CustomersView({ onSelectCustomerForQuote }: { onSelectCu
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     placeholder="New York, NY"
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs focus:outline-hidden"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
                   />
                 </div>
               </div>
@@ -260,13 +261,13 @@ export default function CustomersView({ onSelectCustomerForQuote }: { onSelectCu
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                  className="btn-light-secondary cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 shadow-xs cursor-pointer"
+                  className="btn-gold cursor-pointer"
                 >
                   Create Account
                 </button>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useId } from "react";
+import { useSubscription } from "@/context/SubscriptionContext";
 import {
   Mail,
   Loader2,
@@ -9,7 +10,7 @@ import {
   ArrowLeft,
   ArrowRight,
   ShieldCheck,
-  RefreshCw,
+  KeyRound,
 } from "lucide-react";
 
 export interface ForgotPasswordFormProps {
@@ -23,6 +24,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   onBackToSignIn,
   className = "",
 }) => {
+  const { resetPassword } = useSubscription();
   const emailId = useId();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -50,8 +52,10 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       if (onSubmit) {
         await onSubmit(trimmed);
       } else {
-        // Simulated password reset link dispatch
-        await new Promise((res) => setTimeout(res, 1000));
+        const resetRes = await resetPassword(trimmed);
+        if (!resetRes.success) {
+          throw new Error(resetRes.message);
+        }
       }
       setIsSubmitted(true);
     } catch (err: unknown) {
@@ -67,41 +71,42 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
 
   return (
     <div
-      className={`w-full max-w-md mx-auto p-6 sm:p-8 bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-900/5 dark:shadow-indigo-950/20 border border-slate-200 dark:border-slate-800 transition-all ${className}`}
+      className={`w-full max-w-md mx-auto p-6 sm:p-8 card-surface ${className}`}
     >
       {/* Brand Header */}
       <div className="flex flex-col items-center text-center mb-6">
-        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md shadow-indigo-500/25 mb-3 ring-4 ring-indigo-50 dark:ring-indigo-950/50">
-          <RefreshCw className="w-6 h-6 animate-[spin_12s_linear_infinite]" />
+        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-[#171f28] to-[#212c37] border border-[#c9ab70]/30 text-[#c9ab70] shadow-md shadow-slate-900/10 mb-3">
+          <KeyRound className="w-6 h-6 text-[#c9ab70]" />
         </div>
         <div className="flex items-center gap-1.5 mb-1">
-          <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Brightloop
+          <span className="font-[family-name:var(--font-cinzel)] text-xl font-bold tracking-tight text-slate-900">
+            SUBMANSYS
           </span>
-          <span className="text-xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            360
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#1c2530] text-[#c9ab70] tracking-wider uppercase border border-[#c9ab70]/20">
+            RECOVERY
           </span>
         </div>
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+        <h1 className="text-2xl font-bold text-slate-900 tracking-tight font-[family-name:var(--font-cinzel)] mt-1">
           Reset Your Password
         </h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+        <div className="title-accent-rule mt-2 mb-2" />
+        <p className="text-xs text-slate-500 mt-1">
           Enter your registered email address and we will dispatch a secure password reset link
         </p>
       </div>
 
       {isSubmitted ? (
         <div className="text-center space-y-5 py-4">
-          <div className="w-14 h-14 mx-auto rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+          <div className="w-14 h-14 mx-auto rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
             <CheckCircle2 className="w-7 h-7" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+            <h2 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-cinzel)]">
               Reset Link Dispatched
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
               We have dispatched a confidential password reset link to{" "}
-              <span className="font-semibold text-slate-700 dark:text-slate-200">
+              <span className="font-semibold text-slate-800">
                 {email}
               </span>
               . The link will remain active for 30 minutes.
@@ -113,7 +118,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
               <button
                 type="button"
                 onClick={onBackToSignIn}
-                className="w-full py-2.5 px-4 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"
+                className="btn-light-secondary w-full py-2.5 px-4 text-xs font-semibold flex items-center justify-center gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>Return to Sign In</span>
@@ -121,7 +126,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
             ) : (
               <a
                 href="/login"
-                className="w-full inline-flex py-2.5 px-4 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors items-center justify-center gap-2"
+                className="btn-light-secondary w-full inline-flex py-2.5 px-4 text-xs font-semibold items-center justify-center gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>Return to Sign In</span>
@@ -134,7 +139,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
           {error && (
             <div
               role="alert"
-              className="p-3.5 rounded-xl text-xs bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300 flex items-center gap-2 font-medium"
+              className="p-3.5 rounded-xl text-xs badge-danger text-rose-800 flex items-center gap-2 font-medium"
             >
               <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600" />
               <span>{error}</span>
@@ -144,7 +149,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
           <div>
             <label
               htmlFor={emailId}
-              className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
+              className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5"
             >
               Registered Business Email
             </label>
@@ -162,7 +167,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
                   if (error) setError(null);
                 }}
                 placeholder="name@company.com"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                className="input-standard pl-10"
               />
             </div>
           </div>
@@ -170,11 +175,11 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 px-4 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-700 hover:via-indigo-700 hover:to-indigo-800 shadow-lg shadow-indigo-500/25 active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-65"
+            className="btn-gold w-full py-3 text-sm font-semibold flex items-center justify-center gap-2"
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin text-white" />
+                <Loader2 className="w-4 h-4 animate-spin text-slate-900" />
                 <span>Sending Reset Link...</span>
               </>
             ) : (
@@ -190,7 +195,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
               <button
                 type="button"
                 onClick={onBackToSignIn}
-                className="text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors inline-flex items-center gap-1.5"
+                className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors inline-flex items-center gap-1.5"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Remember your credentials? Sign In</span>
@@ -198,7 +203,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
             ) : (
               <a
                 href="/login"
-                className="text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors inline-flex items-center gap-1.5"
+                className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors inline-flex items-center gap-1.5"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Remember your credentials? Sign In</span>
@@ -209,8 +214,8 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       )}
 
       {/* Security Seal */}
-      <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-500">
-        <ShieldCheck className="w-3.5 h-3.5 text-indigo-500" />
+      <div className="mt-6 pt-4 border-t border-slate-200 flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
+        <ShieldCheck className="w-3.5 h-3.5 text-[#c9ab70]" />
         <span>Cryptographically Signed One-Time Reset Tokens</span>
       </div>
     </div>
@@ -218,4 +223,3 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
 };
 
 export default ForgotPasswordForm;
-

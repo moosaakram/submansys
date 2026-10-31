@@ -79,14 +79,15 @@ export default function FinanceAnalyticsView() {
       {/* Header Bar */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#1c2530] border border-[#c9ab70]/30 px-2.5 py-0.5 text-[11px] font-semibold text-[#c9ab70]">
             <BarChart3 className="h-3.5 w-3.5" />
             <span>Scene 7: Finance Lead End-of-Month Review (&lt; 2s Latency)</span>
           </div>
-          <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+          <h2 className="mt-1 font-[family-name:var(--font-cinzel)] text-2xl font-bold tracking-tight text-slate-900">
             Financial Health & Revenue Intelligence
           </h2>
-          <p className="text-xs text-slate-500">
+          <div className="title-accent-rule" />
+          <p className="mt-0.5 text-xs text-slate-500">
             Active subscriptions, collected revenue, pending collections, and overdue receivables in one unified console.
           </p>
         </div>
@@ -94,7 +95,7 @@ export default function FinanceAnalyticsView() {
         <button
           type="button"
           onClick={handleExportCSV}
-          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 transition-colors cursor-pointer"
+          className="btn-light-secondary cursor-pointer"
         >
           <Download className="h-4 w-4 text-slate-500" />
           <span>Export Financial CSV</span>
@@ -103,25 +104,29 @@ export default function FinanceAnalyticsView() {
 
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-2xs">
+        <div className="card-surface p-5 hover:border-[#c9ab70]/40 transition-all">
           <div className="flex items-center justify-between text-xs text-slate-400">
             <span className="font-semibold uppercase tracking-wider">Active Subscriptions</span>
-            <Repeat className="h-4 w-4 text-indigo-600" />
+            <div className="h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center text-[#1c2530]">
+              <Repeat className="h-4 w-4" />
+            </div>
           </div>
-          <div className="mt-2 text-3xl font-extrabold text-slate-900">
+          <div className="mt-2 font-[family-name:var(--font-serif)] text-3xl font-bold text-slate-900">
             {analytics.activeSubscriptionsCount}
           </div>
-          <div className="mt-1 text-[11px] text-emerald-600 font-medium">
+          <div className="mt-1 text-[11px] text-emerald-700 font-medium">
             100% synchronized live
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-2xs">
+        <div className="card-surface p-5 hover:border-[#c9ab70]/40 transition-all">
           <div className="flex items-center justify-between text-xs text-slate-400">
             <span className="font-semibold uppercase tracking-wider">MRR (Normalized)</span>
-            <TrendingUp className="h-4 w-4 text-emerald-600" />
+            <div className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-700">
+              <TrendingUp className="h-4 w-4" />
+            </div>
           </div>
-          <div className="mt-2 text-3xl font-extrabold text-slate-900">
+          <div className="mt-2 font-[family-name:var(--font-serif)] text-3xl font-bold text-slate-900">
             ${analytics.mrr.toLocaleString()}
           </div>
           <div className="mt-1 text-[11px] text-slate-500">
@@ -129,12 +134,14 @@ export default function FinanceAnalyticsView() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-2xs">
+        <div className="card-surface p-5 hover:border-[#c9ab70]/40 transition-all">
           <div className="flex items-center justify-between text-xs text-slate-400">
             <span className="font-semibold uppercase tracking-wider">Revenue Collected</span>
-            <DollarSign className="h-4 w-4 text-emerald-600" />
+            <div className="h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center text-[#c9ab70]">
+              <DollarSign className="h-4 w-4" />
+            </div>
           </div>
-          <div className="mt-2 text-3xl font-extrabold text-emerald-600">
+          <div className="mt-2 font-[family-name:var(--font-serif)] text-3xl font-bold text-emerald-700">
             ${analytics.totalRevenueCollected.toLocaleString()}
           </div>
           <div className="mt-1 text-[11px] text-slate-500">
@@ -142,12 +149,12 @@ export default function FinanceAnalyticsView() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-rose-200 bg-rose-50/70 p-5 shadow-2xs">
+        <div className="card-surface p-5 border-rose-200/90 bg-rose-50/20">
           <div className="flex items-center justify-between text-xs text-rose-700 font-semibold">
             <span className="uppercase tracking-wider">Overdue Receivables</span>
             <AlertTriangle className="h-4 w-4 text-rose-600" />
           </div>
-          <div className="mt-2 text-3xl font-extrabold text-rose-700">
+          <div className="mt-2 font-[family-name:var(--font-serif)] text-3xl font-bold text-rose-700">
             ${analytics.overdueAmount.toLocaleString()}
           </div>
           <div className="mt-1 text-[11px] text-rose-600 font-medium">
@@ -157,7 +164,7 @@ export default function FinanceAnalyticsView() {
       </div>
 
       {/* Filter Toolbar */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-2xs">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between card-surface p-3.5">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
           <input
@@ -165,7 +172,7 @@ export default function FinanceAnalyticsView() {
             placeholder="Search subscriptions, customer accounts, numbers..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-1.5 text-xs focus:outline-hidden"
+            className="w-full rounded-lg border border-slate-200 pl-9 pr-3 py-1.5 text-xs text-slate-900 bg-white focus:border-[#c9ab70] focus:ring-1 focus:ring-[#c9ab70] focus:outline-hidden"
           />
         </div>
 
@@ -174,7 +181,7 @@ export default function FinanceAnalyticsView() {
           <select
             value={selectedCycle}
             onChange={(e) => setSelectedCycle(e.target.value)}
-            className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs text-slate-700 focus:outline-hidden"
+            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-700 focus:border-[#c9ab70] focus:outline-hidden"
           >
             <option value="all">All Cycles</option>
             <option value="daily">Daily</option>
@@ -187,7 +194,7 @@ export default function FinanceAnalyticsView() {
           <select
             value={selectedCustomer}
             onChange={(e) => setSelectedCustomer(e.target.value)}
-            className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs text-slate-700 focus:outline-hidden max-w-44 truncate"
+            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-700 focus:border-[#c9ab70] focus:outline-hidden max-w-44 truncate"
           >
             <option value="all">All Accounts</option>
             {customers.map((c) => (
@@ -200,7 +207,7 @@ export default function FinanceAnalyticsView() {
       </div>
 
       {/* Financial Table */}
-      <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-2xs">
+      <div className="table-container">
         <div className="border-b border-slate-100 bg-slate-50/50 px-5 py-3 flex items-center justify-between">
           <span className="text-xs font-bold text-slate-900">
             Subscription Ledger ({filteredSubs.length} records)
@@ -210,8 +217,8 @@ export default function FinanceAnalyticsView() {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="border-b border-slate-100 bg-slate-50/75 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-              <tr>
+            <thead>
+              <tr className="table-header">
                 <th className="px-5 py-3">Subscription #</th>
                 <th className="px-5 py-3">Customer</th>
                 <th className="px-5 py-3">Plan</th>
@@ -222,15 +229,15 @@ export default function FinanceAnalyticsView() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filteredSubs.map((s) => (
-                <tr key={s.id} className="hover:bg-slate-50/60 transition-colors">
-                  <td className="px-5 py-3 font-bold text-indigo-600">{s.subscriptionNumber}</td>
+                <tr key={s.id} className="table-row">
+                  <td className="px-5 py-3 font-mono font-semibold text-[#1c2530]">{s.subscriptionNumber}</td>
                   <td className="px-5 py-3 font-medium text-slate-900">{s.customerName}</td>
                   <td className="px-5 py-3 text-slate-700">{s.planName}</td>
                   <td className="px-5 py-3 capitalize text-slate-500">{s.billingCycle}</td>
                   <td className="px-5 py-3">
                     <span className="capitalize font-semibold text-slate-700">{s.status}</span>
                   </td>
-                  <td className="px-5 py-3 text-right font-bold text-slate-900">
+                  <td className="px-5 py-3 text-right font-[family-name:var(--font-serif)] font-bold text-slate-900 text-sm">
                     ${s.totalAmount.toFixed(2)}
                   </td>
                 </tr>

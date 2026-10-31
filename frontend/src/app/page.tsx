@@ -40,8 +40,8 @@ export default function DashboardPage() {
   const activeNav = ALL_NAV_ITEMS.find((item) => item.id === currentTab);
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-900">
-      {/* Sidebar (Desktop fixed + Mobile drawer) */}
+    <div className="flex min-h-screen bg-[#F7F8FA] text-[#1F2937]">
+      {/* Sidebar: Deep Obsidian with Radial Depth Gradient */}
       <Sidebar
         currentTab={currentTab}
         onTabChange={(tabId) => setCurrentTab(tabId)}
@@ -50,7 +50,7 @@ export default function DashboardPage() {
       />
 
       {/* Main Content Area */}
-      <div className="flex flex-1 flex-col overflow-hidden min-w-0">
+      <div className="flex flex-1 flex-col overflow-hidden min-w-0 relative">
         {/* Top Navbar */}
         <TopNavbar
           onOpenMobileMenu={() => setIsMobileOpen(true)}
@@ -59,45 +59,49 @@ export default function DashboardPage() {
         />
 
         {/* Dashboard Scrollable Body */}
-        <main className="flex-1 overflow-y-auto px-4 py-6 sm:px-8 sm:py-8">
-          <div className="mx-auto max-w-7xl space-y-6">
+        <main className="flex-1 overflow-y-auto px-4 py-6 sm:px-8 sm:py-8 relative">
+          {/* Mandatory Atmospheric Fog Transition from UI_DESIGN_SYSTEM.md Sec 3 */}
+          <div className="atmospheric-backdrop" aria-hidden="true" />
+
+          <div className="relative z-1 mx-auto max-w-7xl space-y-6">
             {/* Quick Action Bar for Overview Dashboard */}
             {currentTab === 'dashboard' && (
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-indigo-600">
-                    <span>Brightloop 360</span>
-                    <ChevronRight className="h-3 w-3 text-slate-400" />
-                    <span className="text-slate-500 capitalize">{currentUser.role} Console</span>
+                  <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.08em] text-white/70">
+                    <span className="text-[#c9ab70]">Brightloop 360</span>
+                    <ChevronRight className="h-3 w-3 text-white/40" />
+                    <span className="text-white/80 capitalize">{currentUser.role} Console</span>
                   </div>
-                  <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                  <h1 className="mt-1 font-[family-name:var(--font-cinzel)] text-2xl font-bold tracking-tight text-white sm:text-3xl">
                     {currentUser.role === 'customer'
                       ? 'Subscriber Portal & Overview'
                       : 'Subscription Overview'}
                   </h1>
-                  <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+                  <div className="title-accent-rule" />
+                  <p className="mt-0.5 text-xs text-white/70 sm:text-sm">
                     {currentUser.role === 'customer'
                       ? `Welcome, ${currentUser.name}. Manage your recurring licenses and invoice receipts.`
                       : 'Monitor customer growth, MRR trends, and recurring billing operations in real-time.'}
                   </p>
                 </div>
 
-                {/* Action Buttons */}
+                {/* Action Buttons with Gold / Dark Styling */}
                 {currentUser.role !== 'customer' && (
                   <div className="flex flex-wrap items-center gap-2.5">
                     <button
                       type="button"
                       onClick={() => runBillingDay()}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-3.5 py-2 text-xs font-bold text-indigo-700 shadow-2xs transition-colors hover:bg-indigo-100 cursor-pointer"
+                      className="btn-gold cursor-pointer"
                     >
-                      <Zap className="h-4 w-4 text-amber-500" />
+                      <Zap className="h-4 w-4" />
                       <span>⚡ Run Billing Day</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setCurrentTab('invoices')}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition-colors hover:bg-slate-50 hover:text-slate-900 cursor-pointer"
+                      className="btn-light-secondary cursor-pointer"
                     >
                       <FilePlus className="h-4 w-4 text-slate-500" />
                       <span>Invoices</span>
@@ -106,9 +110,9 @@ export default function DashboardPage() {
                     <button
                       type="button"
                       onClick={() => setCurrentTab('subscriptions')}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-indigo-700 cursor-pointer"
+                      className="btn-dark cursor-pointer"
                     >
-                      <Plus className="h-4 w-4" />
+                      <Plus className="h-4 w-4 text-[#c9ab70]" />
                       <span>New Quote / Sub</span>
                     </button>
                   </div>

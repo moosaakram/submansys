@@ -19,14 +19,14 @@ export default function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordM
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !email.includes('@')) {
       setStatus({ type: 'error', message: 'Please enter a valid email address.' });
       return;
     }
 
-    const res = resetPassword(email);
+    const res = await resetPassword(email);
     if (res.success) {
       setStatus({
         type: 'success',
@@ -42,43 +42,46 @@ export default function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordM
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-      <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-slate-200">
+    <div className="modal-backdrop">
+      <div className="modal-panel max-w-md">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 rounded-lg p-1"
+          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors"
         >
           <X className="h-5 w-5" />
         </button>
 
         <div className="mb-4">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#1c2530] text-[#c9ab70] px-2.5 py-1 text-xs font-semibold border border-[#c9ab70]/20">
             <KeyRound className="h-3.5 w-3.5" />
-            <span>Scene 1: Password Recovery</span>
+            <span>Password Recovery</span>
           </div>
-          <h2 className="mt-2 text-xl font-bold text-slate-900">Reset Your Password</h2>
+          <h2 className="mt-2 text-xl font-bold text-slate-900 font-[family-name:var(--font-cinzel)]">
+            Reset Your Password
+          </h2>
+          <div className="title-accent-rule mt-2 mb-2" />
           <p className="text-xs text-slate-500">
             Enter your registered account email to receive a secure one-time reset link.
           </p>
         </div>
 
         {status.type === 'error' && (
-          <div className="mb-4 flex items-center gap-2 rounded-xl bg-rose-50 p-3 text-xs text-rose-700 border border-rose-100">
-            <AlertCircle className="h-4 w-4 shrink-0" />
+          <div className="mb-4 flex items-center gap-2 rounded-xl badge-danger p-3 text-xs text-rose-700">
+            <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
             <span>{status.message}</span>
           </div>
         )}
 
         {status.type === 'success' && (
-          <div className="mb-4 flex items-center gap-2 rounded-xl bg-emerald-50 p-3 text-xs text-emerald-700 border border-emerald-100">
-            <CheckCircle2 className="h-4 w-4 shrink-0" />
+          <div className="mb-4 flex items-center gap-2 rounded-xl badge-success p-3 text-xs text-emerald-700">
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
             <span>{status.message}</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
               Registered Email
             </label>
             <div className="relative">
@@ -89,7 +92,7 @@ export default function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordM
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="sarah.j@acmetech.io"
-                className="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-2 text-xs focus:border-indigo-600 focus:outline-hidden"
+                className="input-standard pl-9 text-xs"
               />
             </div>
           </div>
@@ -98,15 +101,15 @@ export default function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordM
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+              className="btn-light-secondary text-xs"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 shadow-xs"
+              className="btn-gold text-xs"
             >
-              Send Reset Link
+              Dispatch Link
             </button>
           </div>
         </form>
@@ -114,4 +117,3 @@ export default function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordM
     </div>
   );
 }
-

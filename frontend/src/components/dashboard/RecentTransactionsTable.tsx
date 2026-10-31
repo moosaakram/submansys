@@ -18,30 +18,26 @@ interface RecentTransactionsTableProps {
 
 const STATUS_CONFIG: Record<
   string,
-  { label: string; bg: string; text: string; icon: React.ComponentType<{ className?: string }> }
+  { label: string; badgeClass: string; icon: React.ComponentType<{ className?: string }> }
 > = {
   paid: {
     label: 'Paid',
-    bg: 'bg-emerald-50 border-emerald-200/80',
-    text: 'text-emerald-700',
+    badgeClass: 'badge-success',
     icon: CheckCircle,
   },
   confirmed: {
     label: 'Unpaid / Due',
-    bg: 'bg-amber-50 border-amber-200/80',
-    text: 'text-amber-700',
+    badgeClass: 'badge-warning',
     icon: Clock,
   },
   draft: {
     label: 'Draft',
-    bg: 'bg-slate-100 border-slate-200',
-    text: 'text-slate-700',
+    badgeClass: 'badge-neutral',
     icon: RefreshCw,
   },
   cancelled: {
     label: 'Cancelled',
-    bg: 'bg-rose-50 border-rose-200/80',
-    text: 'text-rose-700',
+    badgeClass: 'badge-danger',
     icon: XCircle,
   },
 };
@@ -69,7 +65,7 @@ export default function RecentTransactionsTable({ externalFilter }: RecentTransa
   });
 
   return (
-    <div className="rounded-2xl border border-slate-200/90 bg-white shadow-xs">
+    <div className="table-container">
       {/* Header and Filter Tabs */}
       <div className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100">
         <div>
@@ -87,8 +83,8 @@ export default function RecentTransactionsTable({ externalFilter }: RecentTransa
               onClick={() => setSelectedStatus(status)}
               className={`rounded-lg px-3 py-1.5 text-xs font-semibold capitalize transition-all cursor-pointer ${
                 selectedStatus === status
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70 hover:text-slate-900'
+                  ? 'bg-[#1c2530] text-[#c9ab70] border border-[#c9ab70]/30 shadow-xs'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70 hover:text-slate-900 border border-slate-200/50'
               }`}
             >
               {status === 'confirmed' ? 'Pending' : status}
@@ -101,7 +97,7 @@ export default function RecentTransactionsTable({ externalFilter }: RecentTransa
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-slate-100 bg-slate-50/75 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+            <tr className="table-header">
               <th className="py-3.5 pl-6 pr-3">Customer</th>
               <th className="px-3 py-3.5">Invoice #</th>
               <th className="px-3 py-3.5">Ref / Subscription</th>
@@ -124,12 +120,12 @@ export default function RecentTransactionsTable({ externalFilter }: RecentTransa
                 const StatusIcon = statusMeta.icon;
 
                 return (
-                  <tr key={inv.id} className="hover:bg-slate-50/70 transition-colors">
+                  <tr key={inv.id} className="table-row">
                     <td className="py-3.5 pl-6 pr-3">
                       <div className="font-medium text-slate-900">{inv.customerName}</div>
                       <div className="text-[11px] text-slate-400">{inv.customerEmail}</div>
                     </td>
-                    <td className="px-3 py-3.5 font-mono text-xs font-semibold text-indigo-600">
+                    <td className="px-3 py-3.5 font-mono text-xs font-semibold text-[#1c2530]">
                       {inv.invoiceNumber}
                     </td>
                     <td className="px-3 py-3.5 text-slate-600">
@@ -140,7 +136,7 @@ export default function RecentTransactionsTable({ externalFilter }: RecentTransa
                     </td>
                     <td className="px-3 py-3.5">
                       <span
-                        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${statusMeta.bg} ${statusMeta.text}`}
+                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${statusMeta.badgeClass}`}
                       >
                         <StatusIcon className="h-3 w-3" />
                         <span>{statusMeta.label}</span>
