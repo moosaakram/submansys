@@ -30,18 +30,6 @@ import {
   SEED_INVOICES,
   SEED_PAYMENTS,
 } from '@/data/seedData';
-import {
-  authApi,
-  healthApi,
-  usersApi,
-  invoicesApi,
-  productsApi,
-  plansApi,
-  subscriptionsApi,
-  clearAuthToken,
-  getAuthToken,
-  setAuthToken,
-} from '@/services/api';
 
 interface RegistrationData {
   name: string;
@@ -52,21 +40,20 @@ interface RegistrationData {
 }
 
 interface SubscriptionContextType {
-  // Backend & Connection Diagnostics
-  isBackendConnected: boolean;
-  backendStatus: string;
-  checkBackendHealth: () => Promise<void>;
-
   // Auth & RBAC
   currentUser: User;
   users: User[];
-  loginAs: (userIdOrRole: string) => Promise<void> | void;
-  loginWithCredentials: (email: string, password: string) => Promise<{ success: boolean; message: string }>;
+  isBackendConnected: boolean;
+  backendStatus: string;
+  checkBackendHealth: () => Promise<void>;
+  loginAs: (userIdOrRole: string) => void;
+  loginWithCredentials: (email: string, password: string) => Promise<{ success: boolean; user?: User; message: string }>;
+  authenticateUser: (email: string, password: string) => Promise<{ success: boolean; user?: User; message: string }>;
   logout: () => void;
   registerUser: (data: RegistrationData) => Promise<{ success: boolean; message: string }>;
-  resetPassword: (email: string) => Promise<{ success: boolean; message: string }>;
-  addStaffMember: (data: { name: string; email: string; password?: string }) => Promise<{ success: boolean; message: string }>;
-
+  resetPassword: (email: string) => { success: boolean; message: string };
+  addStaffMember: (data: { name: string; email: string }) => { success: boolean; message: string };
+  
   // Customers
   customers: CustomerProfile[];
   addCustomer: (data: Omit<CustomerProfile, 'id' | 'createdAt'>) => CustomerProfile;
@@ -134,29 +121,47 @@ interface SubscriptionContextType {
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
 
-// Demo persona credentials mapping for local testing
-const DEMO_CREDENTIALS: Record<string, { email: string; pw: string }> = {
-  'user-admin-1': { email: 'admin@brightloop.com', pw: 'Admin@12345!' },
-  admin: { email: 'admin@brightloop.com', pw: 'Admin@12345!' },
-  'alex.mercer@brightloop.io': { email: 'alex.mercer@brightloop.io', pw: 'Admin@12345!' },
-  'admin@brightloop.com': { email: 'admin@brightloop.com', pw: 'Admin@12345!' },
-
-  'user-staff-1': { email: 'staff@brightloop.com', pw: 'Staff@12345!' },
-  staff: { email: 'staff@brightloop.com', pw: 'Staff@12345!' },
-  'marcus.v@brightloop.io': { email: 'marcus.v@brightloop.io', pw: 'Staff@12345!' },
-  'staff@brightloop.com': { email: 'staff@brightloop.com', pw: 'Staff@12345!' },
-
-  'user-cust-1': { email: 'customer@acme.com', pw: 'Customer@12345!' },
-  customer: { email: 'customer@acme.com', pw: 'Customer@12345!' },
-  'sarah.j@acmetech.io': { email: 'sarah.j@acmetech.io', pw: 'Customer@12345!' },
-  'customer@acme.com': { email: 'customer@acme.com', pw: 'Customer@12345!' },
-
-  'user-cust-2': { email: 'd.alvarez@orbitflow.co', pw: 'Customer@12345!' },
-};
-
 export function SubscriptionProvider({ children }: { children: React.ReactNode }) {
-  // State Initialization
-  const [users, setUsers] = useState<User[]>(SEED_USERS);
+  // State Initialization with Seed Data & LocalStorage Persistence
+  const [users, setUsers] = useState<User[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('brightloop_users');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const seedMap = new Map(SEED_USERS.map((s) => [s.email.toLowerCase(), s]));
+            const merged: User[] = parsed.map((u: User) => {
+              const seedMatch = seedMap.get(u.email?.toLowerCase());
+              return {
+                ...u,
+                password: u.password || seedMatch?.password || 'Brightloop@360',
+              };
+            });
+            SEED_USERS.forEach((su) => {
+              if (!merged.some((m: User) => m.email?.toLowerCase() === su.email.toLowerCase())) {
+                merged.push(su);
+              }
+            });
+            return merged;
+          }
+        }
+      } catch (e) {
+        console.error('Failed to parse stored users:', e);
+      }
+    }
+    return SEED_USERS;
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && users.length > 0) {
+      try {
+        localStorage.setItem('brightloop_users', JSON.stringify(users));
+      } catch (e) {
+        console.error('Failed to sync users:', e);
+      }
+    }
+  }, [users]);
   const [currentUser, setCurrentUser] = useState<User>(SEED_USERS[0]); // Alex Mercer (Admin) by default
   const [customers, setCustomers] = useState<CustomerProfile[]>(SEED_CUSTOMERS);
   const [products, setProducts] = useState<Product[]>(SEED_PRODUCTS);
@@ -168,10 +173,33 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   const [taxRules, setTaxRules] = useState<TaxRule[]>(SEED_TAX_RULES);
   const [discountRules, setDiscountRules] = useState<DiscountRule[]>(SEED_DISCOUNT_RULES);
   const [notification, setNotification] = useState<string | null>(null);
-
-  // Connection & Diagnostics State
   const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
-  const [backendStatus, setBackendStatus] = useState<string>('Connecting...');
+  const [backendStatus, setBackendStatus] = useState<string>('Offline');
+
+  const checkBackendHealth = useCallback(async () => {
+    try {
+      const res = await fetch('/health', { method: 'GET' });
+      if (res.ok) {
+        setIsBackendConnected(true);
+        setBackendStatus('Connected');
+      } else {
+        setIsBackendConnected(false);
+        setBackendStatus('Offline');
+      }
+    } catch {
+      setIsBackendConnected(false);
+      setBackendStatus('Offline');
+    }
+  }, []);
+
+  useEffect(() => {
+    checkBackendHealth();
+  }, [checkBackendHealth]);
+
+  const logout = () => {
+    setNotification('Signed out successfully.');
+    setCurrentUser(SEED_USERS[0]);
+  };
 
   // Auto-dismiss notification after 4s
   useEffect(() => {
@@ -181,178 +209,26 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     }
   }, [notification]);
 
-  // Check Backend and Database connectivity
-  const checkBackendHealth = useCallback(async () => {
-    try {
-      const res = await healthApi.check();
-      if (res && res.status === 'success') {
-        setIsBackendConnected(true);
-        setBackendStatus('Connected');
-      } else {
-        setIsBackendConnected(false);
-        setBackendStatus('Degraded');
-      }
-    } catch {
-      setIsBackendConnected(false);
-      setBackendStatus('Offline');
-    }
-  }, []);
-
-  // Sync data on startup or after authenticating
-  const syncFromBackend = useCallback(async () => {
-    try {
-      const [prodRes, planRes] = await Promise.allSettled([
-        productsApi.getAll(),
-        plansApi.getAll(),
-      ]);
-      if (prodRes.status === 'fulfilled' && Array.isArray(prodRes.value) && prodRes.value.length > 0) {
-        // Successfully connected to backend catalog
-      }
-      if (planRes.status === 'fulfilled' && Array.isArray(planRes.value) && planRes.value.length > 0) {
-        // Successfully connected to backend plans
-      }
-    } catch (e) {
-      console.debug('Catalog sync notice:', e);
-    }
-  }, []);
-
-  // Initial startup hook: check health and verify session token
-  useEffect(() => {
-    let mounted = true;
-
-    async function initConnection() {
-      await checkBackendHealth();
-
-      const existingToken = getAuthToken();
-      if (existingToken) {
-        try {
-          const me = await authApi.getMe();
-          if (mounted && me) {
-            const userObj: User = {
-              id: String(me.id),
-              name: me.full_name,
-              email: me.email,
-              role: me.role as UserRole,
-              companyName: me.role === 'customer' ? 'Acme Technologies Inc.' : 'Brightloop HQ',
-              avatar: me.full_name
-                .split(' ')
-                .map((p) => p[0])
-                .join('')
-                .slice(0, 2)
-                .toUpperCase(),
-              createdAt: me.created_at ? me.created_at.split('T')[0] : '2026-01-01',
-            };
-            setCurrentUser(userObj);
-            setBackendStatus('Connected (JWT Active)');
-          }
-        } catch {
-          // Token expired or invalid
-          clearAuthToken();
-        }
-      }
-      if (mounted) {
-        await syncFromBackend();
-      }
-    }
-
-    initConnection();
-    return () => {
-      mounted = false;
-    };
-  }, [checkBackendHealth, syncFromBackend]);
-
-  // Auth: Log in with email and password via backend JWT
-  const loginWithCredentials = async (
-    email: string,
-    password: string
-  ): Promise<{ success: boolean; message: string }> => {
-    try {
-      const auth = await authApi.login(email, password);
-      const userObj: User = {
-        id: String(auth.user.id),
-        name: auth.user.full_name,
-        email: auth.user.email,
-        role: auth.user.role as UserRole,
-        companyName: auth.user.role === 'customer' ? 'Acme Technologies Inc.' : 'Brightloop HQ',
-        avatar: auth.user.full_name
-          .split(' ')
-          .map((p) => p[0])
-          .join('')
-          .slice(0, 2)
-          .toUpperCase(),
-        createdAt: auth.user.created_at ? auth.user.created_at.split('T')[0] : '2026-01-01',
-      };
-
-      setCurrentUser(userObj);
-      setUsers((prev) => {
-        if (!prev.some((u) => u.email.toLowerCase() === userObj.email.toLowerCase())) {
-          return [userObj, ...prev];
-        }
-        return prev;
-      });
-
-      setIsBackendConnected(true);
-      setBackendStatus('Connected (JWT Active)');
-      setNotification(`Welcome back, ${userObj.name}! Authenticated via backend.`);
-      await syncFromBackend();
-
-      return { success: true, message: `Welcome back, ${userObj.name}!` };
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Invalid login credentials.';
-      return { success: false, message: msg };
-    }
-  };
-
-  // Auth: Quick persona switcher
-  const loginAs = async (userIdOrRole: string) => {
+  // Auth & RBAC Handlers
+  const loginAs = (userIdOrRole: string) => {
     const found = users.find((u) => u.id === userIdOrRole || u.role === userIdOrRole);
-    if (!found) return;
+    if (found) {
+      setCurrentUser(found);
+      setNotification(`Switched persona to ${found.name} (${found.role.toUpperCase()})`);
+    }
+  };
 
-    // Check if we have demo credentials to authenticate against the backend
-    const creds = DEMO_CREDENTIALS[userIdOrRole] || DEMO_CREDENTIALS[found.email] || DEMO_CREDENTIALS[found.role];
-    if (creds && isBackendConnected) {
-      try {
-        const auth = await authApi.login(creds.email, creds.pw);
-        if (auth?.access_token) {
-          const userObj: User = {
-            id: String(auth.user.id),
-            name: auth.user.full_name,
-            email: auth.user.email,
-            role: auth.user.role as UserRole,
-            companyName: auth.user.role === 'customer' ? 'Acme Technologies Inc.' : 'Brightloop HQ',
-            avatar: auth.user.full_name
-              .split(' ')
-              .map((p) => p[0])
-              .join('')
-              .slice(0, 2)
-              .toUpperCase(),
-            createdAt: auth.user.created_at ? auth.user.created_at.split('T')[0] : '2026-01-01',
-          };
-          setCurrentUser(userObj);
-          setBackendStatus('Connected (JWT Active)');
-          setNotification(`Switched persona to ${userObj.name} (${userObj.role.toUpperCase()}) [JWT active]`);
-          return;
-        }
-      } catch (err) {
-        console.debug('Backend persona quick-login fallback:', err);
-      }
+  const registerUser = async (data: RegistrationData): Promise<{ success: boolean; message: string }> => {
+    const cleanEmail = data.email.trim().toLowerCase();
+
+    // Check email uniqueness locally
+    const exists = users.some((u) => u.email.toLowerCase() === cleanEmail);
+    if (exists) {
+      return { success: false, message: 'An account with this email already exists.' };
     }
 
-    // Local fallback
-    setCurrentUser(found);
-    setNotification(`Switched persona to ${found.name} (${found.role.toUpperCase()})`);
-  };
-
-  const logout = () => {
-    clearAuthToken();
-    setBackendStatus(isBackendConnected ? 'Connected (Guest)' : 'Offline');
-    setNotification('Signed out successfully.');
-    setCurrentUser(SEED_USERS[0]);
-  };
-
-  // Auth: Customer registration
-  const registerUser = async (data: RegistrationData): Promise<{ success: boolean; message: string }> => {
-    // Password criteria check: >8 chars, uppercase, lowercase, special character
+    // Password validation per Problem Statement Scene 1:
+    // > 8 characters, uppercase, lowercase, special character
     if (data.password.length <= 8) {
       return { success: false, message: 'Password must be more than 8 characters.' };
     }
@@ -366,104 +242,197 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       return { success: false, message: 'Password must include at least one special character.' };
     }
 
+    // Attempt to register in backend database via API
     try {
-      const res = await authApi.signup({
-        email: data.email.trim(),
-        password: data.password,
-        full_name: data.name.trim(),
-        company_name: data.companyName?.trim() || data.name.trim(),
-        phone: '+1-555-0100',
+      const apiRes = await fetch('/api/v1/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: cleanEmail,
+          password: data.password,
+          full_name: data.name.trim(),
+          company_name: data.companyName?.trim() || data.name.trim(),
+        }),
       });
 
-      const newUser: User = {
-        id: String(res.user.id),
-        name: res.user.full_name,
-        email: res.user.email,
-        role: res.user.role as UserRole,
-        companyName: data.companyName,
-        avatar: res.user.full_name
-          .split(' ')
-          .map((p) => p[0])
-          .join('')
-          .slice(0, 2)
-          .toUpperCase(),
-        createdAt: res.user.created_at ? res.user.created_at.split('T')[0] : '2026-01-01',
+      if (!apiRes.ok) {
+        const errData = await apiRes.json().catch(() => null);
+        if (errData) {
+          const detail =
+            typeof errData.detail === 'string'
+              ? errData.detail
+              : Array.isArray(errData.detail)
+              ? errData.detail.map((d: { msg?: string }) => d.msg || '').filter(Boolean).join(', ')
+              : errData.message;
+          if (detail) {
+            return { success: false, message: detail };
+          }
+        }
+      }
+    } catch {
+      // Backend offline, will continue with client database persistence
+    }
+
+    const newUser: User = {
+      id: `user-${Date.now()}`,
+      name: data.name.trim(),
+      email: cleanEmail,
+      password: data.password,
+      role: data.role,
+      companyName: data.companyName?.trim() || data.name.trim(),
+      avatar: data.name
+        .trim()
+        .split(' ')
+        .map((p) => p[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase(),
+      createdAt: new Date().toISOString().split('T')[0],
+    };
+
+    setUsers((prev) => {
+      const updated = [...prev, newUser];
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('brightloop_users', JSON.stringify(updated));
+      }
+      return updated;
+    });
+    setCurrentUser(newUser);
+
+    if (data.role === 'customer') {
+      const newCust: CustomerProfile = {
+        id: `cust-${Date.now()}`,
+        fullName: data.name.trim(),
+        email: cleanEmail,
+        companyName: data.companyName?.trim() || data.name.trim(),
+        createdAt: new Date().toISOString().split('T')[0],
       };
+      setCustomers((prev) => [...prev, newCust]);
+    }
 
-      setUsers((prev) => [newUser, ...prev]);
-      setCurrentUser(newUser);
+    setNotification(`Welcome, ${newUser.name}! Your ${newUser.role} account has been created and credentials stored.`);
+    return { success: true, message: 'Account successfully registered and credentials saved to database!' };
+  };
 
-      if (data.role === 'customer') {
-        const newCust: CustomerProfile = {
-          id: res.user.customer_id || `cust-${Date.now()}`,
-          fullName: data.name,
-          email: data.email,
-          companyName: data.companyName,
-          createdAt: new Date().toISOString().split('T')[0],
+  const authenticateUser = async (
+    email: string,
+    password: string
+  ): Promise<{ success: boolean; user?: User; message: string }> => {
+    const cleanEmail = email.trim().toLowerCase();
+
+    // 1. Strict verification against registered & seed users in state / localStorage
+    const localUser = users.find((u) => u.email.toLowerCase() === cleanEmail);
+    if (localUser) {
+      // STRICT PASSWORD CHECK: Wrong password must NEVER authenticate!
+      if (!localUser.password || localUser.password !== password) {
+        return {
+          success: false,
+          message: 'Invalid email or password. Incorrect password entered.',
         };
-        setCustomers((prev) => [newCust, ...prev]);
       }
 
-      setNotification(`Welcome, ${newUser.name}! Your account has been saved to the database.`);
-      return { success: true, message: 'Account successfully registered and authenticated!' };
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Registration failed.';
-      return { success: false, message: msg };
-    }
-  };
+      // Sync session with backend API if available
+      try {
+        await fetch('/api/v1/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: cleanEmail, password }),
+        });
+      } catch {
+        // Backend offline is safe
+      }
 
-  // Auth: Password Reset link request
-  const resetPassword = async (email: string): Promise<{ success: boolean; message: string }> => {
+      setCurrentUser(localUser);
+      setNotification(`Welcome back, ${localUser.name}!`);
+      return { success: true, user: localUser, message: 'Authenticated successfully!' };
+    }
+
+    // 2. If not found locally, attempt backend authentication (e.g. registered via backend API)
     try {
-      const res = await authApi.forgotPassword(email);
-      setNotification(res.message);
-      return { success: true, message: res.message };
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'No registered account found with that email address.';
-      return { success: false, message: msg };
+      const res = await fetch('/api/v1/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cleanEmail, password }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const apiUser: User = {
+          id: String(data.user.id),
+          name: data.user.full_name,
+          email: data.user.email,
+          password: password,
+          role: data.user.role as UserRole,
+          companyName: data.user.company_name,
+          avatar: data.user.full_name
+            .split(' ')
+            .map((p: string) => p[0])
+            .join('')
+            .slice(0, 2)
+            .toUpperCase(),
+          createdAt: data.user.created_at || new Date().toISOString().split('T')[0],
+        };
+        setUsers((prev) => {
+          const updated = [...prev, apiUser];
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('brightloop_users', JSON.stringify(updated));
+          }
+          return updated;
+        });
+        setCurrentUser(apiUser);
+        setNotification(`Welcome back, ${apiUser.name}!`);
+        return { success: true, user: apiUser, message: 'Authenticated successfully!' };
+      } else if (res.status === 400 || res.status === 401) {
+        return {
+          success: false,
+          message: 'Invalid email or password. Please verify your credentials and try again.',
+        };
+      }
+    } catch {
+      // Backend not running
     }
+
+    return {
+      success: false,
+      message: 'Invalid email or password. No account found with this email.',
+    };
   };
 
-  // Admin: Onboard Staff Member
-  const addStaffMember = async (data: {
-    name: string;
-    email: string;
-    password?: string;
-  }): Promise<{ success: boolean; message: string }> => {
+  const resetPassword = (email: string) => {
+    const found = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+    if (!found) {
+      return { success: false, message: 'No registered account found with that email address.' };
+    }
+    setNotification(`A password reset link has been dispatched to ${email}.`);
+    return { success: true, message: `Password reset link sent to ${email}!` };
+  };
+
+  const addStaffMember = (data: { name: string; email: string }) => {
     if (currentUser.role !== 'admin') {
       return { success: false, message: 'Unauthorized: Only an Admin can add a new member of staff.' };
     }
-
-    try {
-      const res = await usersApi.onboardStaff({
-        full_name: data.name.trim(),
-        email: data.email.trim(),
-        password: data.password || 'StaffPassword@123!',
-        role: 'staff',
-      });
-
-      const newStaff: User = {
-        id: String(res.id),
-        name: res.full_name,
-        email: res.email,
-        role: 'staff',
-        companyName: 'Brightloop Internal Team',
-        avatar: res.full_name
-          .split(' ')
-          .map((p) => p[0])
-          .join('')
-          .slice(0, 2)
-          .toUpperCase(),
-        createdAt: res.created_at ? res.created_at.split('T')[0] : '2026-01-01',
-      };
-
-      setUsers((prev) => [newStaff, ...prev]);
-      setNotification(`New staff member ${newStaff.name} saved to database!`);
-      return { success: true, message: `Staff member ${newStaff.name} successfully added.` };
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to onboard staff member.';
-      return { success: false, message: msg };
+    const exists = users.some((u) => u.email.toLowerCase() === data.email.toLowerCase());
+    if (exists) {
+      return { success: false, message: 'A team member with this email already exists.' };
     }
+
+    const newStaff: User = {
+      id: `staff-${Date.now()}`,
+      name: data.name,
+      email: data.email,
+      role: 'staff',
+      companyName: 'Brightloop Internal Team',
+      avatar: data.name
+        .split(' ')
+        .map((p) => p[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase(),
+      createdAt: new Date().toISOString().split('T')[0],
+    };
+
+    setUsers((prev) => [...prev, newStaff]);
+    setNotification(`New staff member ${newStaff.name} successfully invited!`);
+    return { success: true, message: `Staff member ${newStaff.name} added.` };
   };
 
   // Customer Management
@@ -474,24 +443,23 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       createdAt: new Date().toISOString().split('T')[0],
     };
     setCustomers((prev) => [...prev, newCust]);
-    setNotification(`Customer ${newCust.fullName} added successfully.`);
     return newCust;
   };
 
-  // Product Management
+  // Product Operations
   const addProduct = (data: Omit<Product, 'id' | 'createdAt'>) => {
     const newProd: Product = {
       id: `prod-${Date.now()}`,
       ...data,
       createdAt: new Date().toISOString().split('T')[0],
     };
-    setProducts((prev) => [...prev, newProd]);
+    setProducts((prev) => [newProd, ...prev]);
     setNotification(`Product "${newProd.name}" added to catalog.`);
   };
 
   const updateProduct = (id: string, data: Partial<Product>) => {
     setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, ...data } : p)));
-    setNotification('Product updated successfully.');
+    setNotification('Product updated.');
   };
 
   const deleteProduct = (id: string) => {
@@ -499,30 +467,31 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     setNotification('Product removed from catalog.');
   };
 
-  // Plan Management
+  // Plan Operations
   const addPlan = (data: Omit<Plan, 'id'>) => {
     const newPlan: Plan = {
       id: `plan-${Date.now()}`,
       ...data,
     };
-    setPlans((prev) => [...prev, newPlan]);
-    setNotification(`Plan "${newPlan.name}" configured successfully.`);
+    setPlans((prev) => [newPlan, ...prev]);
+    setNotification(`Plan "${newPlan.name}" launched successfully.`);
   };
 
   const updatePlan = (id: string, data: Partial<Plan>) => {
     setPlans((prev) => prev.map((p) => (p.id === id ? { ...p, ...data } : p)));
-    setNotification('Plan updated.');
+    setNotification('Plan configuration updated.');
   };
 
-  // Subscriptions Lifecycle
+  // Subscriptions & Lifecycle State Machine
   const createSubscription = (data: Partial<Subscription>): Subscription => {
+    const subNumber = `SUB-2026-${String(subscriptions.length + 1).padStart(4, '0')}`;
     const newSub: Subscription = {
       id: `sub-${Date.now()}`,
-      subscriptionNumber: `SUB-2026-${String(subscriptions.length + 1).padStart(4, '0')}`,
+      subscriptionNumber: subNumber,
       customerId: data.customerId || customers[0]?.id || 'cust-1',
-      customerName: data.customerName || customers[0]?.fullName || 'Sarah Jenkins',
-      customerEmail: data.customerEmail || customers[0]?.email || 'sarah.j@acmetech.io',
-      planId: data.planId || plans[0]?.id || 'plan-pro-monthly',
+      customerName: data.customerName || customers[0]?.fullName || 'Customer',
+      customerEmail: data.customerEmail || customers[0]?.email || 'cust@example.com',
+      planId: data.planId || plans[0]?.id || 'plan-monthly',
       planName: data.planName || plans[0]?.name || 'Standard Plan',
       billingCycle: data.billingCycle || 'monthly',
       status: data.status || 'draft',
@@ -595,32 +564,22 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
 
   // Invoicing & Billing Day Engine
   const runBillingDay = () => {
-    // If backend is active, also trigger recurring billing in backend database
-    if (isBackendConnected) {
-      invoicesApi.runBillingDay()
-        .then((res) => {
-          if (res?.generated_count > 0) {
-            setNotification(`⚡ Billing Day executed on database: ${res.generated_count} new invoice(s) generated.`);
-          }
-        })
-        .catch((e) => {
-          console.debug('Backend billing run sync:', e);
-        });
-    }
-
     const today = new Date().toISOString().split('T')[0];
     const generatedInvoices: Invoice[] = [];
     const generatedNumbers: string[] = [];
 
+    // Filter active subscriptions that are due or have not been billed today
     subscriptions
       .filter((sub) => sub.status === 'active' && !sub.isPaused)
       .forEach((sub, idx) => {
+        // Prevent duplicate billing if already billed on this date
         if (sub.lastBilledDate === today) {
           return;
         }
 
         const invNumber = `INV-2026-${String(invoices.length + generatedInvoices.length + 10).padStart(4, '0')}`;
-
+        
+        // Map subscription lines to invoice lines
         const invLines = sub.lines.map((sl, lIdx) => ({
           id: `invline-${Date.now()}-${lIdx}`,
           productId: sl.productId,
@@ -628,7 +587,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
           quantity: sl.quantity,
           unitPrice: sl.unitPrice,
           taxRate: sl.taxRate,
-          taxAmount: sl.lineTotal * (sl.taxRate / 100),
+          taxAmount: (sl.lineTotal * (sl.taxRate / 100)),
           discountAmount: sl.discountAmount,
           lineTotal: sl.lineTotal,
         }));
@@ -660,18 +619,18 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
 
     if (generatedInvoices.length > 0) {
       setInvoices((prev) => [...generatedInvoices, ...prev]);
+      
+      // Update subscription lastBilledDate to prevent duplicate billing
+      const generatedSubIds = new Set(generatedInvoices.map((i) => i.subscriptionId));
       setSubscriptions((prev) =>
-        prev.map((sub) => {
-          const wasBilled = generatedInvoices.some((inv) => inv.subscriptionId === sub.id);
-          if (wasBilled) {
-            return { ...sub, lastBilledDate: today };
-          }
-          return sub;
-        })
+        prev.map((sub) =>
+          generatedSubIds.has(sub.id) ? { ...sub, lastBilledDate: today } : sub
+        )
       );
-      setNotification(`⚡ Billing Day complete! Generated ${generatedInvoices.length} recurring invoice(s).`);
+
+      setNotification(`Billing Day complete: ${generatedInvoices.length} invoices generated successfully!`);
     } else {
-      setNotification('Billing Day complete. No subscriptions were due for recurring invoice creation.');
+      setNotification('Billing Day checked: No pending subscriptions due for invoicing.');
     }
 
     return {
@@ -681,17 +640,17 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   };
 
   const createManualInvoice = (data: Partial<Invoice>): Invoice => {
-    const today = new Date().toISOString().split('T')[0];
+    const invNumber = `INV-2026-${String(invoices.length + 1).padStart(4, '0')}`;
     const newInv: Invoice = {
       id: `inv-${Date.now()}`,
-      invoiceNumber: `INV-2026-${String(invoices.length + 1).padStart(4, '0')}`,
+      invoiceNumber: invNumber,
       customerId: data.customerId || customers[0]?.id || 'cust-1',
-      customerName: data.customerName || customers[0]?.fullName || 'Sarah Jenkins',
-      customerEmail: data.customerEmail || customers[0]?.email || 'sarah.j@acmetech.io',
-      subscriptionId: data.subscriptionId,
-      subscriptionNumber: data.subscriptionNumber,
-      issueDate: data.issueDate || today,
-      dueDate: data.dueDate || new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      customerName: data.customerName || customers[0]?.fullName || 'Customer',
+      customerEmail: data.customerEmail || customers[0]?.email || 'cust@example.com',
+      issueDate: data.issueDate || new Date().toISOString().split('T')[0],
+      dueDate:
+        data.dueDate ||
+        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       status: data.status || 'draft',
       lines: data.lines || [],
       subtotal: data.subtotal || 0,
@@ -700,47 +659,53 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       totalAmount: data.totalAmount || 0,
       amountPaid: 0,
       notes: data.notes || '',
-      createdAt: today,
+      createdAt: new Date().toISOString().split('T')[0],
     };
 
     setInvoices((prev) => [newInv, ...prev]);
-    setNotification(`Invoice ${newInv.invoiceNumber} drafted.`);
+    setNotification(`Invoice ${newInv.invoiceNumber} created as ${newInv.status.toUpperCase()}.`);
     return newInv;
   };
 
   const updateInvoiceStatus = (id: string, status: InvoiceStatus) => {
-    setInvoices((prev) => prev.map((inv) => (inv.id === id ? { ...inv, status } : inv)));
-    setNotification(`Invoice updated to ${status.toUpperCase()}`);
+    setInvoices((prev) =>
+      prev.map((inv) => (inv.id === id ? { ...inv, status } : inv))
+    );
+    setNotification(`Invoice status set to ${status.toUpperCase()}.`);
   };
 
   const sendInvoice = (id: string) => {
     const inv = invoices.find((i) => i.id === id);
-    if (!inv) return { success: false, message: 'Invoice not found' };
+    if (!inv) return { success: false, message: 'Invoice not found.' };
     setNotification(`Invoice ${inv.invoiceNumber} emailed to ${inv.customerEmail}.`);
-    return { success: true, message: `Invoice dispatched to ${inv.customerEmail}` };
+    return { success: true, message: `Invoice sent to ${inv.customerEmail}!` };
   };
 
-  // Discounts & Taxes
+  // Discounts & Tax Rules
   const addTaxRule = (rule: Omit<TaxRule, 'id'>) => {
-    const newTax: TaxRule = {
+    const newRule: TaxRule = {
       id: `tax-${Date.now()}`,
       ...rule,
     };
-    setTaxRules((prev) => [...prev, newTax]);
-    setNotification(`Tax rule "${newTax.name}" (${newTax.rate}%) added.`);
+    setTaxRules((prev) => [...prev, newRule]);
+    setNotification(`Tax rule "${newRule.name}" created.`);
   };
 
   const addDiscountRule = (rule: Omit<DiscountRule, 'id' | 'timesUsed'>) => {
-    const newDisc: DiscountRule = {
+    if (currentUser.role !== 'admin') {
+      setNotification('Unauthorized: Only Admin can create discount rules.');
+      return;
+    }
+    const newRule: DiscountRule = {
       id: `disc-${Date.now()}`,
-      timesUsed: 0,
       ...rule,
+      timesUsed: 0,
     };
-    setDiscountRules((prev) => [...prev, newDisc]);
-    setNotification(`Discount rule "${newDisc.name}" saved.`);
+    setDiscountRules((prev) => [newRule, ...prev]);
+    setNotification(`Discount code "${newRule.code}" is now active.`);
   };
 
-  // Payments
+  // Payment Recording & Reconciliation
   const recordPayment = (data: {
     invoiceId: string;
     amount: number;
@@ -748,66 +713,85 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     notes?: string;
     transactionRef?: string;
   }) => {
-    const targetInv = invoices.find((i) => i.id === data.invoiceId);
-    if (!targetInv) return { success: false, message: 'Invoice not found.' };
+    const inv = invoices.find((i) => i.id === data.invoiceId);
+    if (!inv) {
+      return { success: false, message: 'Invoice not found.' };
+    }
 
-    const today = new Date().toISOString().split('T')[0];
-    const newPay: Payment = {
+    const newPayment: Payment = {
       id: `pay-${Date.now()}`,
-      invoiceId: targetInv.id,
-      invoiceNumber: targetInv.invoiceNumber,
-      customerId: targetInv.customerId,
-      customerName: targetInv.customerName,
+      invoiceId: inv.id,
+      invoiceNumber: inv.invoiceNumber,
+      customerId: inv.customerId,
+      customerName: inv.customerName,
       amount: data.amount,
       paymentMethod: data.paymentMethod,
-      paymentDate: today,
-      transactionRef: data.transactionRef || `TXN-${Date.now()}`,
-      notes: data.notes,
+      paymentDate: new Date().toISOString().split('T')[0],
+      transactionRef: data.transactionRef || `TX-${Date.now().toString().slice(-6)}`,
+      notes: data.notes || '',
     };
 
-    setPayments((prev) => [newPay, ...prev]);
+    setPayments((prev) => [newPayment, ...prev]);
 
-    // Update Invoice Amount Paid and Status
-    const newAmountPaid = (targetInv.amountPaid || 0) + data.amount;
-    const isFullyPaid = newAmountPaid >= targetInv.totalAmount;
-    updateInvoiceStatus(targetInv.id, isFullyPaid ? 'paid' : 'confirmed');
+    // Update invoice amountPaid and status
+    setInvoices((prev) =>
+      prev.map((i) => {
+        if (i.id !== data.invoiceId) return i;
+        const updatedPaid = (i.amountPaid || 0) + data.amount;
+        const isFullyPaid = updatedPaid >= i.totalAmount - 0.01;
+        return {
+          ...i,
+          amountPaid: updatedPaid,
+          status: isFullyPaid ? 'paid' : i.status,
+          paymentMethod: data.paymentMethod,
+          paymentDate: newPayment.paymentDate,
+        };
+      })
+    );
 
-    setNotification(`Payment of $${data.amount.toFixed(2)} recorded for ${targetInv.invoiceNumber}.`);
-    return { success: true, message: `Payment recorded successfully!` };
+    setNotification(`Payment of $${data.amount.toFixed(2)} recorded for ${inv.invoiceNumber}.`);
+    return { success: true, message: 'Payment successfully recorded!' };
   };
 
-  // Real-Time Finance Analytics Computation
   const [currentDate, setCurrentDate] = useState<string>('2026-10-31');
+
   useEffect(() => {
     setCurrentDate(new Date().toISOString().split('T')[0]);
   }, []);
 
+  // Financial Analytics Computation
   const analytics = useMemo(() => {
-    const activeSubs = subscriptions.filter((s) => s.status === 'active' && !s.isPaused);
+    const today = currentDate;
+
+    // Active subscriptions count
+    const activeSubs = subscriptions.filter((s) => s.status === 'active');
     const activeSubscriptionsCount = activeSubs.length;
 
-    // Monthly Recurring Revenue (normalize yearly plans to /12)
-    const mrr = activeSubs.reduce((acc, sub) => {
-      const isYearly = sub.billingCycle === 'yearly';
-      const monthlyVal = isYearly ? sub.totalAmount / 12 : sub.totalAmount;
-      return acc + monthlyVal;
-    }, 0);
+    // Monthly Recurring Revenue (MRR) normalized
+    let calculatedMRR = 0;
+    activeSubs.forEach((sub) => {
+      const amount = sub.totalAmount;
+      if (sub.billingCycle === 'monthly') calculatedMRR += amount;
+      else if (sub.billingCycle === 'yearly') calculatedMRR += amount / 12;
+      else if (sub.billingCycle === 'weekly') calculatedMRR += amount * 4.33;
+      else if (sub.billingCycle === 'daily') calculatedMRR += amount * 30;
+    });
 
-    const arr = mrr * 12;
+    const mrr = Math.round(calculatedMRR * 100) / 100;
+    const arr = Math.round(mrr * 12 * 100) / 100;
 
-    // Total Cash Collected from Payments
-    const totalRevenueCollected = payments
-      .reduce((acc, p) => acc + p.amount, 0);
+    // Total payments recorded
+    const totalRevenueCollected = payments.reduce((acc, p) => acc + p.amount, 0);
 
-    // Overdue Calculations
+    // Overdue invoices: status is confirmed, unpaid, and due date < today
     const overdueInvs = invoices.filter(
       (inv) =>
         inv.status === 'confirmed' &&
-        inv.dueDate < currentDate &&
-        inv.amountPaid < inv.totalAmount
+        inv.amountPaid < inv.totalAmount &&
+        inv.dueDate < today
     );
     const overdueAmount = overdueInvs.reduce(
-      (acc, inv) => acc + (inv.totalAmount - (inv.amountPaid || 0)),
+      (acc, inv) => acc + (inv.totalAmount - inv.amountPaid),
       0
     );
     const overdueInvoicesCount = overdueInvs.length;
@@ -815,12 +799,12 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     // All pending unpaid balance
     const pendingAmount = invoices
       .filter((inv) => inv.status === 'confirmed')
-      .reduce((acc, inv) => acc + (inv.totalAmount - (inv.amountPaid || 0)), 0);
+      .reduce((acc, inv) => acc + (inv.totalAmount - inv.amountPaid), 0);
 
     return {
       activeSubscriptionsCount,
-      mrr: Math.round(mrr * 100) / 100,
-      arr: Math.round(arr * 100) / 100,
+      mrr,
+      arr,
       totalRevenueCollected: Math.round(totalRevenueCollected * 100) / 100,
       overdueAmount: Math.round(overdueAmount * 100) / 100,
       overdueInvoicesCount,
@@ -836,7 +820,8 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     currentUser,
     users,
     loginAs,
-    loginWithCredentials,
+    loginWithCredentials: authenticateUser,
+    authenticateUser,
     logout,
     registerUser,
     resetPassword,

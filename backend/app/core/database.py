@@ -115,15 +115,15 @@ def seed_demo_data():
     """Seeds initial demonstration data required by the problem statement if empty."""
     db = _SessionLocal()
     try:
-        # 1. Seed Users (Admin, Staff, Customer)
+        # 1. Seed Users (Admin, Staff, Customer personas)
         seed_accounts = [
-            ("admin@brightloop.com", "Admin Director", "Admin@12345!", UserRole.ADMIN, None),
-            ("alex.mercer@brightloop.io", "Alex Mercer", "Admin@12345!", UserRole.ADMIN, None),
-            ("staff@brightloop.com", "Sarah Sales Rep", "Staff@12345!", UserRole.STAFF, None),
-            ("marcus.v@brightloop.io", "Marcus Vance", "Staff@12345!", UserRole.STAFF, None),
+            ("alex.mercer@brightloop.io", "Alex Mercer", "Brightloop@360", UserRole.ADMIN, "Brightloop Software HQ"),
+            ("admin@brightloop.com", "Admin Director", "Admin@12345!", UserRole.ADMIN, "Brightloop Software HQ"),
+            ("marcus.v@brightloop.io", "Marcus Vance", "Brightloop@360", UserRole.STAFF, "Brightloop Sales Ops"),
+            ("staff@brightloop.com", "Sarah Sales Rep", "Staff@12345!", UserRole.STAFF, "Brightloop Sales Ops"),
+            ("sarah.j@acmetech.io", "Sarah Jenkins", "Brightloop@360", UserRole.CUSTOMER, "Acme Technologies Inc."),
             ("customer@acme.com", "John Customer", "Customer@12345!", UserRole.CUSTOMER, "Acme Technologies Inc."),
-            ("sarah.j@acmetech.io", "Sarah Jenkins", "Customer@12345!", UserRole.CUSTOMER, "Acme Technologies Inc."),
-            ("d.alvarez@orbitflow.co", "David Alvarez", "Customer@12345!", UserRole.CUSTOMER, "OrbitFlow Logistics"),
+            ("d.alvarez@orbitflow.co", "David Alvarez", "Brightloop@360", UserRole.CUSTOMER, "OrbitFlow Logistics"),
         ]
         users_to_add = []
         for email, full_name, raw_pw, role, company in seed_accounts:
