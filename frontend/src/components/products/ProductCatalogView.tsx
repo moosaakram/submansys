@@ -215,17 +215,31 @@ export default function ProductCatalogView() {
                     <div className="text-[11px] text-slate-400 italic">No variants configured</div>
                   ) : (
                     <div className="space-y-1.5">
-                      {p.variants.map((v) => (
-                        <div
-                          key={v.id}
-                          className="flex items-center justify-between rounded-lg bg-indigo-50/50 px-2.5 py-1.5 text-xs text-indigo-950"
-                        >
-                          <span className="font-medium truncate">{v.name}</span>
-                          <span className="font-bold text-indigo-700 shrink-0">
-                            {v.priceDelta > 0 ? `+$${v.priceDelta.toFixed(2)}` : 'Standard'}
-                          </span>
-                        </div>
-                      ))}
+                      {p.variants.map((v) => {
+                        const isOdoo = v.name.toLowerCase().includes('odoo');
+                        return (
+                          <div
+                            key={v.id}
+                            className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs ${
+                              isOdoo
+                                ? 'bg-indigo-100/80 border border-indigo-200 text-indigo-950 font-semibold'
+                                : 'bg-indigo-50/50 text-indigo-950'
+                            }`}
+                          >
+                            <span className="font-medium truncate flex items-center gap-1.5">
+                              {v.name}
+                              {isOdoo && (
+                                <span className="rounded bg-indigo-600 text-white px-1 py-0.2 text-[9px] font-bold">
+                                  Scene 2
+                                </span>
+                              )}
+                            </span>
+                            <span className="font-bold text-indigo-700 shrink-0">
+                              {v.priceDelta > 0 ? `+$${v.priceDelta.toFixed(2)}` : 'Standard'}
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>

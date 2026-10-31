@@ -513,6 +513,23 @@ export default function SubscriptionListView() {
                   </option>
                 ))}
               </select>
+
+              <div className="mt-2 flex flex-wrap gap-2">
+                {quotationTemplates.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => handleTemplateSelect(t.id)}
+                    className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold border transition-all cursor-pointer ${
+                      selectedTemplateId === t.id
+                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
+                        : 'bg-white text-indigo-700 border-indigo-200 hover:bg-indigo-50'
+                    }`}
+                  >
+                    ⚡ {t.name}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <form onSubmit={handleCreateSubmit} className="space-y-4">

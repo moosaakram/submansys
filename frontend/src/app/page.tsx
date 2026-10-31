@@ -16,6 +16,7 @@ import RevenueChart from '@/components/dashboard/RevenueChart';
 import RecentTransactionsTable from '@/components/dashboard/RecentTransactionsTable';
 import RecentActivity from '@/components/dashboard/RecentActivity';
 import PlanDistributionCard from '@/components/dashboard/PlanDistributionCard';
+import GuidedWalkthrough from '@/components/dashboard/GuidedWalkthrough';
 
 // Modular Feature Views
 import ProductCatalogView from '@/components/products/ProductCatalogView';
@@ -118,6 +119,14 @@ export default function DashboardPage() {
             {/* TAB VIEW ROUTER */}
             {currentTab === 'dashboard' && (
               <div className="space-y-6">
+                {/* 1-Click Interactive Scenario Shortcuts */}
+                {currentUser.role !== 'customer' && (
+                  <GuidedWalkthrough
+                    onNavigateTab={(tabId) => setCurrentTab(tabId)}
+                    onOpenNewQuote={() => setCurrentTab('subscriptions')}
+                  />
+                )}
+
                 {/* Requirement 4: Metrics Cards */}
                 <section aria-label="Key Performance Indicators">
                   <MetricCards />
