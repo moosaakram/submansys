@@ -39,6 +39,7 @@ from app.routes import (
     discounts_router,
     health_router,
     invoices_router,
+    payment_terms_router,
     payments_router,
     plans_router,
     products_router,
@@ -191,6 +192,7 @@ app.include_router(plans_router, prefix=API_PREFIX)
 app.include_router(quotations_router, prefix=API_PREFIX)
 app.include_router(subscriptions_router, prefix=API_PREFIX)
 app.include_router(invoices_router, prefix=API_PREFIX)
+app.include_router(payment_terms_router, prefix=API_PREFIX)
 app.include_router(taxes_router, prefix=API_PREFIX)
 app.include_router(discounts_router, prefix=API_PREFIX)
 app.include_router(payments_router, prefix=API_PREFIX)

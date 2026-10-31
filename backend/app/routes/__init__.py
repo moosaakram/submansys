@@ -7,6 +7,7 @@ from app.routes.auth import router as auth_router
 from app.routes.discounts import router as discounts_router
 from app.routes.health import router as health_router
 from app.routes.invoices import router as invoices_router
+from app.routes.payment_terms import router as payment_terms_router
 from app.routes.payments import router as payments_router
 from app.routes.plans import router as plans_router
 from app.routes.products import router as products_router
@@ -21,6 +22,7 @@ __all__ = [
     "users_router",
     "products_router",
     "plans_router",
+    "payment_terms_router",
     "quotations_router",
     "subscriptions_router",
     "invoices_router",

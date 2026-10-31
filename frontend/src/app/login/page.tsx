@@ -10,7 +10,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [isTransitioningOut, setIsTransitioningOut] = useState(false);
   const [transitionUser, setTransitionUser] = useState('User');
-  const [targetDestination, setTargetDestination] = useState('/');
+  const [targetDestination, setTargetDestination] = useState('/dashboard');
 
   // Reset departure state whenever login page is mounted/rendered
   useEffect(() => {
@@ -22,14 +22,14 @@ export default function LoginPage() {
       setTransitionUser(data.user.name);
     }
     const isCustomer = data.user?.role === 'customer';
-    setTargetDestination(isCustomer ? '/portal' : '/');
+    setTargetDestination(isCustomer ? '/portal' : '/dashboard');
     setIsTransitioningOut(true);
   };
 
   return (
     <AuthLayout
       isLogin={true}
-      backHref="/"
+      backHref="/dashboard"
       backLabel="Back to Overview"
       isTransitioningOut={isTransitioningOut}
       transitionUserName={transitionUser}
