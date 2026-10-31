@@ -66,15 +66,18 @@ Modern recurring revenue businesses encounter substantial operational friction a
   - Metric cards for MRR, active subscribers, churn rate, and LTV.
   - Interactive plan distribution and recent activity modules.
   - Recent transactions table and dynamic sidebar navigation.
-- [x] **Authentication UI Component (`src/components/auth/LoginForm.tsx` & `frontend/components/auth/LoginForm.tsx`):**
-  - Modern, responsive SaaS login interface with Brightloop 360 blue/indigo branding.
-  - Work email input with regular expression format validation.
-  - Secure password field with interactive show/hide visibility toggle.
-  - Controlled "Remember me" checkbox for device persistence state.
-  - "Forgot password?" interaction hook with customizable callback.
-  - Interactive submit button displaying an animated spinner during loading states.
-  - Accessible, real-time client-side validation and contextual field error alerts.
-  - Reusable TypeScript component interface (`LoginFormProps`) with modular callback handlers.
+- [x] **Authentication & Registration UI Suite (`src/components/auth/`):**
+  - **Login Form (`LoginForm.tsx`):** Email validation, show/hide password toggle, remember me checkbox, loading states, and error alerts.
+  - **Customer Sign Up (`RegisterForm.tsx`):** Business account creation enforcing strict problem-statement criteria (>8 chars, uppercase, lowercase, special character) with live checklist.
+  - **Password Reset (`ForgotPasswordForm.tsx`):** Self-service password reset dispatch interface.
+- [x] **Customer Self-Service Portal (`src/components/portal/CustomerPortal.tsx` & `/portal`):**
+  - Personal subscription status view (rate, frequency, seats, renewal date, pause/resume toggle).
+  - Automated invoice history table with tax calculations and PDF download triggers.
+  - Default payment method management.
+- [x] **Admin Staff Provisioning Modal (`src/components/admin/AddStaffModal.tsx`):**
+  - Enforces rule that only admins can add limited-access internal staff (Sales, Billing, Support).
+- [x] **Next.js App Router Authentication Routes:**
+  - `/login`, `/register`, `/forgot-password`, and `/portal`.
 - [x] **Backend API Foundation (`backend/app/`):**
   - FastAPI application structure with CORS configuration for Next.js.
   - Health check endpoint (`/api/v1/health`), OpenAPI Swagger docs (`/docs`), and root info endpoint (`/`).
@@ -91,7 +94,6 @@ Modern recurring revenue businesses encounter substantial operational friction a
 - [ ] **Payment Gateway Integration:** Stripe / PayPal webhook listeners and automated transaction ledger entries.
 - [ ] **Automated Invoicing & Dunning:** PDF invoice generation and scheduled automated email sequences for failed renewals.
 - [ ] **Live Dashboard Analytics:** Connect frontend dashboard cards to real-time database aggregate queries.
-- [ ] **Subscriber Self-Service Portal:** Customer billing update interface and self-serve upgrade/downgrade workflows.
 
 ---
 
@@ -102,7 +104,7 @@ Modern recurring revenue businesses encounter substantial operational friction a
 - **Language:** [TypeScript](https://www.typescriptlang.org/)
 - **Styling:** [Tailwind CSS](https://tailwindcss.com/)
 - **Icons:** [Lucide React](https://lucide.dev/)
-- **State Management:** React Hooks (`useState`, `useCallback`, `useId`)
+- **State Management:** React Hooks (`useState`, `useCallback`, `useId`, `useMemo`)
 
 ### Backend (Active / In Progress)
 - **Framework:** [FastAPI](https://fastapi.tiangolo.com/) (Python 3.10+)
@@ -132,10 +134,20 @@ submansys/
 │   │   ├── favicon.ico            # Favicon
 │   │   ├── globals.css            # Global Tailwind CSS definitions
 │   │   ├── layout.tsx             # Root dashboard layout
-│   │   └── page.tsx               # Main dashboard view
+│   │   ├── page.tsx               # Main dashboard view
+│   │   ├── login/page.tsx         # Dedicated Login route
+│   │   ├── register/page.tsx      # Dedicated Sign Up route
+│   │   ├── forgot-password/page.tsx # Password reset route
+│   │   └── portal/page.tsx        # Customer self-service portal route
 │   ├── components/                # Reusable UI components
-│   │   ├── auth/                  # Authentication UI
-│   │   │   └── LoginForm.tsx      # Reusable Brightloop 360 login component
+│   │   ├── auth/                  # Authentication & onboarding UI
+│   │   │   ├── LoginForm.tsx      # Sign in component
+│   │   │   ├── RegisterForm.tsx   # Sign up with strict password criteria
+│   │   │   └── ForgotPasswordForm.tsx # Password reset request
+│   │   ├── portal/                # Customer self-service portal
+│   │   │   └── CustomerPortal.tsx # Subscriptions & invoice viewer
+│   │   ├── admin/                 # Admin exclusive tools
+│   │   │   └── AddStaffModal.tsx  # Staff invitation modal
 │   │   └── dashboard/             # Executive dashboard components
 │   │       ├── MetricCards.tsx
 │   │       ├── PlanDistributionCard.tsx
@@ -148,8 +160,14 @@ submansys/
 │   └── types/                     # TypeScript type declarations
 ├── frontend/                      # Modular frontend workspace
 │   ├── components/
-│   │   └── auth/
-│   │       └── LoginForm.tsx      # Authentication component (frontend module)
+│   │   ├── auth/
+│   │   │   ├── LoginForm.tsx
+│   │   │   ├── RegisterForm.tsx
+│   │   │   └── ForgotPasswordForm.tsx
+│   │   ├── portal/
+│   │   │   └── CustomerPortal.tsx
+│   │   └── admin/
+│   │       └── AddStaffModal.tsx
 │   └── README.md
 ├── backend/                       # FastAPI backend application
 │   ├── app/
@@ -198,8 +216,12 @@ cd submansys
    npm run dev
    ```
 
-3. **Access the frontend:**
-   Open your browser and navigate to [http://localhost:3000](http://localhost:3000).
+3. **Access the application routes:**
+   - **Executive Dashboard:** [http://localhost:3000](http://localhost:3000)
+   - **Customer Portal:** [http://localhost:3000/portal](http://localhost:3000/portal)
+   - **Sign In:** [http://localhost:3000/login](http://localhost:3000/login)
+   - **Business Sign Up:** [http://localhost:3000/register](http://localhost:3000/register)
+   - **Forgot Password:** [http://localhost:3000/forgot-password](http://localhost:3000/forgot-password)
 
 4. **Type check & build validation:**
    ```bash
@@ -216,7 +238,6 @@ cd submansys
 
 1. **Set up Python Virtual Environment:**
    ```bash
-   # Create virtual environment
    python -m venv .venv
 
    # Activate virtual environment
@@ -240,7 +261,6 @@ cd submansys
 
 4. **Start the FastAPI backend server:**
    ```bash
-   # From the backend directory:
    cd backend
    python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
    ```
@@ -282,7 +302,7 @@ python test_database.py
 
 | Team Member | Role | Key Responsibilities | Component / Module |
 | :--- | :--- | :--- | :--- |
-| **Nihal** | Frontend & UI/UX Developer | Authentication UI component (`LoginForm.tsx`), client validation, responsive design, brand styling & core project documentation | `src/components/auth`, `frontend/components/auth`, `README.md` |
+| **Nihal** | Frontend & UI/UX Developer | Authentication UI suite (`LoginForm`, `RegisterForm`, `ForgotPasswordForm`), Customer Self-Service Portal (`CustomerPortal`), Admin Staff Provisioning (`AddStaffModal`), App Router routes, and core project documentation | `src/components/auth`, `src/components/portal`, `src/components/admin`, `src/app/{login,register,forgot-password,portal}`, `README.md` |
 | **Moosa** | Frontend Lead & Architect | Executive dashboard layout, navigation sidebar, top navbar, metric cards, and frontend build setup | `src/components/dashboard`, `src/app` |
 | **Hrithu** | Backend Developer | FastAPI application setup, CORS middleware, health endpoints, Pydantic schemas, and error handlers | `backend/app/` |
 | **Rishy** | Database Engineer | PostgreSQL integration, SQLAlchemy 2.0 ORM models (`Customer`, `Product`, `Subscription`), and test verification suite | `database/`, `test_database.py` |
