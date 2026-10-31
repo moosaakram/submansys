@@ -161,13 +161,16 @@ export const CustomerPortal: React.FC = () => {
               <span>Admin Console</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </Link>
-            <Link
-              href="/login"
-              className="p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+            <button
+              type="button"
+              onClick={() => {
+                window.location.href = '/login';
+              }}
+              className="p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />
-            </Link>
+            </button>
           </div>
         </div>
       </header>

@@ -305,18 +305,29 @@ body {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  overflow-y: auto;
 }
 
 .modal-panel {
   background: #ffffff;
-  border-radius: 20px;
+  border-radius: 24px;
   border: 1px solid rgba(226, 232, 240, 0.90);
-  box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.25);
-  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 1.75rem;
+  width: 100%;
+  margin: auto;
+  position: relative;
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+  text-align: left;
 }
 
 /* Semantic Status Badges */

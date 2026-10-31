@@ -92,7 +92,10 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
 
   // Trigger post-login departure transition only upon successful authentication
   useEffect(() => {
-    if (!isTransitioningOut) return;
+    if (!isTransitioningOut) {
+      setDeparturePhase('idle');
+      return;
+    }
 
     if (shouldReduceMotion) {
       if (onPostLoginComplete) onPostLoginComplete();
@@ -130,6 +133,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
       clearTimeout(d2);
       clearTimeout(d3);
       clearTimeout(d4);
+      setDeparturePhase('idle');
     };
   }, [isTransitioningOut, shouldReduceMotion, onPostLoginComplete]);
 

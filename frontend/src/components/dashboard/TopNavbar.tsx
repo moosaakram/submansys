@@ -295,14 +295,17 @@ export default function TopNavbar({
               </div>
 
               <div className="pt-1 border-t border-white/[0.08]">
-                <Link
-                  href="/login"
-                  onClick={() => setShowProfileMenu(false)}
-                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition-colors"
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowProfileMenu(false);
+                    window.location.href = '/login';
+                  }}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
                 >
                   <LogOut className="h-4 w-4 text-rose-400" />
-                  <span>Switch Account / Sign In</span>
-                </Link>
+                  <span>Sign Out / Switch Account</span>
+                </button>
               </div>
             </div>
           )}

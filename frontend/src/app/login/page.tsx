@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AuthLayout from '@/components/auth/AuthLayout';
 import LoginForm from '@/components/auth/LoginForm';
@@ -10,6 +10,11 @@ export default function LoginPage() {
   const [isTransitioningOut, setIsTransitioningOut] = useState(false);
   const [transitionUser, setTransitionUser] = useState('Administrator');
   const [targetDestination, setTargetDestination] = useState('/');
+
+  // Reset departure state whenever login page is mounted/rendered
+  useEffect(() => {
+    setIsTransitioningOut(false);
+  }, []);
 
   const handleLoginSuccess = (data: { email: string; rememberMe: boolean; userName?: string }) => {
     if (data.userName) {
@@ -29,6 +34,7 @@ export default function LoginPage() {
       isTransitioningOut={isTransitioningOut}
       transitionUserName={transitionUser}
       onPostLoginComplete={() => {
+        setIsTransitioningOut(false);
         router.push(targetDestination);
       }}
     >
